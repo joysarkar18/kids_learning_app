@@ -1,0 +1,20 @@
+{
+  "chooseLanguage": "Choose Your Language",
+  "selectPreferred": "Select your preferred language",
+  "english": "English",
+  "bengali": "বাংলা (Bengali)",
+  "letsGo": "LET'S GO!",
+  "chooseYourFriend": "Choose Your Friend",
+  "pickFavorite": "Pick your favorite character!",
+  "chintu": "Chintu",
+  "gauri": "Gauri",
+  "moti": "Moti",
+  "gudiya": "Gudiya",
+  "gajraj": "Gajraj",
+  "chiku": "Chiku",
+  "somethingWentWrong": "Something went wrong!",
+  "success": "Success",
+  "error": "Error",
+  "warning": "Warning",
+  "info": "Info"
+}
