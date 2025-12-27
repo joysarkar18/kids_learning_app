@@ -61,4 +61,13 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get info => 'তথ্য';
+
+  @override
+  String get goodMorning => 'গুড মর্নিং';
+
+  @override
+  String get goodAfternoon => 'গুড আফটারনুন';
+
+  @override
+  String get goodEvening => 'গুড ইভনিং';
 }

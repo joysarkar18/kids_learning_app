@@ -122,12 +122,36 @@ class Assets {
   /// assets/images/char_rabbit.png
   static const String imagesCharRabbit = "assets/images/char_rabbit.png";
 
-  /// Assets for imagesGajrajPop
-  /// assets/images/gajraj_pop.png
-  static const String imagesGajrajPop = "assets/images/gajraj_pop.png";
+  /// Assets for imagesChikuMenu
+  /// assets/images/chiku_menu.png
+  static const String imagesChikuMenu = "assets/images/chiku_menu.png";
+
+  /// Assets for imagesChintuMenu
+  /// assets/images/chintu_menu.png
+  static const String imagesChintuMenu = "assets/images/chintu_menu.png";
+
+  /// Assets for imagesGajrajMenu
+  /// assets/images/gajraj_menu.png
+  static const String imagesGajrajMenu = "assets/images/gajraj_menu.png";
+
+  /// Assets for imagesGauriMenu
+  /// assets/images/gauri_menu.png
+  static const String imagesGauriMenu = "assets/images/gauri_menu.png";
+
+  /// Assets for imagesGudiyaMenu
+  /// assets/images/gudiya_menu.png
+  static const String imagesGudiyaMenu = "assets/images/gudiya_menu.png";
 
   /// Assets for imagesHomeBg
   /// assets/images/home_bg.png
   static const String imagesHomeBg = "assets/images/home_bg.png";
+
+  /// Assets for imagesMotiMenu
+  /// assets/images/moti_menu.png
+  static const String imagesMotiMenu = "assets/images/moti_menu.png";
+
+  /// Assets for imagesSunMenu
+  /// assets/images/sun_menu.png
+  static const String imagesSunMenu = "assets/images/sun_menu.png";
 }
 

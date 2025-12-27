@@ -16,5 +16,8 @@
   "success": "সফল",
   "error": "ত্রুটি",
   "warning": "সতর্কতা",
-  "info": "তথ্য"
+  "info": "তথ্য",
+  "goodMorning": "গুড মর্নিং",
+  "goodAfternoon": "গুড আফটারনুন",
+  "goodEvening": "গুড ইভনিং"
 }

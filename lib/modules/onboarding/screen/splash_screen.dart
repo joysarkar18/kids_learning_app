@@ -82,17 +82,34 @@ class _SplashScreenState extends State<SplashScreen>
     super.dispose();
   }
 
-  Future<void> _checkLanguageAndNavigate() async {
-    // 2. FIXED TYPO: Changed 1202 seconds to 3 seconds for realistic testing
-    await Future.delayed(const Duration(seconds: 3));
+  // In your _SplashScreenState, replace the _checkLanguageAndNavigate method:
 
-    final needsLanguage = await RouteGuard.needsLanguageSelection();
+  Future<void> _checkLanguageAndNavigate() async {
+    await Future.delayed(const Duration(seconds: 3));
 
     if (!mounted) return;
 
+    // Check if language is selected
+    final needsLanguage = await RouteGuard.needsLanguageSelection();
+
     if (needsLanguage) {
-      context.goNamed(Names.language);
+      // Language not selected - go to language selection
+      if (mounted) {
+        context.goNamed(Names.language);
+      }
+      return;
+    }
+
+    // Language is selected - check if friend is selected
+    final hasFriend = await RouteGuard.hasFriendSelected();
+
+    if (!mounted) return;
+
+    if (hasFriend) {
+      // Friend already selected - go directly to home
+      context.goNamed(Names.home);
     } else {
+      // Friend not selected - go to onboarding
       context.goNamed(Names.onboarding);
     }
   }

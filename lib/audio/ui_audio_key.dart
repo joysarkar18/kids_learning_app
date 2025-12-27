@@ -1,4 +1,5 @@
 enum UiAudioKey {
+  yay_sound,
   button_press,
   bg_audio2,
   bg_audio3,
