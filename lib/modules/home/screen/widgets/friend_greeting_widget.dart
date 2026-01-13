@@ -122,11 +122,11 @@ class _FriendGreetingWidgetState extends State<FriendGreetingWidget>
     final hour = now.hour;
 
     if (hour >= 5 && hour < 12) {
-      return l10n.goodMorning ?? 'Good Morning';
+      return l10n.goodMorning;
     } else if (hour >= 12 && hour < 17) {
-      return l10n.goodAfternoon ?? 'Good Afternoon';
+      return l10n.goodAfternoon;
     } else {
-      return l10n.goodEvening ?? 'Good Evening';
+      return l10n.goodEvening;
     }
   }
 
@@ -206,6 +206,7 @@ class _FriendGreetingWidgetState extends State<FriendGreetingWidget>
     await _scaleController.reverse();
 
     AudioPlayerService.instance.playLocalized(
+      // ignore: use_build_context_synchronously
       context: context,
       key: _getGreetingAudioKey(selectedFriendKey, timePeriod),
     );

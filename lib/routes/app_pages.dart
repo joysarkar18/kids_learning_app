@@ -1,5 +1,9 @@
+import 'package:kids_learning/modules/alphabate/screen/alphabate_view.dart';
+import 'package:kids_learning/modules/alphabate/screen/alphabate_wrapper.dart';
+import 'package:kids_learning/modules/bornomala/screen/bornomala_view.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:kids_learning/modules/bornomala/screen/bornomala_wrapper.dart';
 import 'package:kids_learning/modules/onboarding/screen/language_selection_screen.dart';
 import 'package:kids_learning/modules/onboarding/screen/onboarding_view.dart';
 import 'package:kids_learning/routes/app_routes.dart';
@@ -20,6 +24,18 @@ final router = GoRouter(
   initialLocation: Routes.init, // Start at Splash
   navigatorKey: GlobalNavigation.instance.navigatorKey,
   routes: [
+    GoRoute(
+      name: Names.alphabate,
+      path: Routes.alphabate,
+      builder: (context, state) => const AlphabetScreenWrapper(),
+    ),
+
+    GoRoute(
+      name: Names.bornomala,
+      path: Routes.bornomala,
+      builder: (context, state) => const BornomalaScreenWrapper(),
+    ),
+
     // 1. Splash Screen (Entry Point)
     GoRoute(
       name: Names.init,

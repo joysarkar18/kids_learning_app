@@ -33,17 +33,48 @@ class MyApp extends StatefulWidget {
       context.findAncestorStateOfType<MyAppState>()!;
 }
 
-class MyAppState extends State<MyApp> {
+class MyAppState extends State<MyApp> with WidgetsBindingObserver {
   late Locale _locale;
 
   @override
   void initState() {
     super.initState();
 
-    // Set initial locale from saved preference or default to English
+    WidgetsBinding.instance.addObserver(this);
+
     _locale = widget.initialLocale != null
         ? Locale(widget.initialLocale!)
         : const Locale('en');
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    switch (state) {
+      case AppLifecycleState.paused:
+      case AppLifecycleState.inactive:
+        // App goes to background
+        AudioService().pause();
+        break;
+
+      case AppLifecycleState.resumed:
+        // App comes back to foreground
+        AudioService().resume();
+        break;
+
+      case AppLifecycleState.detached:
+        AudioService().stop();
+        break;
+      case AppLifecycleState.hidden:
+        // iOS only: App is not visible
+        AudioService().pause();
+        break;
+    }
   }
 
   void setLocale(Locale locale) {
@@ -68,7 +99,6 @@ class MyAppState extends State<MyApp> {
             primary: AppColors.primary1,
           ),
         ),
-        // Localization support
         locale: _locale,
         localizationsDelegates: const [
           AppLocalizations.delegate,
@@ -76,13 +106,9 @@ class MyAppState extends State<MyApp> {
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
-        supportedLocales: const [
-          Locale('en'), // English
-          Locale('bn'), // Bengali
-        ],
+        supportedLocales: const [Locale('en'), Locale('bn')],
         routerConfig: router,
         builder: (context, child) {
-          // Initialize SnackbarService with context here
           SnackbarService.initialize(context);
 
           return MultiBlocProvider(

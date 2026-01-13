@@ -48,6 +48,11 @@ dependencies:
   intl: ^0.20.2
   lottie: ^3.3.2
   awesome_snackbar_content: ^0.1.8
+  speech_to_text: ^7.3.0
+  permission_handler: ^12.0.1
+  confetti: ^0.8.0
+  scribble: ^0.10.0+1
+  font_awesome_flutter: ^10.12.0
 
 dev_dependencies:
   flutter_test:
@@ -76,11 +81,16 @@ flutter:
   assets:
     - assets/animations/
     - assets/images/
+    - assets/bengali_images/
+    - assets/english_images/
     - assets/icons/
     - assets/audios/en/
     - assets/audios/bn/
     - assets/audios/hi/
     - assets/audios/ui/
+    - assets/audios/bengali_audio/
+    - assets/audios/english_audio/
+
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
@@ -114,7 +124,10 @@ flutter_assets:
     - assets/icons/
     - assets/animations/
     - assets/images/
-    - assets/audios/
+    - assets/audios/bn/
+    - assets/audios/en/
+    - assets/audios/hi/
+    - assets/audios/ui/
   output_path: lib/utils/
   filename: assets.dart
   field_prefix:
