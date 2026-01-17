@@ -189,8 +189,9 @@ class _ChalkBoardScreenState extends State<ChalkBoardScreen>
     int totalUserPointsToCheck = 0;
     int badOutsidePoints = 0;
 
-    // Use a forgiving hit radius since 'আ' is complex
-    const double hitRadius = 35.0;
+    // 1. TIGHTER RADIUS: Reduced from 35.0 to 25.0
+    // This forces the user to be more accurate to the line.
+    const double hitRadius = 25.0;
     const double hitRadiusSq = hitRadius * hitRadius;
 
     List<Offset> userPoints = [];
@@ -214,8 +215,9 @@ class _ChalkBoardScreenState extends State<ChalkBoardScreen>
     }
 
     double messinessRatio = badOutsidePoints / totalUserPointsToCheck;
-    // Allow 40% messiness for complex letters
-    if (messinessRatio > 0.4) {
+
+    // 2. STRICTER MESSINESS: Reduced from 0.4 (40%) to 0.3 (30%)
+    if (messinessRatio > 0.3) {
       debugPrint("Too messy! Outside ratio: $messinessRatio");
       return;
     }
@@ -224,6 +226,7 @@ class _ChalkBoardScreenState extends State<ChalkBoardScreen>
       final globalTarget = targetPoint + _letterGlobalPosition;
       bool isHit = false;
 
+      // Check if ANY user point is close enough to this target point
       for (final uPoint in userPoints) {
         final dx = uPoint.dx - globalTarget.dx;
         final dy = uPoint.dy - globalTarget.dy;
@@ -238,7 +241,8 @@ class _ChalkBoardScreenState extends State<ChalkBoardScreen>
     final double coverage = validPointsHit / _perfectShapePoints.length;
     debugPrint("Coverage: ${(coverage * 100).toStringAsFixed(1)}%");
 
-    if (coverage > 0.8) {
+    // 3. HIGHER THRESHOLD: Increased from 0.8 (80%) to 0.85 (85%)
+    if (coverage > 0.85) {
       _triggerSuccess();
     }
   }

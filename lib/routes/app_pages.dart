@@ -1,3 +1,4 @@
+import 'package:kids_learning/modules/drawing/screen/drawing_view.dart';
 import 'package:kids_learning/modules/alphabate/screen/alphabate_view.dart';
 import 'package:kids_learning/modules/alphabate/screen/alphabate_wrapper.dart';
 import 'package:kids_learning/modules/bornomala/screen/bornomala_view.dart';
@@ -24,6 +25,12 @@ final router = GoRouter(
   initialLocation: Routes.init, // Start at Splash
   navigatorKey: GlobalNavigation.instance.navigatorKey,
   routes: [
+    GoRoute(
+      name: Names.drawing,
+      path: Routes.drawing,
+      builder: (context, state) => const DrawingScreen(),
+    ),
+
     GoRoute(
       name: Names.alphabate,
       path: Routes.alphabate,

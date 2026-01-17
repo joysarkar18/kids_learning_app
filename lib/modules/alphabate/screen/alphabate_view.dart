@@ -114,7 +114,8 @@ class _AlphabetScreenState extends State<AlphabetScreen> {
                             child: Image.asset(
                               "assets/english_images/${state.currentAlphabet}.png",
                               key: ValueKey(state.currentAlphabet),
-                              width: 0.8.sw,
+
+                              width: 0.86.sw,
                             ),
                           );
                         },

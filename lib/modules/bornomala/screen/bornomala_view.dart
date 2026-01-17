@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kids_learning/modules/bornomala/screen/writing_screen.dart';
 import 'package:kids_learning/services/audio_service.dart';
+import 'package:kids_learning/services/logger_service.dart';
 
 // Imports for your project structure
 import '../bloc/bornomala_bloc.dart';
@@ -87,6 +88,9 @@ class _BornomalaScreenState extends State<BornomalaScreen> {
           }
         },
         builder: (context, state) {
+          LoggerService.logInfo(
+            "assets/bengali_images/${state.currentAlphabet}.png",
+          );
           return Scaffold(
             body: SizedBox(
               height: 1.sh,
@@ -128,7 +132,7 @@ class _BornomalaScreenState extends State<BornomalaScreen> {
                             child: Image.asset(
                               "assets/bengali_images/${state.currentAlphabet}.png",
                               key: ValueKey(state.currentAlphabet),
-                              width: 0.8.sw,
+                              width: 0.86.sw,
                             ),
                           );
                         },

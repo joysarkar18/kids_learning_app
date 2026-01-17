@@ -1,4 +1,5 @@
 abstract class Routes {
+  static const drawing = _Paths.drawing;
   static const alphabate = _Paths.alphabate;
   static const bornomala = _Paths.bornomala;
   static const init = _Paths.init;
@@ -10,6 +11,7 @@ abstract class Routes {
 }
 
 abstract class _Paths {
+  static const drawing = '/drawing';
   static const alphabate = '/alphabate';
   static const bornomala = '/bornomala';
   static const init = "/";
@@ -20,6 +22,7 @@ abstract class _Paths {
 }
 
 abstract class Names {
+  static const drawing = _Names.drawing;
   static const alphabate = _Names.alphabate;
   static const bornomala = _Names.bornomala;
   static const init = _Names.init;
@@ -30,6 +33,7 @@ abstract class Names {
 }
 
 abstract class _Names {
+  static const drawing = 'drawing';
   static const alphabate = 'alphabate';
   static const bornomala = 'bornomala';
   static const init = 'init';
