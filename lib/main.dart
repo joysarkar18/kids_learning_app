@@ -1,11 +1,14 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:kids_learning/firebase_options.dart';
 import 'package:kids_learning/l10n/app_localizations.dart';
 import 'package:kids_learning/modules/onboarding/bloc/onboarding_bloc.dart';
 import 'package:kids_learning/routes/app_pages.dart';
 import 'package:kids_learning/services/audio_service.dart';
 import 'package:kids_learning/services/locale_service.dart';
+import 'package:kids_learning/services/remote_config_service.dart';
 import 'package:kids_learning/services/snackbar_service.dart';
 import 'package:kids_learning/utils/themes/app_colors.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -14,10 +17,10 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await AudioService().init();
-
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   // Load saved language preference
   final savedLanguage = await LocaleService.getSavedLanguagePreference();
-
+  await RemoteConfigService().initialize();
   runApp(MyApp(initialLocale: savedLanguage));
 }
 

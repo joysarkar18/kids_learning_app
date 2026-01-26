@@ -61,8 +61,9 @@ class HomeScreen extends StatelessWidget {
                         GamingImageButton(
                           imagePath: Assets.imagesGkIcon,
                           width: 0.3.sw,
-
-                          onPressed: () {},
+                          onPressed: () {
+                            context.pushNamed(Names.sothikUttor);
+                          },
                         ),
                       ],
                     ),

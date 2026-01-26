@@ -6,3 +6,13 @@ sealed class DrawingEvent extends Equatable {
   @override
   List<Object> get props => [];
 }
+
+/// Load initial random image
+class LoadRandomImage extends DrawingEvent {
+  const LoadRandomImage();
+}
+
+/// Load next random image
+class LoadNextImage extends DrawingEvent {
+  const LoadNextImage();
+}

@@ -226,6 +226,10 @@ class Assets {
   /// assets/audios/ui/button_press.wav
   static const String audiosUiButtonPress = "assets/audios/ui/button_press.wav";
 
+  /// Assets for audiosUiImageFill
+  /// assets/audios/ui/image_fill.wav
+  static const String audiosUiImageFill = "assets/audios/ui/image_fill.wav";
+
   /// Assets for audiosUiNoSound
   /// assets/audios/ui/no_sound.mp3
   static const String audiosUiNoSound = "assets/audios/ui/no_sound.mp3";
@@ -249,6 +253,10 @@ class Assets {
   /// Assets for imagesArrowRight
   /// assets/images/arrow_right.png
   static const String imagesArrowRight = "assets/images/arrow_right.png";
+
+  /// Assets for imagesBegun
+  /// assets/images/begun.png
+  static const String imagesBegun = "assets/images/begun.png";
 
   /// Assets for imagesBengaliIcon
   /// assets/images/bengali_icon.png
@@ -330,6 +338,18 @@ class Assets {
   /// assets/images/gauri_menu.png
   static const String imagesGauriMenu = "assets/images/gauri_menu.png";
 
+  /// Assets for imagesGkBg
+  /// assets/images/gk_bg.png
+  static const String imagesGkBg = "assets/images/gk_bg.png";
+
+  /// Assets for imagesGkBg2
+  /// assets/images/gk_bg2.png
+  static const String imagesGkBg2 = "assets/images/gk_bg2.png";
+
+  /// Assets for imagesGkBg3
+  /// assets/images/gk_bg3.png
+  static const String imagesGkBg3 = "assets/images/gk_bg3.png";
+
   /// Assets for imagesGkIcon
   /// assets/images/gk_icon.png
   static const String imagesGkIcon = "assets/images/gk_icon.png";
@@ -341,6 +361,14 @@ class Assets {
   /// Assets for imagesHomeBg
   /// assets/images/home_bg.png
   static const String imagesHomeBg = "assets/images/home_bg.png";
+
+  /// Assets for imagesImageFrame
+  /// assets/images/image_frame.png
+  static const String imagesImageFrame = "assets/images/image_frame.png";
+
+  /// Assets for imagesLionImage
+  /// assets/images/lion_image.png
+  static const String imagesLionImage = "assets/images/lion_image.png";
 
   /// Assets for imagesMathIcon
   /// assets/images/math_icon.png
