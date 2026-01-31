@@ -254,6 +254,14 @@ class Assets {
   /// assets/images/arrow_right.png
   static const String imagesArrowRight = "assets/images/arrow_right.png";
 
+  /// Assets for imagesBanglaSonkha
+  /// assets/images/bangla_sonkha.png
+  static const String imagesBanglaSonkha = "assets/images/bangla_sonkha.png";
+
+  /// Assets for imagesBanglaSonkhaBg
+  /// assets/images/bangla_sonkha_bg.png
+  static const String imagesBanglaSonkhaBg = "assets/images/bangla_sonkha_bg.png";
+
   /// Assets for imagesBegun
   /// assets/images/begun.png
   static const String imagesBegun = "assets/images/begun.png";
@@ -298,6 +306,10 @@ class Assets {
   /// assets/images/char_rabbit.png
   static const String imagesCharRabbit = "assets/images/char_rabbit.png";
 
+  /// Assets for imagesChikuBlackBoard
+  /// assets/images/chiku_black_board.png
+  static const String imagesChikuBlackBoard = "assets/images/chiku_black_board.png";
+
   /// Assets for imagesChikuMenu
   /// assets/images/chiku_menu.png
   static const String imagesChikuMenu = "assets/images/chiku_menu.png";
@@ -310,6 +322,10 @@ class Assets {
   /// assets/images/chora_icon.png
   static const String imagesChoraIcon = "assets/images/chora_icon.png";
 
+  /// Assets for imagesCowBoard
+  /// assets/images/cow_board.png
+  static const String imagesCowBoard = "assets/images/cow_board.png";
+
   /// Assets for imagesCrossIcon
   /// assets/images/cross_icon.png
   static const String imagesCrossIcon = "assets/images/cross_icon.png";
@@ -318,17 +334,37 @@ class Assets {
   /// assets/images/delete_icon.png
   static const String imagesDeleteIcon = "assets/images/delete_icon.png";
 
+  /// Assets for imagesDogBoard
+  /// assets/images/dog_board.png
+  static const String imagesDogBoard = "assets/images/dog_board.png";
+
+  /// Assets for imagesDonkiBoard
+  /// assets/images/donki_board.png
+  static const String imagesDonkiBoard = "assets/images/donki_board.png";
+
   /// Assets for imagesDrawingIcon
   /// assets/images/drawing_icon.png
   static const String imagesDrawingIcon = "assets/images/drawing_icon.png";
+
+  /// Assets for imagesElephantBoard
+  /// assets/images/elephant_board.png
+  static const String imagesElephantBoard = "assets/images/elephant_board.png";
 
   /// Assets for imagesEnglishIcon
   /// assets/images/english_icon.png
   static const String imagesEnglishIcon = "assets/images/english_icon.png";
 
+  /// Assets for imagesEngrejiSonkha
+  /// assets/images/engreji_sonkha.png
+  static const String imagesEngrejiSonkha = "assets/images/engreji_sonkha.png";
+
   /// Assets for imagesEreaseIcon
   /// assets/images/erease_icon.png
   static const String imagesEreaseIcon = "assets/images/erease_icon.png";
+
+  /// Assets for imagesFoxBoard
+  /// assets/images/fox_board.png
+  static const String imagesFoxBoard = "assets/images/fox_board.png";
 
   /// Assets for imagesGajrajMenu
   /// assets/images/gajraj_menu.png
@@ -353,6 +389,10 @@ class Assets {
   /// Assets for imagesGkIcon
   /// assets/images/gk_icon.png
   static const String imagesGkIcon = "assets/images/gk_icon.png";
+
+  /// Assets for imagesGonit
+  /// assets/images/gonit.png
+  static const String imagesGonit = "assets/images/gonit.png";
 
   /// Assets for imagesGudiyaMenu
   /// assets/images/gudiya_menu.png
@@ -382,6 +422,10 @@ class Assets {
   /// assets/images/moti_menu.png
   static const String imagesMotiMenu = "assets/images/moti_menu.png";
 
+  /// Assets for imagesOwlBoard
+  /// assets/images/owl_board.png
+  static const String imagesOwlBoard = "assets/images/owl_board.png";
+
   /// Assets for imagesRetryButton
   /// assets/images/retry_button.png
   static const String imagesRetryButton = "assets/images/retry_button.png";
@@ -389,6 +433,10 @@ class Assets {
   /// Assets for imagesSlateBg
   /// assets/images/slate_bg.png
   static const String imagesSlateBg = "assets/images/slate_bg.png";
+
+  /// Assets for imagesSonkhaBg
+  /// assets/images/sonkha_bg.png
+  static const String imagesSonkhaBg = "assets/images/sonkha_bg.png";
 
   /// Assets for imagesSunMenu
   /// assets/images/sun_menu.png

@@ -74,12 +74,45 @@ class HomeScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         GamingImageButton(
-                          imagePath: Assets.imagesMathIcon,
+                          imagePath: Assets.imagesBanglaSonkha,
                           width: 0.3.sw,
-                          onPressed: () {},
+                          onPressed: () {
+                            context.pushNamed(Names.banglaSonkha);
+                          },
                         ),
+
                         GamingImageButton(
                           imagePath: Assets.imagesChoraIcon,
+                          width: 0.3.sw,
+                          onPressed: () {
+                            context.pushNamed(Names.englishSonkha);
+                          },
+                        ),
+                        GamingImageButton(
+                          imagePath: Assets.imagesDrawingIcon,
+                          width: 0.3.sw,
+                          onPressed: () {
+                            context.pushNamed(Names.drawing);
+                          },
+                        ),
+                      ],
+                    ),
+
+                    SizedBox(height: 30.h),
+
+                    // Second row: Math, Chora, Drawing
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        GamingImageButton(
+                          imagePath: Assets.imagesEngrejiSonkha,
+                          width: 0.3.sw,
+                          onPressed: () {
+                            context.pushNamed(Names.englishSonkha);
+                          },
+                        ),
+                        GamingImageButton(
+                          imagePath: Assets.imagesGonit,
                           width: 0.3.sw,
                           onPressed: () {},
                         ),

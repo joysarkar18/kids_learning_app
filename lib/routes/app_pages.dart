@@ -5,6 +5,8 @@ import 'package:kids_learning/modules/bornomala/screen/bornomala_view.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kids_learning/modules/bornomala/screen/bornomala_wrapper.dart';
+import 'package:kids_learning/modules/bangla_sonkha/screen/bangla_sonkha_wrapper.dart';
+import 'package:kids_learning/modules/english_sonkha/screen/english_sonkha_wrapper.dart';
 import 'package:kids_learning/modules/sothik_uttor/screen/sothik_uttor_wrapper.dart';
 import 'package:kids_learning/modules/onboarding/screen/language_selection_screen.dart';
 import 'package:kids_learning/modules/onboarding/screen/onboarding_view.dart';
@@ -48,6 +50,18 @@ final router = GoRouter(
       name: Names.sothikUttor,
       path: Routes.sothikUttor,
       builder: (context, state) => const SothikUttorScreenWrapper(),
+    ),
+
+    GoRoute(
+      name: Names.banglaSonkha,
+      path: Routes.banglaSonkha,
+      builder: (context, state) => const BanglaSonkhaScreenWrapper(),
+    ),
+
+    GoRoute(
+      name: Names.englishSonkha,
+      path: Routes.englishSonkha,
+      builder: (context, state) => const EnglishSonkhaScreenWrapper(),
     ),
 
     // 1. Splash Screen (Entry Point)
