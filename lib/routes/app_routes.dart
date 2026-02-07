@@ -5,6 +5,8 @@ abstract class Routes {
   static const sothikUttor = _Paths.sothikUttor;
   static const banglaSonkha = _Paths.banglaSonkha;
   static const englishSonkha = _Paths.englishSonkha;
+  static const chora = _Paths.chora;
+  static const choraPlayer = _Paths.choraPlayer;
   static const init = _Paths.init;
   static const language = _Paths.language; // Added
   static const onboarding = _Paths.onboarding; // Maps to Character Selector
@@ -20,6 +22,8 @@ abstract class _Paths {
   static const sothikUttor = '/sothik-uttor';
   static const banglaSonkha = '/bangla-sonkha';
   static const englishSonkha = '/english-sonkha';
+  static const chora = '/chora';
+  static const choraPlayer = '/chora-player';
   static const init = "/";
   static const language = '/language-selector'; // Added
   static const onboarding = '/onboarding';
@@ -34,6 +38,8 @@ abstract class Names {
   static const sothikUttor = _Names.sothikUttor;
   static const banglaSonkha = _Names.banglaSonkha;
   static const englishSonkha = _Names.englishSonkha;
+  static const chora = _Names.chora;
+  static const choraPlayer = _Names.choraPlayer;
   static const init = _Names.init;
   static const language = _Names.language; // Added
   static const onboarding = _Names.onboarding;
@@ -48,6 +54,8 @@ abstract class _Names {
   static const sothikUttor = 'sothikUttor';
   static const banglaSonkha = 'banglaSonkha';
   static const englishSonkha = 'englishSonkha';
+  static const chora = 'chora';
+  static const choraPlayer = 'choraPlayer';
   static const init = 'init';
   static const language = 'language'; // Added
   static const onboarding = 'onboarding';

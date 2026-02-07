@@ -85,7 +85,7 @@ class HomeScreen extends StatelessWidget {
                           imagePath: Assets.imagesChoraIcon,
                           width: 0.3.sw,
                           onPressed: () {
-                            context.pushNamed(Names.englishSonkha);
+                            context.pushNamed(Names.chora);
                           },
                         ),
                         GamingImageButton(

@@ -6,6 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kids_learning/modules/bornomala/screen/bornomala_wrapper.dart';
 import 'package:kids_learning/modules/bangla_sonkha/screen/bangla_sonkha_wrapper.dart';
+import 'package:kids_learning/modules/chora/data/models/chora_model.dart';
+import 'package:kids_learning/modules/chora/screen/chora_player_view.dart';
+import 'package:kids_learning/modules/chora/screen/chora_wrapper.dart';
 import 'package:kids_learning/modules/english_sonkha/screen/english_sonkha_wrapper.dart';
 import 'package:kids_learning/modules/sothik_uttor/screen/sothik_uttor_wrapper.dart';
 import 'package:kids_learning/modules/onboarding/screen/language_selection_screen.dart';
@@ -32,6 +35,24 @@ final router = GoRouter(
       name: Names.drawing,
       path: Routes.drawing,
       builder: (context, state) => const DrawingScreen(),
+    ),
+
+    GoRoute(
+      name: Names.chora,
+      path: Routes.chora,
+      builder: (context, state) => const ChoraScreenWrapper(),
+    ),
+
+    GoRoute(
+      name: Names.choraPlayer,
+      path: Routes.choraPlayer,
+      builder: (context, state) {
+        final data = state.extra as Map<String, dynamic>;
+        return ChoraPlayerScreen(
+          choras: data['choras'] as List<ChoraModel>,
+          initialIndex: data['index'] as int,
+        );
+      },
     ),
 
     GoRoute(

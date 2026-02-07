@@ -21,6 +21,7 @@ void main() async {
   // Load saved language preference
   final savedLanguage = await LocaleService.getSavedLanguagePreference();
   await RemoteConfigService().initialize();
+  // await ChoraSeeder.seed();
   runApp(MyApp(initialLocale: savedLanguage));
 }
 
