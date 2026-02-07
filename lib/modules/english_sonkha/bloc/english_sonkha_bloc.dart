@@ -140,6 +140,7 @@ class EnglishSonkhaBloc extends Bloc<EnglishSonkhaEvent, EnglishSonkhaState> {
     debugPrint("[EnglishSonkhaBloc] Starting speech listen with locale: bn_IN");
     await _speech.listen(
       localeId: 'bn_IN',
+
       listenMode: stt.ListenMode.dictation,
       partialResults: true,
       onResult: (result) {
