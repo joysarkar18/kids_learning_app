@@ -318,6 +318,14 @@ class Assets {
   /// assets/images/chintu_menu.png
   static const String imagesChintuMenu = "assets/images/chintu_menu.png";
 
+  /// Assets for imagesChoraBg
+  /// assets/images/chora_bg.png
+  static const String imagesChoraBg = "assets/images/chora_bg.png";
+
+  /// Assets for imagesChoraFrame
+  /// assets/images/chora_frame.png
+  static const String imagesChoraFrame = "assets/images/chora_frame.png";
+
   /// Assets for imagesChoraIcon
   /// assets/images/chora_icon.png
   static const String imagesChoraIcon = "assets/images/chora_icon.png";
@@ -421,6 +429,10 @@ class Assets {
   /// Assets for imagesMotiMenu
   /// assets/images/moti_menu.png
   static const String imagesMotiMenu = "assets/images/moti_menu.png";
+
+  /// Assets for imagesNamota
+  /// assets/images/namota.png
+  static const String imagesNamota = "assets/images/namota.png";
 
   /// Assets for imagesOwlBoard
   /// assets/images/owl_board.png

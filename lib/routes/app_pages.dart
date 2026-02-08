@@ -47,7 +47,10 @@ final router = GoRouter(
       name: Names.choraPlayer,
       path: Routes.choraPlayer,
       builder: (context, state) {
-        final data = state.extra as Map<String, dynamic>;
+        final data = state.extra as Map<String, dynamic>?;
+        if (data == null) {
+          return const ChoraScreenWrapper();
+        }
         return ChoraPlayerScreen(
           choras: data['choras'] as List<ChoraModel>,
           initialIndex: data['index'] as int,

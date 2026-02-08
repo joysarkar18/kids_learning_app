@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:kids_learning/modules/bornomala/screen/writing_screen.dart';
 import 'package:kids_learning/modules/home/screen/widgets/friend_greeting_widget.dart';
 import 'package:kids_learning/modules/home/screen/widgets/sun_menu_widget.dart';
 import 'package:kids_learning/routes/app_routes.dart';
@@ -117,7 +116,7 @@ class HomeScreen extends StatelessWidget {
                           onPressed: () {},
                         ),
                         GamingImageButton(
-                          imagePath: Assets.imagesDrawingIcon,
+                          imagePath: Assets.imagesNamota,
                           width: 0.3.sw,
                           onPressed: () {
                             context.pushNamed(Names.drawing);

@@ -23,15 +23,26 @@ class ChoraListScreen extends StatefulWidget {
 }
 
 class _ChoraListScreenState extends State<ChoraListScreen> {
+  final ScrollController _scrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
     AudioService().pause();
     context.read<ChoraBloc>().add(ChoraInit());
+    _scrollController.addListener(_onScroll);
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
+      context.read<ChoraBloc>().add(ChoraLoadMore());
+    }
   }
 
   @override
   void dispose() {
+    _scrollController.dispose();
     AudioService().resume();
     super.dispose();
   }
@@ -48,7 +59,7 @@ class _ChoraListScreenState extends State<ChoraListScreen> {
             children: [
               // Background
               Image.asset(
-                Assets.imagesGkBg,
+                Assets.imagesChoraBg,
                 fit: BoxFit.cover,
                 height: 1.sh,
                 width: 1.sw,
@@ -58,26 +69,9 @@ class _ChoraListScreenState extends State<ChoraListScreen> {
               SafeArea(
                 child: Column(
                   children: [
-                    SizedBox(height: 10.h),
+                    SizedBox(height: .17.sh),
 
                     // Title
-                    Text(
-                      'ছড়া',
-                      style: GoogleFonts.hindSiliguri(
-                        fontSize: 32.sp,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        shadows: [
-                          Shadow(
-                            color: Colors.black.withValues(alpha: 0.3),
-                            blurRadius: 8,
-                            offset: const Offset(2, 2),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    SizedBox(height: 10.h),
 
                     // Grid content
                     Expanded(
@@ -112,9 +106,9 @@ class _ChoraListScreenState extends State<ChoraListScreen> {
                                   SizedBox(height: 20.h),
                                   ElevatedButton(
                                     onPressed: () {
-                                      context
-                                          .read<ChoraBloc>()
-                                          .add(ChoraInit());
+                                      context.read<ChoraBloc>().add(
+                                        ChoraInit(),
+                                      );
                                     },
                                     child: const Text('আবার চেষ্টা করো'),
                                   ),
@@ -136,28 +130,39 @@ class _ChoraListScreenState extends State<ChoraListScreen> {
                           }
 
                           final choras = state.choras;
+                          final hasMore = state is ChoraLoaded && state.hasMore;
 
                           return Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 16.w),
+                            padding: EdgeInsets.symmetric(horizontal: 5.w),
                             child: GridView.builder(
+                              controller: _scrollController,
                               gridDelegate:
                                   SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2,
-                                crossAxisSpacing: 16.w,
-                                mainAxisSpacing: 16.h,
-                                childAspectRatio: 0.85,
-                              ),
-                              itemCount: choras.length,
+                                    crossAxisCount: 2,
+                                    crossAxisSpacing: 16.w,
+                                    mainAxisSpacing: 16.h,
+                                    childAspectRatio: 0.85,
+                                  ),
+                              itemCount: hasMore
+                                  ? choras.length + 2
+                                  : choras.length,
                               itemBuilder: (context, index) {
+                                if (index >= choras.length) {
+                                  return const Center(
+                                    child: Padding(
+                                      padding: EdgeInsets.all(16),
+                                      child: CircularProgressIndicator(
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  );
+                                }
                                 return _ChoraCard(
                                   chora: choras[index],
                                   onTap: () {
                                     context.pushNamed(
                                       Names.choraPlayer,
-                                      extra: {
-                                        'choras': choras,
-                                        'index': index,
-                                      },
+                                      extra: {'choras': choras, 'index': index},
                                     );
                                   },
                                 );
@@ -167,17 +172,18 @@ class _ChoraListScreenState extends State<ChoraListScreen> {
                         },
                       ),
                     ),
+                    SizedBox(height: 0.11.sh),
                   ],
                 ),
               ),
 
               // Close button
               Align(
-                alignment: Alignment.topLeft,
+                alignment: Alignment.bottomCenter,
                 child: Padding(
-                  padding: EdgeInsets.only(left: 10.w, top: 15.h),
+                  padding: EdgeInsets.only(left: 10.w, top: 15.h, bottom: 12),
                   child: GamingImageButton(
-                    width: 0.18.sw,
+                    width: 0.28.sw,
                     imagePath: Assets.imagesCrossIcon,
                     onPressed: () {
                       context.read<ChoraBloc>().add(ChoraStop());
@@ -204,111 +210,83 @@ class _ChoraCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20.r),
-          border: Border.all(color: Colors.white, width: 3.w),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.2),
-              blurRadius: 10,
-              offset: const Offset(0, 5),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(17.r),
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              // Thumbnail
-              CachedNetworkImage(
-                imageUrl: chora.thumbnailUrl,
-                fit: BoxFit.cover,
-                placeholder: (context, url) => Container(
-                  color: AppColors.primary1.withValues(alpha: 0.3),
-                  child: Center(
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2.w,
-                      color: AppColors.primary2,
-                    ),
-                  ),
-                ),
-                errorWidget: (context, url, error) => Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        AppColors.primary2.withValues(alpha: 0.6),
-                        AppColors.primary1.withValues(alpha: 0.6),
-                      ],
-                    ),
-                  ),
-                  child: Icon(
-                    Icons.music_note_rounded,
-                    size: 50.sp,
-                    color: Colors.white,
-                  ),
-                ),
+      child: Stack(
+        children: [
+          // Thumbnail content with padding for the frame
+          Positioned.fill(
+            child: Padding(
+              padding: EdgeInsets.only(
+                left: 12.w,
+                top: 12.h,
+                right: 12.w,
+                bottom: 18.h,
               ),
-
-              // Gradient overlay at bottom for title
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: Container(
-                  width: double.infinity,
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 10.w, vertical: 12.h),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.transparent,
-                        Colors.black.withValues(alpha: 0.75),
-                      ],
-                    ),
-                  ),
-                  child: Text(
-                    chora.title,
-                    style: GoogleFonts.hindSiliguri(
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                    ),
-                    textAlign: TextAlign.center,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ),
-
-              // Play icon overlay
-              Center(
-                child: Container(
-                  padding: EdgeInsets.all(10.w),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.85),
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.primary2.withValues(alpha: 0.3),
-                        blurRadius: 10,
-                        spreadRadius: 2,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10.r),
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    // Thumbnail
+                    CachedNetworkImage(
+                      imageUrl: chora.thumbnailUrl,
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) => Container(
+                        color: AppColors.primary1.withValues(alpha: 0.3),
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.w,
+                            color: AppColors.primary2,
+                          ),
+                        ),
                       ),
-                    ],
-                  ),
-                  child: Icon(
-                    Icons.play_arrow_rounded,
-                    size: 32.sp,
-                    color: AppColors.primary2,
-                  ),
+                      errorWidget: (context, url, error) => Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              AppColors.primary2.withValues(alpha: 0.6),
+                              AppColors.primary1.withValues(alpha: 0.6),
+                            ],
+                          ),
+                        ),
+                        child: Icon(
+                          Icons.music_note_rounded,
+                          size: 50.sp,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+
+                    // Play icon overlay
+                    Center(
+                      child: Container(
+                        width: 50.w,
+                        height: 50.w,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.9),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.play_arrow_rounded,
+                          size: 28.sp,
+                          color: AppColors.primary2,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ],
+            ),
           ),
-        ),
+
+          // Wooden frame overlay
+          Positioned.fill(
+            child: IgnorePointer(
+              child: Image.asset(Assets.imagesChoraFrame, fit: BoxFit.fill),
+            ),
+          ),
+        ],
       ),
     );
   }

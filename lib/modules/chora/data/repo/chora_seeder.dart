@@ -6,8 +6,8 @@ class ChoraSeeder {
     final collection = firestore.collection('choras');
 
     // Check if data already exists
-    final existing = await collection.limit(1).get();
-    if (existing.docs.isNotEmpty) return;
+    // final existing = await collection.limit(1).get();
+    // if (existing.docs.isNotEmpty) return; --- IGNORE ---
 
     final choras = [
       {
@@ -45,6 +45,96 @@ class ChoraSeeder {
         'thumbnail_url':
             'https://play-lh.googleusercontent.com/KLd2hnvpcSZqpM1ys5DWVepg0mETf8LYc4hKTJwkADzqwq9CxZkQyh8IMeuptPBeXWsD',
         'order': 4,
+      },
+      {
+        'title': 'খোকন খোকন ডাক পাড়ি',
+        'text':
+            'খোকন খোকন ডাক পাড়ি\nখোকন যায় বাড়ি বাড়ি\nহাতে তার মোটা লাঠি\nপায়ে তার ময়লা চটি।',
+        'youtube_url': 'https://www.youtube.com/watch?v=z1iJsPdrICY',
+        'thumbnail_url':
+            'https://play-lh.googleusercontent.com/KLd2hnvpcSZqpM1ys5DWVepg0mETf8LYc4hKTJwkADzqwq9CxZkQyh8IMeuptPBeXWsD',
+        'order': 5,
+      },
+      {
+        'title': 'ঘুম পাড়ানি মাসি পিসি',
+        'text':
+            'ঘুম পাড়ানি মাসি পিসি\nমোদের বাড়ি এসো\nখাট নাই পালং নাই\nমাটিতে শুয়ে ঘুমাও।',
+        'youtube_url': 'https://www.youtube.com/watch?v=z1iJsPdrICY',
+        'thumbnail_url':
+            'https://play-lh.googleusercontent.com/KLd2hnvpcSZqpM1ys5DWVepg0mETf8LYc4hKTJwkADzqwq9CxZkQyh8IMeuptPBeXWsD',
+        'order': 6,
+      },
+      {
+        'title': 'খোকন খোকন ডাক পাড়ি',
+        'text':
+            'খোকন খোকন ডাক পাড়ি\nখোকন যায় বাড়ি বাড়ি\nহাতে তার মোটা লাঠি\nপায়ে তার ময়লা চটি।',
+        'youtube_url': 'https://www.youtube.com/watch?v=z1iJsPdrICY',
+        'thumbnail_url':
+            'https://play-lh.googleusercontent.com/KLd2hnvpcSZqpM1ys5DWVepg0mETf8LYc4hKTJwkADzqwq9CxZkQyh8IMeuptPBeXWsD',
+        'order': 7,
+      },
+      {
+        'title': 'ঘুম পাড়ানি মাসি পিসি',
+        'text':
+            'ঘুম পাড়ানি মাসি পিসি\nমোদের বাড়ি এসো\nখাট নাই পালং নাই\nমাটিতে শুয়ে ঘুমাও।',
+        'youtube_url': 'https://www.youtube.com/watch?v=z1iJsPdrICY',
+        'thumbnail_url':
+            'https://play-lh.googleusercontent.com/KLd2hnvpcSZqpM1ys5DWVepg0mETf8LYc4hKTJwkADzqwq9CxZkQyh8IMeuptPBeXWsD',
+        'order': 8,
+      },
+      {
+        'title': 'খোকন খোকন ডাক পাড়ি',
+        'text':
+            'খোকন খোকন ডাক পাড়ি\nখোকন যায় বাড়ি বাড়ি\nহাতে তার মোটা লাঠি\nপায়ে তার ময়লা চটি।',
+        'youtube_url': 'https://www.youtube.com/watch?v=z1iJsPdrICY',
+        'thumbnail_url':
+            'https://play-lh.googleusercontent.com/KLd2hnvpcSZqpM1ys5DWVepg0mETf8LYc4hKTJwkADzqwq9CxZkQyh8IMeuptPBeXWsD',
+        'order': 9,
+      },
+      {
+        'title': 'ঘুম পাড়ানি মাসি পিসি',
+        'text':
+            'ঘুম পাড়ানি মাসি পিসি\nমোদের বাড়ি এসো\nখাট নাই পালং নাই\nমাটিতে শুয়ে ঘুমাও।',
+        'youtube_url': 'https://www.youtube.com/watch?v=z1iJsPdrICY',
+        'thumbnail_url':
+            'https://play-lh.googleusercontent.com/KLd2hnvpcSZqpM1ys5DWVepg0mETf8LYc4hKTJwkADzqwq9CxZkQyh8IMeuptPBeXWsD',
+        'order': 10,
+      },
+      {
+        'title': 'খোকন খোকন ডাক পাড়ি',
+        'text':
+            'খোকন খোকন ডাক পাড়ি\nখোকন যায় বাড়ি বাড়ি\nহাতে তার মোটা লাঠি\nপায়ে তার ময়লা চটি।',
+        'youtube_url': 'https://www.youtube.com/watch?v=z1iJsPdrICY',
+        'thumbnail_url':
+            'https://play-lh.googleusercontent.com/KLd2hnvpcSZqpM1ys5DWVepg0mETf8LYc4hKTJwkADzqwq9CxZkQyh8IMeuptPBeXWsD',
+        'order': 11,
+      },
+      {
+        'title': 'ঘুম পাড়ানি মাসি পিসি',
+        'text':
+            'ঘুম পাড়ানি মাসি পিসি\nমোদের বাড়ি এসো\nখাট নাই পালং নাই\nমাটিতে শুয়ে ঘুমাও।',
+        'youtube_url': 'https://www.youtube.com/watch?v=z1iJsPdrICY',
+        'thumbnail_url':
+            'https://play-lh.googleusercontent.com/KLd2hnvpcSZqpM1ys5DWVepg0mETf8LYc4hKTJwkADzqwq9CxZkQyh8IMeuptPBeXWsD',
+        'order': 12,
+      },
+      {
+        'title': 'খোকন খোকন ডাক পাড়ি',
+        'text':
+            'খোকন খোকন ডাক পাড়ি\nখোকন যায় বাড়ি বাড়ি\nহাতে তার মোটা লাঠি\nপায়ে তার ময়লা চটি।',
+        'youtube_url': 'https://www.youtube.com/watch?v=z1iJsPdrICY',
+        'thumbnail_url':
+            'https://play-lh.googleusercontent.com/KLd2hnvpcSZqpM1ys5DWVepg0mETf8LYc4hKTJwkADzqwq9CxZkQyh8IMeuptPBeXWsD',
+        'order': 13,
+      },
+      {
+        'title': 'ঘুম পাড়ানি মাসি পিসি',
+        'text':
+            'ঘুম পাড়ানি মাসি পিসি\nমোদের বাড়ি এসো\nখাট নাই পালং নাই\nমাটিতে শুয়ে ঘুমাও।',
+        'youtube_url': 'https://www.youtube.com/watch?v=z1iJsPdrICY',
+        'thumbnail_url':
+            'https://play-lh.googleusercontent.com/KLd2hnvpcSZqpM1ys5DWVepg0mETf8LYc4hKTJwkADzqwq9CxZkQyh8IMeuptPBeXWsD',
+        'order': 14,
       },
     ];
 

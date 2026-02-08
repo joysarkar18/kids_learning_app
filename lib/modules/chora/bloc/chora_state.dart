@@ -19,7 +19,11 @@ final class ChoraLoading extends ChoraState {
 }
 
 final class ChoraLoaded extends ChoraState {
-  const ChoraLoaded({required super.choras});
+  final bool hasMore;
+  const ChoraLoaded({required super.choras, this.hasMore = true});
+
+  @override
+  List<Object?> get props => [choras, hasMore];
 }
 
 final class ChoraError extends ChoraState {

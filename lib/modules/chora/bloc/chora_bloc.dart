@@ -5,6 +5,7 @@ import 'chora_state.dart';
 
 class ChoraBloc extends Bloc<ChoraEvent, ChoraState> {
   final ChoraRepository _repository = ChoraRepository();
+  bool _isLoadingMore = false;
 
   ChoraBloc() : super(const ChoraInitial()) {
     on<ChoraInit>(_onInit);
@@ -14,25 +15,32 @@ class ChoraBloc extends Bloc<ChoraEvent, ChoraState> {
 
   Future<void> _onInit(ChoraInit event, Emitter<ChoraState> emit) async {
     emit(const ChoraLoading());
+    _isLoadingMore = false;
     try {
       _repository.resetPagination();
       final choras = await _repository.fetchChoras();
-      emit(ChoraLoaded(choras: choras));
+      emit(ChoraLoaded(choras: choras, hasMore: _repository.hasMoreData));
     } catch (e) {
       emit(ChoraError(errorMessage: e.toString()));
     }
   }
 
   Future<void> _onLoadMore(ChoraLoadMore event, Emitter<ChoraState> emit) async {
-    if (!_repository.hasMoreData) return;
+    if (_isLoadingMore || !_repository.hasMoreData) return;
     final currentState = state;
     if (currentState is! ChoraLoaded) return;
 
+    _isLoadingMore = true;
     try {
       final moreChoras = await _repository.fetchChoras();
-      emit(ChoraLoaded(choras: [...currentState.choras, ...moreChoras]));
+      emit(ChoraLoaded(
+        choras: [...currentState.choras, ...moreChoras],
+        hasMore: _repository.hasMoreData,
+      ));
     } catch (e) {
       // Keep current data on load-more failure
+    } finally {
+      _isLoadingMore = false;
     }
   }
 

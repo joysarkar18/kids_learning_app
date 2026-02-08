@@ -26,8 +26,10 @@ class _ChoraPlayerScreenState extends State<ChoraPlayerScreen>
     with TickerProviderStateMixin {
   late YoutubePlayerController _youtubeController;
   late AnimationController _textAnimationController;
+  final ScrollController _scrollController = ScrollController();
   late int _currentIndex;
   late List<String> _lines;
+  int _currentLineIndex = 0;
 
   ChoraModel get _currentChora => widget.choras[_currentIndex];
 
@@ -39,8 +41,11 @@ class _ChoraPlayerScreenState extends State<ChoraPlayerScreen>
   }
 
   void _initForCurrentChora() {
-    _lines =
-        _currentChora.text.split('\n').where((l) => l.trim().isNotEmpty).toList();
+    _lines = _currentChora.text
+        .split('\n')
+        .where((l) => l.trim().isNotEmpty)
+        .toList();
+    _currentLineIndex = 0;
 
     final videoId =
         YoutubePlayer.convertUrlToId(_currentChora.youtubeUrl) ?? '';
@@ -54,6 +59,8 @@ class _ChoraPlayerScreenState extends State<ChoraPlayerScreen>
       ),
     );
 
+    _youtubeController.addListener(_onVideoProgress);
+
     final totalDuration = Duration(milliseconds: 400 + (_lines.length * 250));
     _textAnimationController = AnimationController(
       vsync: this,
@@ -65,23 +72,73 @@ class _ChoraPlayerScreenState extends State<ChoraPlayerScreen>
     });
   }
 
+  void _onVideoProgress() {
+    if (!mounted || _lines.isEmpty) return;
+
+    final position = _youtubeController.value.position;
+    final duration = _youtubeController.metadata.duration;
+
+    if (duration.inMilliseconds <= 0) return;
+
+    final progress = position.inMilliseconds / duration.inMilliseconds;
+    final lineIndex = (progress * _lines.length).floor().clamp(
+      0,
+      _lines.length - 1,
+    );
+
+    if (lineIndex != _currentLineIndex) {
+      setState(() {
+        _currentLineIndex = lineIndex;
+      });
+      _scrollToLine(lineIndex);
+    }
+  }
+
+  void _scrollToLine(int lineIndex) {
+    if (!_scrollController.hasClients) return;
+
+    final estimatedLineHeight = 45.h;
+    final targetOffset = lineIndex * estimatedLineHeight;
+    final maxScroll = _scrollController.position.maxScrollExtent;
+
+    _scrollController.animateTo(
+      targetOffset.clamp(0.0, maxScroll),
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeInOut,
+    );
+  }
+
   void _switchToChora(int newIndex) {
     if (newIndex < 0 || newIndex >= widget.choras.length) return;
 
-    _youtubeController.dispose();
-    _textAnimationController.dispose();
+    final oldYoutubeController = _youtubeController;
+    final oldTextAnimationController = _textAnimationController;
 
-    setState(() {
-      _currentIndex = newIndex;
-    });
+    oldYoutubeController.removeListener(_onVideoProgress);
 
+    _currentIndex = newIndex;
     _initForCurrentChora();
+
+    setState(() {});
+
+    // Reset scroll position
+    if (_scrollController.hasClients) {
+      _scrollController.jumpTo(0);
+    }
+
+    // Dispose old controllers after the frame renders
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      oldYoutubeController.dispose();
+      oldTextAnimationController.dispose();
+    });
   }
 
   @override
   void dispose() {
+    _youtubeController.removeListener(_onVideoProgress);
     _youtubeController.dispose();
     _textAnimationController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -95,7 +152,7 @@ class _ChoraPlayerScreenState extends State<ChoraPlayerScreen>
           width: 1.sw,
           child: Stack(
             children: [
-              // 1. BACKGROUND
+              // Background
               Image.asset(
                 Assets.imagesGkBg2,
                 fit: BoxFit.cover,
@@ -103,51 +160,42 @@ class _ChoraPlayerScreenState extends State<ChoraPlayerScreen>
                 width: 1.sw,
               ),
 
-              // 2. MAIN CONTENT
+              // Main content
               SafeArea(
                 child: Column(
                   children: [
-                    SizedBox(height: 50.h),
+                    // Close button row
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Padding(
+                        padding: EdgeInsets.only(left: 10.w, top: 8.h),
+                        child: GamingImageButton(
+                          width: 0.20.sw,
+                          imagePath: Assets.imagesCrossIcon,
+                          onPressed: () => context.pop(),
+                        ),
+                      ),
+                    ),
 
-                    // Video player in a frame
+                    // Video player
                     _buildVideoFrame(),
 
                     SizedBox(height: 12.h),
 
-                    // Title
-                    Text(
-                      _currentChora.title,
-                      style: GoogleFonts.hindSiliguri(
-                        fontSize: 26.sp,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        shadows: [
-                          Shadow(
-                            color: Colors.black.withValues(alpha: 0.4),
-                            blurRadius: 8,
-                            offset: const Offset(2, 2),
-                          ),
-                        ],
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-
-                    SizedBox(height: 8.h),
-
-                    // Animated text in a frame
+                    // Lyrics parchment
                     Expanded(child: _buildTextFrame()),
 
                     // Space for bottom buttons
-                    SizedBox(height: 80.h),
+                    SizedBox(height: 96.h),
                   ],
                 ),
               ),
 
-              // 3. NAVIGATION BUTTONS (Bottom)
+              // Navigation buttons
               Align(
                 alignment: Alignment.bottomCenter,
                 child: Padding(
-                  padding: EdgeInsets.only(bottom: 30.h),
+                  padding: EdgeInsets.only(bottom: 20.h),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -174,19 +222,6 @@ class _ChoraPlayerScreenState extends State<ChoraPlayerScreen>
                   ),
                 ),
               ),
-
-              // 4. CLOSE BUTTON
-              Align(
-                alignment: Alignment.topLeft,
-                child: Padding(
-                  padding: EdgeInsets.only(left: 10.w, top: 15.h),
-                  child: GamingImageButton(
-                    width: 0.18.sw,
-                    imagePath: Assets.imagesCrossIcon,
-                    onPressed: () => context.pop(),
-                  ),
-                ),
-              ),
             ],
           ),
         ),
@@ -196,15 +231,15 @@ class _ChoraPlayerScreenState extends State<ChoraPlayerScreen>
 
   Widget _buildVideoFrame() {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 16.w),
+      margin: EdgeInsets.symmetric(horizontal: 20.w),
       padding: EdgeInsets.all(6.w),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20.r),
-        border: Border.all(color: AppColors.primary1, width: 3.w),
+        border: Border.all(color: AppColors.primary1, width: 4.w),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.25),
+            color: Colors.black.withValues(alpha: 0.3),
             blurRadius: 12,
             offset: const Offset(0, 5),
           ),
@@ -213,6 +248,7 @@ class _ChoraPlayerScreenState extends State<ChoraPlayerScreen>
       child: ClipRRect(
         borderRadius: BorderRadius.circular(14.r),
         child: YoutubePlayer(
+          key: ValueKey(_currentIndex),
           controller: _youtubeController,
           showVideoProgressIndicator: true,
           progressIndicatorColor: AppColors.primary1,
@@ -227,17 +263,15 @@ class _ChoraPlayerScreenState extends State<ChoraPlayerScreen>
 
   Widget _buildTextFrame() {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 16.w),
-      padding: EdgeInsets.all(6.w),
+      margin: EdgeInsets.symmetric(horizontal: 20.w),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20.r),
-        border: Border.all(color: AppColors.primary2, width: 3.w),
+        borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(color: const Color(0xFF8B6914), width: 3.w),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary2.withValues(alpha: 0.2),
-            blurRadius: 12,
-            offset: const Offset(0, 5),
+            color: Colors.black.withValues(alpha: 0.25),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -245,18 +279,16 @@ class _ChoraPlayerScreenState extends State<ChoraPlayerScreen>
         borderRadius: BorderRadius.circular(14.r),
         child: Container(
           width: double.infinity,
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [
-                AppColors.primary2.withValues(alpha: 0.05),
-                AppColors.primary1.withValues(alpha: 0.08),
-              ],
+              colors: [Color(0xFFF5E6C8), Color(0xFFEDD9B0), Color(0xFFE8CFA0)],
             ),
           ),
           child: SingleChildScrollView(
-            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+            controller: _scrollController,
+            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
             child: AnimatedBuilder(
               animation: _textAnimationController,
               builder: (context, child) {
@@ -265,28 +297,54 @@ class _ChoraPlayerScreenState extends State<ChoraPlayerScreen>
                   children: List.generate(_lines.length, (index) {
                     final start = index / _lines.length;
                     final end = (index + 1) / _lines.length;
-                    final interval =
-                        Interval(start, end, curve: Curves.easeOutBack);
-                    final progress =
-                        interval.transform(_textAnimationController.value);
+                    final interval = Interval(
+                      start,
+                      end,
+                      curve: Curves.easeOutBack,
+                    );
+                    final progress = interval.transform(
+                      _textAnimationController.value,
+                    );
+
+                    final isCurrentLine = index == _currentLineIndex;
 
                     return Transform.translate(
                       offset: Offset(0, 30 * (1 - progress)),
                       child: Opacity(
                         opacity: progress.clamp(0.0, 1.0),
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(vertical: 6.h),
-                          child: Text(
-                            _lines[index],
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 300),
+                          padding: EdgeInsets.symmetric(
+                            vertical: 4.h,
+                            horizontal: isCurrentLine ? 8.w : 0,
+                          ),
+                          decoration: BoxDecoration(
+                            color: isCurrentLine
+                                ? const Color(
+                                    0xFF8B6914,
+                                  ).withValues(alpha: 0.12)
+                                : Colors.transparent,
+                            borderRadius: BorderRadius.circular(8.r),
+                          ),
+                          child: AnimatedDefaultTextStyle(
+                            duration: const Duration(milliseconds: 300),
                             style: GoogleFonts.hindSiliguri(
-                              fontSize: 22.sp,
-                              fontWeight: FontWeight.w600,
-                              color: index % 2 == 0
-                                  ? AppColors.primary2
-                                  : Colors.black87,
+                              fontSize: isCurrentLine ? 26.sp : 22.sp,
+                              fontWeight: isCurrentLine
+                                  ? FontWeight.w800
+                                  : FontWeight.w600,
+                              color: isCurrentLine
+                                  ? const Color(0xFFD32F2F)
+                                  : index % 2 == 0
+                                  ? const Color(0xFF3E2723)
+                                  : const Color(0xFF5D4037),
                               height: 1.5,
                             ),
                             textAlign: TextAlign.center,
+                            child: Text(
+                              _lines[index],
+                              textAlign: TextAlign.center,
+                            ),
                           ),
                         ),
                       ),

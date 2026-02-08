@@ -10,7 +10,7 @@ class ChoraRepository {
 
   bool get hasMoreData => _hasMoreData;
 
-  Future<List<ChoraModel>> fetchChoras({int limit = 50}) async {
+  Future<List<ChoraModel>> fetchChoras({int limit = 20}) async {
     try {
       Query query = _firestore
           .collection(_collectionName)
