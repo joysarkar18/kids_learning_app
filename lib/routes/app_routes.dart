@@ -7,6 +7,8 @@ abstract class Routes {
   static const englishSonkha = _Paths.englishSonkha;
   static const chora = _Paths.chora;
   static const choraPlayer = _Paths.choraPlayer;
+  static const ganit = _Paths.ganit;
+  static const ganitPlay = _Paths.ganitPlay;
   static const init = _Paths.init;
   static const language = _Paths.language; // Added
   static const onboarding = _Paths.onboarding; // Maps to Character Selector
@@ -24,6 +26,8 @@ abstract class _Paths {
   static const englishSonkha = '/english-sonkha';
   static const chora = '/chora';
   static const choraPlayer = '/chora-player';
+  static const ganit = '/ganit';
+  static const ganitPlay = '/ganit-play';
   static const init = "/";
   static const language = '/language-selector'; // Added
   static const onboarding = '/onboarding';
@@ -40,6 +44,8 @@ abstract class Names {
   static const englishSonkha = _Names.englishSonkha;
   static const chora = _Names.chora;
   static const choraPlayer = _Names.choraPlayer;
+  static const ganit = _Names.ganit;
+  static const ganitPlay = _Names.ganitPlay;
   static const init = _Names.init;
   static const language = _Names.language; // Added
   static const onboarding = _Names.onboarding;
@@ -56,6 +62,8 @@ abstract class _Names {
   static const englishSonkha = 'englishSonkha';
   static const chora = 'chora';
   static const choraPlayer = 'choraPlayer';
+  static const ganit = 'ganit';
+  static const ganitPlay = 'ganitPlay';
   static const init = 'init';
   static const language = 'language'; // Added
   static const onboarding = 'onboarding';

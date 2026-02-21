@@ -113,7 +113,9 @@ class HomeScreen extends StatelessWidget {
                         GamingImageButton(
                           imagePath: Assets.imagesGonit,
                           width: 0.3.sw,
-                          onPressed: () {},
+                          onPressed: () {
+                            context.pushNamed(Names.ganitPlay);
+                          },
                         ),
                         GamingImageButton(
                           imagePath: Assets.imagesNamota,

@@ -10,6 +10,8 @@ import 'package:kids_learning/modules/chora/data/models/chora_model.dart';
 import 'package:kids_learning/modules/chora/screen/chora_player_view.dart';
 import 'package:kids_learning/modules/chora/screen/chora_wrapper.dart';
 import 'package:kids_learning/modules/english_sonkha/screen/english_sonkha_wrapper.dart';
+import 'package:kids_learning/modules/gonit/screen/gonit_category_view.dart';
+import 'package:kids_learning/modules/gonit/screen/gonit_wrapper.dart';
 import 'package:kids_learning/modules/sothik_uttor/screen/sothik_uttor_wrapper.dart';
 import 'package:kids_learning/modules/onboarding/screen/language_selection_screen.dart';
 import 'package:kids_learning/modules/onboarding/screen/onboarding_view.dart';
@@ -86,6 +88,21 @@ final router = GoRouter(
       name: Names.englishSonkha,
       path: Routes.englishSonkha,
       builder: (context, state) => const EnglishSonkhaScreenWrapper(),
+    ),
+
+    GoRoute(
+      name: Names.ganit,
+      path: Routes.ganit,
+      builder: (context, state) => const GanitCategoryScreen(),
+    ),
+
+    GoRoute(
+      name: Names.ganitPlay,
+      path: Routes.ganitPlay,
+      builder: (context, state) {
+        final type = state.extra as String?;
+        return GanitScreenWrapper(type: type);
+      },
     ),
 
     // 1. Splash Screen (Entry Point)
