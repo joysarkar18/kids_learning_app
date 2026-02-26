@@ -19,5 +19,13 @@
   "info": "Info",
   "goodMorning": "Good Morning",
   "goodAfternoon": "Good Afternoon",
-  "goodEvening": "Good Evening"
+  "goodEvening": "Good Evening",
+  "welcome": "Welcome!",
+  "signInToStart": "Sign in to start learning!",
+  "signInWithGoogle": "Sign in with Google",
+  "signInWithApple": "Sign in with Apple",
+  "agreeText": "By continuing, you agree to our",
+  "privacyPolicy": "Privacy Policy",
+  "andText": "and",
+  "termsConditions": "Terms & Conditions"
 }

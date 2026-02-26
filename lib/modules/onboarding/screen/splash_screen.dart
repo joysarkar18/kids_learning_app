@@ -93,23 +93,30 @@ class _SplashScreenState extends State<SplashScreen>
     final needsLanguage = await RouteGuard.needsLanguageSelection();
 
     if (needsLanguage) {
-      // Language not selected - go to language selection
       if (mounted) {
         context.goNamed(Names.language);
       }
       return;
     }
 
-    // Language is selected - check if friend is selected
+    // Check if user is authenticated
+    final isAuthenticated = RouteGuard.isAuthenticated();
+
+    if (!isAuthenticated) {
+      if (mounted) {
+        context.goNamed(Names.login);
+      }
+      return;
+    }
+
+    // Check if friend/character is selected
     final hasFriend = await RouteGuard.hasFriendSelected();
 
     if (!mounted) return;
 
     if (hasFriend) {
-      // Friend already selected - go directly to home
       context.goNamed(Names.home);
     } else {
-      // Friend not selected - go to onboarding
       context.goNamed(Names.onboarding);
     }
   }

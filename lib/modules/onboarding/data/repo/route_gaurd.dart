@@ -1,3 +1,4 @@
+import 'package:kids_learning/services/auth_service.dart';
 import 'package:kids_learning/services/locale_service.dart';
 import 'package:kids_learning/services/friend_selection_service.dart';
 
@@ -11,6 +12,11 @@ class RouteGuard {
   // Check if language is already selected
   static Future<bool> hasLanguageSelected() async {
     return await LocaleService.isLanguageSelected();
+  }
+
+  // Check if user is authenticated
+  static bool isAuthenticated() {
+    return AuthService.instance.isLoggedIn;
   }
 
   // Check if friend is already selected

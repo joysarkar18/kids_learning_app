@@ -12,7 +12,12 @@
           "package_name": "com.byteberg.kids_learning"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "836167337536-74jl6sjb8gqhf35rmjn3c55iumc82blq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBgE7j51OJx1aVsvOyuE8lX4nDeOHUf0ZY"
@@ -20,7 +25,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "836167337536-74jl6sjb8gqhf35rmjn3c55iumc82blq.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "836167337536-aqm27c01t6tmjfmd1v5dv78r1u4id51h.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.byteberg.kidsLearning"
+              }
+            }
+          ]
         }
       }
     },
@@ -31,7 +48,20 @@
           "package_name": "com.campuscrush.campus_crush_app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "836167337536-agnhg9nd2q2ftq9on449ma3c37pureto.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.campuscrush.campus_crush_app",
+            "certificate_hash": "0a06bf22d3af6ae79dce652bd122216710ffa561"
+          }
+        },
+        {
+          "client_id": "836167337536-74jl6sjb8gqhf35rmjn3c55iumc82blq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBgE7j51OJx1aVsvOyuE8lX4nDeOHUf0ZY"
@@ -39,7 +69,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "836167337536-74jl6sjb8gqhf35rmjn3c55iumc82blq.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "836167337536-aqm27c01t6tmjfmd1v5dv78r1u4id51h.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.byteberg.kidsLearning"
+              }
+            }
+          ]
         }
       }
     }

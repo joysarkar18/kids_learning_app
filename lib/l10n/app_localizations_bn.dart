@@ -70,4 +70,28 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get goodEvening => 'গুড ইভনিং';
+
+  @override
+  String get welcome => 'স্বাগতম!';
+
+  @override
+  String get signInToStart => 'শেখা শুরু করতে সাইন ইন করো!';
+
+  @override
+  String get signInWithGoogle => 'Google দিয়ে সাইন ইন করো';
+
+  @override
+  String get signInWithApple => 'Apple দিয়ে সাইন ইন করো';
+
+  @override
+  String get agreeText => 'চালিয়ে যাওয়ার মাধ্যমে তুমি সম্মত হচ্ছ আমাদের';
+
+  @override
+  String get privacyPolicy => 'গোপনীয়তা নীতি';
+
+  @override
+  String get andText => 'এবং';
+
+  @override
+  String get termsConditions => 'শর্তাবলী';
 }

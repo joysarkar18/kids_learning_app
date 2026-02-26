@@ -12,8 +12,11 @@ import 'package:kids_learning/modules/chora/screen/chora_wrapper.dart';
 import 'package:kids_learning/modules/english_sonkha/screen/english_sonkha_wrapper.dart';
 import 'package:kids_learning/modules/gonit/screen/gonit_category_view.dart';
 import 'package:kids_learning/modules/gonit/screen/gonit_wrapper.dart';
+import 'package:kids_learning/modules/namota/screen/namota_selection_view.dart';
+import 'package:kids_learning/modules/namota/screen/namota_wrapper.dart';
 import 'package:kids_learning/modules/sothik_uttor/screen/sothik_uttor_wrapper.dart';
 import 'package:kids_learning/modules/onboarding/screen/language_selection_screen.dart';
+import 'package:kids_learning/modules/onboarding/screen/login_screen.dart';
 import 'package:kids_learning/modules/onboarding/screen/onboarding_view.dart';
 import 'package:kids_learning/routes/app_routes.dart';
 
@@ -105,6 +108,21 @@ final router = GoRouter(
       },
     ),
 
+    GoRoute(
+      name: Names.namota,
+      path: Routes.namota,
+      builder: (context, state) => const NamotaSelectionScreen(),
+    ),
+
+    GoRoute(
+      name: Names.namotaPractice,
+      path: Routes.namotaPractice,
+      builder: (context, state) {
+        final tableNumber = state.extra as int? ?? 1;
+        return NamotaScreenWrapper(tableNumber: tableNumber);
+      },
+    ),
+
     // 1. Splash Screen (Entry Point)
     GoRoute(
       name: Names.init,
@@ -117,6 +135,13 @@ final router = GoRouter(
       name: Names.language,
       path: Routes.language,
       builder: (context, state) => const LanguageSelectorScreen(),
+    ),
+
+    // 2.5 Login Screen
+    GoRoute(
+      name: Names.login,
+      path: Routes.login,
+      builder: (context, state) => const LoginScreen(),
     ),
 
     // 3. Character Selector (Onboarding)

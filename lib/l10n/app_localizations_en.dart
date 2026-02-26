@@ -70,4 +70,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get goodEvening => 'Good Evening';
+
+  @override
+  String get welcome => 'Welcome!';
+
+  @override
+  String get signInToStart => 'Sign in to start learning!';
+
+  @override
+  String get signInWithGoogle => 'Sign in with Google';
+
+  @override
+  String get signInWithApple => 'Sign in with Apple';
+
+  @override
+  String get agreeText => 'By continuing, you agree to our';
+
+  @override
+  String get privacyPolicy => 'Privacy Policy';
+
+  @override
+  String get andText => 'and';
+
+  @override
+  String get termsConditions => 'Terms & Conditions';
 }

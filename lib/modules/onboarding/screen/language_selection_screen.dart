@@ -198,8 +198,8 @@ class _LanguageSelectorScreenState extends State<LanguageSelectorScreen>
                       child: UniversalGamingButton(
                         onPressed: selectedLanguageIndex != null
                             ? () {
-                                // Just navigate to the next screen
-                                context.goNamed(Names.onboarding);
+                                // Navigate to login screen
+                                context.goNamed(Names.login);
                               }
                             : () {}, // Disable click if no selection
                         width: 320.w,

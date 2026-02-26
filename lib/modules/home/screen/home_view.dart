@@ -121,7 +121,7 @@ class HomeScreen extends StatelessWidget {
                           imagePath: Assets.imagesNamota,
                           width: 0.3.sw,
                           onPressed: () {
-                            context.pushNamed(Names.drawing);
+                            context.pushNamed(Names.namota);
                           },
                         ),
                       ],

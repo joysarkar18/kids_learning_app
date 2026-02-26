@@ -19,5 +19,13 @@
   "info": "তথ্য",
   "goodMorning": "গুড মর্নিং",
   "goodAfternoon": "গুড আফটারনুন",
-  "goodEvening": "গুড ইভনিং"
+  "goodEvening": "গুড ইভনিং",
+  "welcome": "স্বাগতম!",
+  "signInToStart": "শেখা শুরু করতে সাইন ইন করো!",
+  "signInWithGoogle": "Google দিয়ে সাইন ইন করো",
+  "signInWithApple": "Apple দিয়ে সাইন ইন করো",
+  "agreeText": "চালিয়ে যাওয়ার মাধ্যমে তুমি সম্মত হচ্ছ আমাদের",
+  "privacyPolicy": "গোপনীয়তা নীতি",
+  "andText": "এবং",
+  "termsConditions": "শর্তাবলী"
 }

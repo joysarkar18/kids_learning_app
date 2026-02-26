@@ -1,4 +1,8 @@
+import 'dart:async';
+
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -8,6 +12,7 @@ import 'package:kids_learning/modules/chora/data/repo/chora_seeder.dart';
 import 'package:kids_learning/modules/gonit/data/repo/gonit_seeder.dart';
 import 'package:kids_learning/modules/onboarding/bloc/onboarding_bloc.dart';
 import 'package:kids_learning/routes/app_pages.dart';
+import 'package:kids_learning/services/auth_service.dart';
 import 'package:kids_learning/services/audio_service.dart';
 import 'package:kids_learning/services/locale_service.dart';
 import 'package:kids_learning/services/remote_config_service.dart';
@@ -16,16 +21,42 @@ import 'package:kids_learning/utils/themes/app_colors.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  runZonedGuarded<Future<void>>(
+    () async {
+      WidgetsFlutterBinding.ensureInitialized();
 
-  await AudioService().init();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  // Load saved language preference
-  final savedLanguage = await LocaleService.getSavedLanguagePreference();
-  await RemoteConfigService().initialize();
-  await ChoraSeeder.seed();
-  await GanitSeeder.seed();
-  runApp(MyApp(initialLocale: savedLanguage));
+      await AudioService().init();
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+
+      // Initialize Crashlytics (disable in debug mode)
+      await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(
+        !kDebugMode,
+      );
+
+      // Pass uncaught Flutter framework errors to Crashlytics
+      FlutterError.onError =
+          FirebaseCrashlytics.instance.recordFlutterFatalError;
+
+      // Set Crashlytics user identifier if already logged in
+      if (AuthService.instance.isLoggedIn) {
+        final user = AuthService.instance.currentUser;
+        if (user != null) {
+          await FirebaseCrashlytics.instance.setUserIdentifier(user.uid);
+        }
+      }
+
+      final savedLanguage = await LocaleService.getSavedLanguagePreference();
+      await RemoteConfigService().initialize();
+      await ChoraSeeder.seed();
+      await GanitSeeder.seed();
+      runApp(MyApp(initialLocale: savedLanguage));
+    },
+    (error, stack) {
+      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+    },
+  );
 }
 
 class MyApp extends StatefulWidget {
