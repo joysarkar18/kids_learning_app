@@ -5,6 +5,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:bloc/bloc.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:flutter/foundation.dart'; // For debugPrint
+import 'package:kids_learning/services/daily_challenge_service.dart';
 
 import 'bornomala_event.dart';
 import 'bornomala_state.dart';
@@ -194,6 +195,7 @@ class BornomalaBloc extends Bloc<BornomalaEvent, BornomalaState> {
       // Logic: Wait for UI to push to writing screen.
       // Do NOT set _isPlayingFeedbackAudio to false here, let navigation handle it.
       _isPlayingFeedbackAudio = false;
+      DailyChallengeService.instance.reportProgress('bornomala');
     } else {
       await _playWrongAudio();
       await Future.delayed(const Duration(seconds: 1));

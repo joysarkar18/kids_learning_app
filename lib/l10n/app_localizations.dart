@@ -271,6 +271,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Terms & Conditions'**
   String get termsConditions;
+
+  /// No description provided for @dailyChallenge.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Challenge'**
+  String get dailyChallenge;
+
+  /// No description provided for @todaysMissions.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s Missions'**
+  String get todaysMissions;
+
+  /// No description provided for @streak.
+  ///
+  /// In en, this message translates to:
+  /// **'Streak'**
+  String get streak;
+
+  /// No description provided for @stars.
+  ///
+  /// In en, this message translates to:
+  /// **'Stars'**
+  String get stars;
+
+  /// No description provided for @goButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Go'**
+  String get goButton;
+
+  /// No description provided for @missionComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Mission Complete!'**
+  String get missionComplete;
+
+  /// No description provided for @allMissionsComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'All missions complete! +3'**
+  String get allMissionsComplete;
+
+  /// No description provided for @missionsProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'{completed}/3 missions done'**
+  String missionsProgress(int completed);
 }
 
 class _AppLocalizationsDelegate

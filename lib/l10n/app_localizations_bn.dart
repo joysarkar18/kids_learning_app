@@ -94,4 +94,30 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get termsConditions => 'শর্তাবলী';
+
+  @override
+  String get dailyChallenge => 'দৈনিক চ্যালেঞ্জ';
+
+  @override
+  String get todaysMissions => 'আজকের মিশন';
+
+  @override
+  String get streak => 'ধারা';
+
+  @override
+  String get stars => 'তারা';
+
+  @override
+  String get goButton => 'যাও';
+
+  @override
+  String get missionComplete => 'মিশন সম্পন্ন!';
+
+  @override
+  String get allMissionsComplete => 'সব মিশন সম্পন্ন! +৩';
+
+  @override
+  String missionsProgress(int completed) {
+    return '$completed/৩ মিশন সম্পন্ন';
+  }
 }

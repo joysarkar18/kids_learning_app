@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/foundation.dart';
+import 'package:kids_learning/services/daily_challenge_service.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'gonit_event.dart';
 import 'gonit_state.dart';
@@ -343,6 +344,7 @@ class GanitBloc extends Bloc<GanitEvent, GanitState> {
     if (isCorrect) {
       await _playYayAudio();
       _isPlayingFeedbackAudio = false;
+      DailyChallengeService.instance.reportProgress('gonit');
     } else {
       await _playWrongAudio();
       await Future.delayed(const Duration(seconds: 1));

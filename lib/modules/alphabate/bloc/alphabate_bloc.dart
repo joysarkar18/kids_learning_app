@@ -5,6 +5,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:bloc/bloc.dart';
 import 'package:kids_learning/modules/alphabate/bloc/alphabate_event.dart';
 import 'package:kids_learning/modules/alphabate/bloc/alphabate_state.dart';
+import 'package:kids_learning/services/daily_challenge_service.dart';
 import 'package:kids_learning/services/logger_service.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:flutter/foundation.dart';
@@ -167,6 +168,7 @@ class AlphabetBloc extends Bloc<AlphabetEvent, AlphabetState> {
     if (isCorrect) {
       await _playHurrayAudio();
       _isPlayingFeedbackAudio = false;
+      DailyChallengeService.instance.reportProgress('alphabate');
     } else {
       await _playWrongAudio();
       await Future.delayed(const Duration(seconds: 1));

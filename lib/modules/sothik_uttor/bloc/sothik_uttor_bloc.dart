@@ -5,6 +5,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:bloc/bloc.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:flutter/foundation.dart';
+import 'package:kids_learning/services/daily_challenge_service.dart';
 import 'sothik_uttor_event.dart';
 import 'sothik_uttor_state.dart';
 import '../data/repo/question_repository.dart';
@@ -294,6 +295,7 @@ class SothikUttorBloc extends Bloc<SothikUttorEvent, SothikUttorState> {
     if (isCorrect) {
       await _playYayAudio();
       _isPlayingFeedbackAudio = false;
+      DailyChallengeService.instance.reportProgress('sothik_uttor');
     } else {
       await _playWrongAudio();
       await Future.delayed(const Duration(seconds: 1));
@@ -350,6 +352,7 @@ class SothikUttorBloc extends Bloc<SothikUttorEvent, SothikUttorState> {
     if (isCorrect) {
       await _playYayAudio();
       _isPlayingFeedbackAudio = false;
+      DailyChallengeService.instance.reportProgress('sothik_uttor');
     } else {
       await _playWrongAudio();
       await Future.delayed(const Duration(seconds: 1));

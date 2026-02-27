@@ -5,6 +5,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:bloc/bloc.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:flutter/foundation.dart';
+import 'package:kids_learning/services/daily_challenge_service.dart';
 
 import 'namota_event.dart';
 import 'namota_state.dart';
@@ -211,6 +212,7 @@ class NamotaBloc extends Bloc<NamotaEvent, NamotaState> {
       await Future.delayed(const Duration(milliseconds: 500));
 
       _isPlayingFeedbackAudio = false;
+      DailyChallengeService.instance.reportProgress('namota');
 
       // Check if all rows are complete
       if (newCompleted.length >= 10) {

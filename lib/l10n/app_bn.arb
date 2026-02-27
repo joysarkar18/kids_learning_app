@@ -27,5 +27,20 @@
   "agreeText": "চালিয়ে যাওয়ার মাধ্যমে তুমি সম্মত হচ্ছ আমাদের",
   "privacyPolicy": "গোপনীয়তা নীতি",
   "andText": "এবং",
-  "termsConditions": "শর্তাবলী"
+  "termsConditions": "শর্তাবলী",
+  "dailyChallenge": "দৈনিক চ্যালেঞ্জ",
+  "todaysMissions": "আজকের মিশন",
+  "streak": "ধারা",
+  "stars": "তারা",
+  "goButton": "যাও",
+  "missionComplete": "মিশন সম্পন্ন!",
+  "allMissionsComplete": "সব মিশন সম্পন্ন! +৩",
+  "missionsProgress": "{completed}/৩ মিশন সম্পন্ন",
+  "@missionsProgress": {
+    "placeholders": {
+      "completed": {
+        "type": "int"
+      }
+    }
+  }
 }

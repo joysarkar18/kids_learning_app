@@ -94,4 +94,30 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get termsConditions => 'Terms & Conditions';
+
+  @override
+  String get dailyChallenge => 'Daily Challenge';
+
+  @override
+  String get todaysMissions => 'Today\'s Missions';
+
+  @override
+  String get streak => 'Streak';
+
+  @override
+  String get stars => 'Stars';
+
+  @override
+  String get goButton => 'Go';
+
+  @override
+  String get missionComplete => 'Mission Complete!';
+
+  @override
+  String get allMissionsComplete => 'All missions complete! +3';
+
+  @override
+  String missionsProgress(int completed) {
+    return '$completed/3 missions done';
+  }
 }

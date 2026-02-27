@@ -12,6 +12,7 @@ import 'package:kids_learning/modules/chora/screen/chora_wrapper.dart';
 import 'package:kids_learning/modules/english_sonkha/screen/english_sonkha_wrapper.dart';
 import 'package:kids_learning/modules/gonit/screen/gonit_category_view.dart';
 import 'package:kids_learning/modules/gonit/screen/gonit_wrapper.dart';
+import 'package:kids_learning/modules/daily_challenge/screen/daily_challenge_view.dart';
 import 'package:kids_learning/modules/namota/screen/namota_selection_view.dart';
 import 'package:kids_learning/modules/namota/screen/namota_wrapper.dart';
 import 'package:kids_learning/modules/sothik_uttor/screen/sothik_uttor_wrapper.dart';
@@ -156,6 +157,13 @@ final router = GoRouter(
       name: Names.home,
       path: Routes.home,
       builder: (context, state) => const HomeScreen(),
+    ),
+
+    // 5. Daily Challenge
+    GoRoute(
+      name: Names.dailyChallenge,
+      path: Routes.dailyChallenge,
+      builder: (context, state) => const DailyChallengeView(),
     ),
   ],
 );

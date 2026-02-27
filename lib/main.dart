@@ -15,6 +15,7 @@ import 'package:kids_learning/routes/app_pages.dart';
 import 'package:kids_learning/services/auth_service.dart';
 import 'package:kids_learning/services/audio_service.dart';
 import 'package:kids_learning/services/locale_service.dart';
+import 'package:kids_learning/services/daily_challenge_service.dart';
 import 'package:kids_learning/services/remote_config_service.dart';
 import 'package:kids_learning/services/snackbar_service.dart';
 import 'package:kids_learning/utils/themes/app_colors.dart';
@@ -51,6 +52,7 @@ void main() async {
       await RemoteConfigService().initialize();
       await ChoraSeeder.seed();
       await GanitSeeder.seed();
+      await DailyChallengeService.instance.initialize();
       runApp(MyApp(initialLocale: savedLanguage));
     },
     (error, stack) {

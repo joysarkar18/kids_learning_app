@@ -5,6 +5,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:bloc/bloc.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:flutter/foundation.dart';
+import 'package:kids_learning/services/daily_challenge_service.dart';
 
 import 'english_sonkha_event.dart';
 import 'english_sonkha_state.dart';
@@ -246,6 +247,7 @@ class EnglishSonkhaBloc extends Bloc<EnglishSonkhaEvent, EnglishSonkhaState> {
     if (isCorrect) {
       await _playHurrayAudio();
       _isPlayingFeedbackAudio = false;
+      DailyChallengeService.instance.reportProgress('english_sonkha');
     } else {
       await _playWrongAudio();
       await Future.delayed(const Duration(seconds: 1));

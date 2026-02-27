@@ -27,5 +27,20 @@
   "agreeText": "By continuing, you agree to our",
   "privacyPolicy": "Privacy Policy",
   "andText": "and",
-  "termsConditions": "Terms & Conditions"
+  "termsConditions": "Terms & Conditions",
+  "dailyChallenge": "Daily Challenge",
+  "todaysMissions": "Today's Missions",
+  "streak": "Streak",
+  "stars": "Stars",
+  "goButton": "Go",
+  "missionComplete": "Mission Complete!",
+  "allMissionsComplete": "All missions complete! +3",
+  "missionsProgress": "{completed}/3 missions done",
+  "@missionsProgress": {
+    "placeholders": {
+      "completed": {
+        "type": "int"
+      }
+    }
+  }
 }

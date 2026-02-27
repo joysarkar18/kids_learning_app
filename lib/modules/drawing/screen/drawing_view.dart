@@ -6,6 +6,7 @@ import 'package:kids_learning/audio/ui_audio_key.dart';
 import 'package:kids_learning/modules/drawing/bloc/drawing_bloc.dart';
 import 'package:kids_learning/modules/drawing/bloc/drawing_event.dart';
 import 'package:kids_learning/modules/drawing/bloc/drawing_state.dart';
+import 'package:kids_learning/services/daily_challenge_service.dart';
 import 'dart:async'; // Required for Timer
 
 class DrawingScreen extends StatelessWidget {
@@ -185,6 +186,7 @@ class _DrawingScreenContentState extends State<_DrawingScreenContent>
   // Action: Load Next Image
   void _onNextImage() {
     AudioPlayerService.instance.playUi(key: UiAudioKey.button_press);
+    DailyChallengeService.instance.reportProgress('drawing');
     _previewTimer?.cancel();
     setState(() {
       _showFullPreview = true;
