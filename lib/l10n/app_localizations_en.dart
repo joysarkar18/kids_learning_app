@@ -114,10 +114,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get missionComplete => 'Mission Complete!';
 
   @override
-  String get allMissionsComplete => 'All missions complete! +3';
+  String allMissionsComplete(int count) {
+    return 'All missions complete! +$count';
+  }
 
   @override
-  String missionsProgress(int completed) {
-    return '$completed/3 missions done';
+  String missionsProgress(int completed, int total) {
+    return '$completed/$total missions done';
   }
+
+  @override
+  String get miniGames => 'Mini Games';
+
+  @override
+  String get settings => 'Settings';
+
+  @override
+  String get comingSoon => 'Coming Soon!';
+
+  @override
+  String get miniGamesSubtitle => 'More games are on their way!';
+
+  @override
+  String get noGamesFound => 'No games found';
+
+  @override
+  String get settingsSubtitle => 'Coming Soon!';
 }

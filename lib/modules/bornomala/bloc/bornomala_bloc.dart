@@ -6,6 +6,7 @@ import 'package:bloc/bloc.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:flutter/foundation.dart'; // For debugPrint
 import 'package:kids_learning/services/daily_challenge_service.dart';
+import 'package:kids_learning/services/logger_service.dart';
 
 import 'bornomala_event.dart';
 import 'bornomala_state.dart';
@@ -51,8 +52,11 @@ class BornomalaBloc extends Bloc<BornomalaEvent, BornomalaState> {
     BornomalaInit event,
     Emitter<BornomalaState> emit,
   ) async {
-    emit(const BornomalaLoaded(index: 0));
-    await _playAlphabetAudio(0);
+    LoggerService.logInfo('[BornomalaBloc] _onInit called → event.startingIndex=${event.startingIndex}');
+    final index = event.startingIndex ?? 0;
+    LoggerService.logInfo('[BornomalaBloc] Emitting BornomalaLoaded(index: $index)');
+    emit(BornomalaLoaded(index: index));
+    await _playAlphabetAudio(index);
   }
 
   // ================= NAV =================

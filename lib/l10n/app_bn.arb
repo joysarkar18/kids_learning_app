@@ -34,13 +34,29 @@
   "stars": "তারা",
   "goButton": "যাও",
   "missionComplete": "মিশন সম্পন্ন!",
-  "allMissionsComplete": "সব মিশন সম্পন্ন! +৩",
-  "missionsProgress": "{completed}/৩ মিশন সম্পন্ন",
+  "allMissionsComplete": "সব মিশন সম্পন্ন! +{count}",
+  "@allMissionsComplete": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "missionsProgress": "{completed}/{total} মিশন সম্পন্ন",
   "@missionsProgress": {
     "placeholders": {
       "completed": {
         "type": "int"
+      },
+      "total": {
+        "type": "int"
       }
     }
-  }
+  },
+  "miniGames": "মিনি গেমস",
+  "settings": "সেটিংস",
+  "comingSoon": "শীঘ্রই আসছে!",
+  "miniGamesSubtitle": "আরও গেম আসছে!",
+  "noGamesFound": "কোনো গেম পাওয়া যায়নি",
+  "settingsSubtitle": "শীঘ্রই আসছে!"
 }

@@ -29,7 +29,13 @@ class DailyChallengeLoaded extends DailyChallengeState {
   });
 
   @override
-  List<Object?> get props => [challenge.date, challenge.starsEarned, progress.totalStars, justCompletedAll];
+  List<Object?> get props => [
+        challenge.date,
+        challenge.missions.map((m) => '${m.id}:${m.currentCount}').join(','),
+        progress.totalStars,
+        progress.currentStreak,
+        justCompletedAll,
+      ];
 }
 
 class DailyChallengeError extends DailyChallengeState {

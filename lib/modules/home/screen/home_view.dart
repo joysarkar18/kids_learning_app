@@ -8,10 +8,35 @@ import 'package:kids_learning/modules/home/screen/widgets/sun_menu_widget.dart';
 import 'package:kids_learning/routes/app_routes.dart';
 import 'package:kids_learning/services/daily_challenge_service.dart';
 import 'package:kids_learning/utils/assets.dart';
+import 'package:kids_learning/widgets/gaming_button.dart';
 import 'package:kids_learning/widgets/gaming_image_button.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  VoidCallback? _challengeListener;
+
+  @override
+  void initState() {
+    super.initState();
+    _challengeListener = () {
+      if (mounted) setState(() {});
+    };
+    DailyChallengeService.instance.addListener(_challengeListener!);
+  }
+
+  @override
+  void dispose() {
+    if (_challengeListener != null) {
+      DailyChallengeService.instance.removeListener(_challengeListener!);
+    }
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,31 +67,26 @@ class HomeScreen extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    // Daily Challenge Banner
-                    _DailyChallengeBanner(),
-
-                    SizedBox(height: 20.h),
-
                     // First row: Bengali, English, GK
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         GamingImageButton(
-                          imagePath: Assets.imagesBengaliIcon,
+                          imagePath: Assets.iconsBornomalaIcon,
                           width: 0.3.sw,
                           onPressed: () {
                             context.pushNamed(Names.bornomala);
                           },
                         ),
                         GamingImageButton(
-                          imagePath: Assets.imagesEnglishIcon,
+                          imagePath: Assets.iconsAlphabateIcon,
                           width: 0.3.sw,
                           onPressed: () {
                             context.pushNamed(Names.alphabate);
                           },
                         ),
                         GamingImageButton(
-                          imagePath: Assets.imagesGkIcon,
+                          imagePath: Assets.iconsSadharonGyan,
                           width: 0.3.sw,
                           onPressed: () {
                             context.pushNamed(Names.sothikUttor);
@@ -74,29 +94,28 @@ class HomeScreen extends StatelessWidget {
                         ),
                       ],
                     ),
-                    SizedBox(height: 30.h),
+                    SizedBox(height: 24.h),
 
-                    // Second row: Math, Chora, Drawing
+                    // Second row: Bangla Sonkha, Chora, Drawing
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         GamingImageButton(
-                          imagePath: Assets.imagesBanglaSonkha,
+                          imagePath: Assets.iconsBanglaSonkha,
                           width: 0.3.sw,
                           onPressed: () {
                             context.pushNamed(Names.banglaSonkha);
                           },
                         ),
-
                         GamingImageButton(
-                          imagePath: Assets.imagesChoraIcon,
+                          imagePath: Assets.iconsChoraIcon,
                           width: 0.3.sw,
                           onPressed: () {
                             context.pushNamed(Names.chora);
                           },
                         ),
                         GamingImageButton(
-                          imagePath: Assets.imagesDrawingIcon,
+                          imagePath: Assets.iconsAkaaki,
                           width: 0.3.sw,
                           onPressed: () {
                             context.pushNamed(Names.drawing);
@@ -105,28 +124,28 @@ class HomeScreen extends StatelessWidget {
                       ],
                     ),
 
-                    SizedBox(height: 30.h),
+                    SizedBox(height: 24.h),
 
-                    // Second row: Math, Chora, Drawing
+                    // Third row: English Sonkha, Gonit, Namota
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         GamingImageButton(
-                          imagePath: Assets.imagesEngrejiSonkha,
+                          imagePath: Assets.iconsEnglishSonkha,
                           width: 0.3.sw,
                           onPressed: () {
                             context.pushNamed(Names.englishSonkha);
                           },
                         ),
                         GamingImageButton(
-                          imagePath: Assets.imagesGonit,
+                          imagePath: Assets.iconsGonit,
                           width: 0.3.sw,
                           onPressed: () {
                             context.pushNamed(Names.ganitPlay);
                           },
                         ),
                         GamingImageButton(
-                          imagePath: Assets.imagesNamota,
+                          imagePath: Assets.iconsNamota,
                           width: 0.3.sw,
                           onPressed: () {
                             context.pushNamed(Names.namota);
@@ -134,6 +153,63 @@ class HomeScreen extends StatelessWidget {
                         ),
                       ],
                     ),
+                    SizedBox(height: 24.h),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        GamingImageButton(
+                          imagePath: Assets.iconsGolpo,
+                          width: 0.3.sw,
+                          onPressed: () {
+                            context.pushNamed(Names.englishSonkha);
+                          },
+                        ),
+                        GamingImageButton(
+                          imagePath: Assets.iconsMiniGame,
+                          width: 0.3.sw,
+                          onPressed: () {
+                            context.pushNamed(Names.miniGames);
+                          },
+                        ),
+                        GamingImageButton(
+                          imagePath: Assets.iconsBanan,
+                          width: 0.3.sw,
+                          onPressed: () {
+                            context.pushNamed(Names.namota);
+                          },
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 14.h),
+                  ],
+                ),
+              ),
+            ),
+
+            // Daily Challenge button at bottom center
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Padding(
+                padding: EdgeInsets.only(bottom: 30.h),
+                child: Row(
+                  children: [
+                    SizedBox(width: 10.w),
+                    _StatBadge(
+                      icon: Icons.local_fire_department_rounded,
+                      iconColor: const Color(0xFFFF6B35),
+                      value:
+                          DailyChallengeService.instance.progress.currentStreak,
+                    ),
+                    const Spacer(),
+                    _DailyChallengeButton(),
+                    const Spacer(),
+
+                    _StatBadge(
+                      icon: Icons.star_rounded,
+                      iconColor: const Color(0xFFFFD700),
+                      value: DailyChallengeService.instance.progress.totalStars,
+                    ),
+                    SizedBox(width: 10.w),
                   ],
                 ),
               ),
@@ -145,119 +221,103 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-class _DailyChallengeBanner extends StatelessWidget {
+class _DailyChallengeButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final service = DailyChallengeService.instance;
     final challenge = service.todayChallenge;
-    final progress = service.progress;
     final completed = challenge?.starsEarned ?? 0;
+    final total = challenge?.missions.length ?? 5;
+    final allDone = challenge?.isAllCompleted == true;
 
-    return GestureDetector(
-      onTap: () => context.pushNamed(Names.dailyChallenge),
-      child: Container(
-        width: double.infinity,
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Color(0xFF1B7A40), Color(0xFF0E4A2A)],
-          ),
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(
-            color: const Color(0xFF7CFF6B).withValues(alpha: 0.3),
-            width: 1.5,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF0E4A2A).withValues(alpha: 0.5),
-              blurRadius: 8,
-              offset: const Offset(0, 3),
-            ),
+    return UniversalGamingButton(
+      onPressed: () => context.pushNamed(Names.dailyChallenge),
+      width: 200.w,
+      height: 50,
+      borderRadius: 25,
+      backgroundColor: allDone
+          ? const Color.fromARGB(255, 139, 74, 30)
+          : const Color.fromARGB(255, 122, 84, 27),
+      gradient: LinearGradient(
+        colors: allDone
+            ? [
+                const Color.fromARGB(255, 160, 94, 40),
+                const Color.fromARGB(255, 122, 85, 27),
+              ]
+            : [
+                const Color.fromARGB(255, 122, 79, 27),
+                const Color.fromARGB(255, 91, 65, 17),
+              ],
+      ),
+      icon: allDone
+          ? Icons.check_circle_rounded
+          : Icons.local_fire_department_rounded,
+      iconColor: allDone ? const Color(0xFF7CFF6B) : const Color(0xFFFFD700),
+      text: '${l10n?.dailyChallenge ?? "Daily Challenge"} $completed/$total',
+      textStyle: GoogleFonts.bubblegumSans(
+        fontSize: 14.sp,
+        fontWeight: FontWeight.bold,
+        color: Colors.white,
+      ),
+      shadowDepth: 4,
+      borderWidth: 1.5,
+      borderColor: const Color.fromARGB(
+        255,
+        255,
+        174,
+        107,
+      ).withValues(alpha: 0.3),
+    );
+  }
+}
+
+class _StatBadge extends StatelessWidget {
+  final IconData icon;
+  final Color iconColor;
+  final int value;
+
+  const _StatBadge({
+    required this.icon,
+    required this.iconColor,
+    required this.value,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [
+            Color.fromARGB(255, 88, 58, 22),
+            Color.fromARGB(255, 78, 51, 17),
           ],
         ),
-        child: Row(
-          children: [
-            // Fire/star icon
-            Container(
-              width: 40.w,
-              height: 40.w,
-              decoration: BoxDecoration(
-                color: const Color(0xFFFFD700).withValues(alpha: 0.2),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                progress.currentStreak > 0
-                    ? Icons.local_fire_department_rounded
-                    : Icons.star_rounded,
-                color: progress.currentStreak > 0
-                    ? const Color(0xFFFF6B35)
-                    : const Color(0xFFFFD700),
-                size: 24.sp,
-              ),
+        borderRadius: BorderRadius.circular(20.r),
+        border: Border.all(color: iconColor.withValues(alpha: 0.4), width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.3),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: iconColor, size: 18.sp),
+          SizedBox(width: 4.w),
+          Text(
+            '$value',
+            style: GoogleFonts.bubblegumSans(
+              fontSize: 14.sp,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
             ),
-            SizedBox(width: 12.w),
-            // Text
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    l10n?.dailyChallenge ?? 'Daily Challenge',
-                    style: GoogleFonts.bubblegumSans(
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                  SizedBox(height: 2.h),
-                  Text(
-                    l10n?.missionsProgress(completed) ??
-                        '$completed/3 missions done',
-                    style: GoogleFonts.bubblegumSans(
-                      fontSize: 12.sp,
-                      color: const Color(0xFFD4FFD0),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            // Progress dots
-            Row(
-              children: List.generate(3, (i) {
-                final done = i < completed;
-                return Padding(
-                  padding: EdgeInsets.only(left: i > 0 ? 6.w : 0),
-                  child: Container(
-                    width: 14.w,
-                    height: 14.w,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: done
-                          ? const Color(0xFF7CFF6B)
-                          : Colors.white.withValues(alpha: 0.2),
-                      border: Border.all(
-                        color: done
-                            ? const Color(0xFF7CFF6B)
-                            : Colors.white.withValues(alpha: 0.3),
-                        width: 1.5,
-                      ),
-                    ),
-                    child: done
-                        ? Icon(Icons.check, color: Colors.white, size: 10.sp)
-                        : null,
-                  ),
-                );
-              }),
-            ),
-            SizedBox(width: 8.w),
-            Icon(
-              Icons.arrow_forward_ios_rounded,
-              color: Colors.white.withValues(alpha: 0.5),
-              size: 16.sp,
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

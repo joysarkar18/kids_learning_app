@@ -13,6 +13,9 @@ import 'package:kids_learning/modules/english_sonkha/screen/english_sonkha_wrapp
 import 'package:kids_learning/modules/gonit/screen/gonit_category_view.dart';
 import 'package:kids_learning/modules/gonit/screen/gonit_wrapper.dart';
 import 'package:kids_learning/modules/daily_challenge/screen/daily_challenge_view.dart';
+import 'package:kids_learning/modules/mini_games/screen/mini_games_view.dart';
+import 'package:kids_learning/modules/mini_games/screen/mini_game_webview.dart';
+import 'package:kids_learning/modules/settings/screen/settings_view.dart';
 import 'package:kids_learning/modules/namota/screen/namota_selection_view.dart';
 import 'package:kids_learning/modules/namota/screen/namota_wrapper.dart';
 import 'package:kids_learning/modules/sothik_uttor/screen/sothik_uttor_wrapper.dart';
@@ -164,6 +167,33 @@ final router = GoRouter(
       name: Names.dailyChallenge,
       path: Routes.dailyChallenge,
       builder: (context, state) => const DailyChallengeView(),
+    ),
+
+    // 6. Mini Games
+    GoRoute(
+      name: Names.miniGames,
+      path: Routes.miniGames,
+      builder: (context, state) => const MiniGamesScreen(),
+    ),
+
+    // 6.1 Mini Game WebView Player
+    GoRoute(
+      name: Names.miniGamePlay,
+      path: Routes.miniGamePlay,
+      builder: (context, state) {
+        final data = state.extra as Map<String, dynamic>?;
+        return MiniGameWebViewScreen(
+          name: data?['name'] ?? '',
+          playUrl: data?['playUrl'] ?? '',
+        );
+      },
+    ),
+
+    // 7. Settings
+    GoRoute(
+      name: Names.settings,
+      path: Routes.settings,
+      builder: (context, state) => const SettingsScreen(),
     ),
   ],
 );

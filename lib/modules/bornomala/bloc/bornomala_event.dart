@@ -7,7 +7,13 @@ sealed class BornomalaEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-final class BornomalaInit extends BornomalaEvent {}
+final class BornomalaInit extends BornomalaEvent {
+  final int? startingIndex;
+  const BornomalaInit({this.startingIndex});
+
+  @override
+  List<Object?> get props => [startingIndex];
+}
 
 final class BornomalaNext extends BornomalaEvent {}
 

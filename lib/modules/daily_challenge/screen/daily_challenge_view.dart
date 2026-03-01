@@ -10,6 +10,8 @@ import 'package:kids_learning/modules/daily_challenge/bloc/daily_challenge_event
 import 'package:kids_learning/modules/daily_challenge/bloc/daily_challenge_state.dart';
 import 'package:kids_learning/modules/daily_challenge/data/models/daily_mission_model.dart';
 import 'package:kids_learning/routes/app_routes.dart';
+import 'package:kids_learning/services/daily_challenge_service.dart';
+import 'package:kids_learning/services/logger_service.dart';
 import 'package:kids_learning/utils/assets.dart';
 import 'package:kids_learning/widgets/gaming_button.dart';
 
@@ -22,16 +24,30 @@ class DailyChallengeView extends StatefulWidget {
 
 class _DailyChallengeViewState extends State<DailyChallengeView> {
   late ConfettiController _confettiController;
+  late DailyChallengeBloc _bloc;
+  VoidCallback? _serviceListener;
 
   @override
   void initState() {
     super.initState();
-    _confettiController =
-        ConfettiController(duration: const Duration(seconds: 3));
+    _confettiController = ConfettiController(
+      duration: const Duration(seconds: 3),
+    );
+    _bloc = DailyChallengeBloc()..add(LoadDailyChallenge());
+
+    // Listen to service changes (e.g., from module BLoCs calling reportProgress)
+    _serviceListener = () {
+      _bloc.add(RefreshChallenge());
+    };
+    DailyChallengeService.instance.addListener(_serviceListener!);
   }
 
   @override
   void dispose() {
+    if (_serviceListener != null) {
+      DailyChallengeService.instance.removeListener(_serviceListener!);
+    }
+    _bloc.close();
     _confettiController.dispose();
     super.dispose();
   }
@@ -41,8 +57,8 @@ class _DailyChallengeViewState extends State<DailyChallengeView> {
     final l10n = AppLocalizations.of(context);
     final isBn = Localizations.localeOf(context).languageCode == 'bn';
 
-    return BlocProvider(
-      create: (_) => DailyChallengeBloc()..add(LoadDailyChallenge()),
+    return BlocProvider.value(
+      value: _bloc,
       child: BlocConsumer<DailyChallengeBloc, DailyChallengeState>(
         listener: (context, state) {
           if (state is DailyChallengeLoaded && state.justCompletedAll) {
@@ -75,9 +91,7 @@ class _DailyChallengeViewState extends State<DailyChallengeView> {
               ),
               child: Stack(
                 children: [
-                  SafeArea(
-                    child: _buildBody(state, l10n, isBn),
-                  ),
+                  SafeArea(child: _buildBody(state, l10n, isBn)),
                   // Confetti overlay
                   Align(
                     alignment: Alignment.topCenter,
@@ -108,17 +122,24 @@ class _DailyChallengeViewState extends State<DailyChallengeView> {
   }
 
   Widget _buildBody(
-      DailyChallengeState state, AppLocalizations? l10n, bool isBn) {
+    DailyChallengeState state,
+    AppLocalizations? l10n,
+    bool isBn,
+  ) {
     if (state is DailyChallengeLoading || state is DailyChallengeInitial) {
       return const Center(
-          child: CircularProgressIndicator(color: Colors.white));
+        child: CircularProgressIndicator(color: Colors.white),
+      );
     }
 
     if (state is DailyChallengeError) {
       return Center(
         child: Text(
           state.message,
-          style: GoogleFonts.bubblegumSans(color: Colors.white, fontSize: 18.sp),
+          style: GoogleFonts.bubblegumSans(
+            color: Colors.white,
+            fontSize: 18.sp,
+          ),
         ),
       );
     }
@@ -213,12 +234,15 @@ class _DailyChallengeViewState extends State<DailyChallengeView> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.check_circle_rounded,
-                      color: Colors.white, size: 24.sp),
+                  Icon(
+                    Icons.check_circle_rounded,
+                    color: Colors.white,
+                    size: 24.sp,
+                  ),
                   SizedBox(width: 8.w),
                   Text(
-                    l10n?.allMissionsComplete ??
-                        'All missions complete! +3',
+                    l10n?.allMissionsComplete(challenge.missions.length) ??
+                        'All missions complete! +${challenge.missions.length}',
                     style: GoogleFonts.bubblegumSans(
                       fontSize: 16.sp,
                       fontWeight: FontWeight.bold,
@@ -226,8 +250,11 @@ class _DailyChallengeViewState extends State<DailyChallengeView> {
                     ),
                   ),
                   SizedBox(width: 4.w),
-                  Icon(Icons.star_rounded,
-                      color: const Color(0xFFFFD700), size: 20.sp),
+                  Icon(
+                    Icons.star_rounded,
+                    color: const Color(0xFFFFD700),
+                    size: 20.sp,
+                  ),
                 ],
               ),
             ),
@@ -288,9 +315,25 @@ class _DailyChallengeViewState extends State<DailyChallengeView> {
     };
 
     final routeName = routeMap[moduleKey];
-    if (routeName != null) {
-      context.pushNamed(routeName);
-    }
+    if (routeName == null) return;
+
+    LoggerService.logInfo(
+      '[DailyChallengeView] _navigateToModule($moduleKey) → route=$routeName',
+    );
+
+    // Store resume index on service — wrappers read it via consumeStartIndex()
+    DailyChallengeService.instance.prepareLaunch(moduleKey);
+
+    LoggerService.logInfo(
+      '[DailyChallengeView] After prepareLaunch, pendingIndices exist. Now pushing route...',
+    );
+
+    context.pushNamed(routeName).then((_) {
+      LoggerService.logInfo(
+        '[DailyChallengeView] Returned from $moduleKey, refreshing challenge',
+      );
+      _bloc.add(RefreshChallenge());
+    });
   }
 }
 
@@ -367,9 +410,7 @@ class _MissionCard extends StatelessWidget {
                     minHeight: 8,
                     backgroundColor: Colors.white.withValues(alpha: 0.1),
                     valueColor: AlwaysStoppedAnimation<Color>(
-                      mission.isCompleted
-                          ? const Color(0xFF7CFF6B)
-                          : color,
+                      mission.isCompleted ? const Color(0xFF7CFF6B) : color,
                     ),
                   ),
                 ),
@@ -396,13 +437,17 @@ class _MissionCard extends StatelessWidget {
                 color: Color(0xFF7CFF6B),
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.check_rounded, color: Colors.white, size: 24.sp),
+              child: Icon(
+                Icons.check_rounded,
+                color: Colors.white,
+                size: 24.sp,
+              ),
             )
           else
             UniversalGamingButton(
               onPressed: onGoPressed,
               width: 70.w,
-              height: 38,
+              height: 45,
               borderRadius: 19,
               backgroundColor: color,
               shadowDepth: 3,
@@ -420,16 +465,16 @@ class _MissionCard extends StatelessWidget {
 
   String _moduleIcon(String moduleKey) {
     const map = {
-      'bornomala': Assets.imagesBengaliIcon,
-      'alphabate': Assets.imagesEnglishIcon,
-      'sothik_uttor': Assets.imagesGkIcon,
-      'gonit': Assets.imagesGonit,
-      'bangla_sonkha': Assets.imagesBanglaSonkha,
-      'english_sonkha': Assets.imagesEngrejiSonkha,
-      'drawing': Assets.imagesDrawingIcon,
-      'namota': Assets.imagesNamota,
+      'bornomala': Assets.iconsBornomalaIcon,
+      'alphabate': Assets.iconsAlphabateIcon,
+      'sothik_uttor': Assets.iconsSadharonGyan,
+      'gonit': Assets.iconsGonit,
+      'bangla_sonkha': Assets.iconsBanglaSonkha,
+      'english_sonkha': Assets.iconsEnglishSonkha,
+      'drawing': Assets.iconsAkaaki,
+      'namota': Assets.iconsNamota,
     };
-    return map[moduleKey] ?? Assets.imagesGkIcon;
+    return map[moduleKey] ?? Assets.iconsSadharonGyan;
   }
 
   Color _moduleColor(String moduleKey) {

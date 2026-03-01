@@ -114,10 +114,30 @@ class AppLocalizationsBn extends AppLocalizations {
   String get missionComplete => 'মিশন সম্পন্ন!';
 
   @override
-  String get allMissionsComplete => 'সব মিশন সম্পন্ন! +৩';
+  String allMissionsComplete(int count) {
+    return 'সব মিশন সম্পন্ন! +$count';
+  }
 
   @override
-  String missionsProgress(int completed) {
-    return '$completed/৩ মিশন সম্পন্ন';
+  String missionsProgress(int completed, int total) {
+    return '$completed/$total মিশন সম্পন্ন';
   }
+
+  @override
+  String get miniGames => 'মিনি গেমস';
+
+  @override
+  String get settings => 'সেটিংস';
+
+  @override
+  String get comingSoon => 'শীঘ্রই আসছে!';
+
+  @override
+  String get miniGamesSubtitle => 'আরও গেম আসছে!';
+
+  @override
+  String get noGamesFound => 'কোনো গেম পাওয়া যায়নি';
+
+  @override
+  String get settingsSubtitle => 'শীঘ্রই আসছে!';
 }

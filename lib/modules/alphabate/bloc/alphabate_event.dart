@@ -7,7 +7,13 @@ sealed class AlphabetEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-final class AlphabetInit extends AlphabetEvent {}
+final class AlphabetInit extends AlphabetEvent {
+  final int? startingIndex;
+  const AlphabetInit({this.startingIndex});
+
+  @override
+  List<Object?> get props => [startingIndex];
+}
 
 final class AlphabetNext extends AlphabetEvent {}
 

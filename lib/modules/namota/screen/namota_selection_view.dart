@@ -73,59 +73,72 @@ class NamotaSelectionScreen extends StatelessWidget {
               SafeArea(
                 child: Column(
                   children: [
-                    SizedBox(height: 50.h),
+                    SizedBox(height: 5.h),
 
                     // Title — wooden sign style
-                    Container(
-                      margin: EdgeInsets.symmetric(horizontal: 32.w),
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 24.w,
-                        vertical: 12.h,
-                      ),
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [
-                            Color(0xFF6D4C41),
-                            Color(0xFF8D6E63),
-                            Color(0xFF6D4C41),
-                          ],
+                    Row(
+                      children: [
+                        SizedBox(width: 2.w),
+                        GamingImageButton(
+                          width: 0.22.sw,
+                          imagePath: Assets.imagesCrossIcon,
+                          onPressed: () => context.pop(),
                         ),
-                        borderRadius: BorderRadius.circular(16.r),
-                        border: Border.all(
-                          color: const Color(0xFF4E342E),
-                          width: 3,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.4),
-                            blurRadius: 8,
-                            offset: const Offset(0, 4),
+                        SizedBox(width: 6.w),
+                        Container(
+                          margin: EdgeInsets.only(right: 32.w),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 24.w,
+                            vertical: 12.h,
                           ),
-                        ],
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text('🌿 ', style: TextStyle(fontSize: 20.sp)),
-                          Text(
-                            'নামতা বাছো!',
-                            style: GoogleFonts.hindSiliguri(
-                              fontSize: 22.sp,
-                              fontWeight: FontWeight.bold,
-                              color: const Color(0xFFFFF8E1),
-                              shadows: [
-                                Shadow(
-                                  color: Colors.black.withValues(alpha: 0.5),
-                                  offset: const Offset(1, 1),
-                                  blurRadius: 3,
-                                ),
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [
+                                Color(0xFF6D4C41),
+                                Color(0xFF8D6E63),
+                                Color(0xFF6D4C41),
                               ],
                             ),
+                            borderRadius: BorderRadius.circular(16.r),
+                            border: Border.all(
+                              color: const Color(0xFF4E342E),
+                              width: 3,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.4),
+                                blurRadius: 8,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
                           ),
-                          Text(' 🌿', style: TextStyle(fontSize: 20.sp)),
-                        ],
-                      ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text('🌿 ', style: TextStyle(fontSize: 20.sp)),
+                              Text(
+                                'নামতা বাছো!',
+                                style: GoogleFonts.hindSiliguri(
+                                  fontSize: 22.sp,
+                                  fontWeight: FontWeight.bold,
+                                  color: const Color(0xFFFFF8E1),
+                                  shadows: [
+                                    Shadow(
+                                      color: Colors.black.withValues(
+                                        alpha: 0.5,
+                                      ),
+                                      offset: const Offset(1, 1),
+                                      blurRadius: 3,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Text(' 🌿', style: TextStyle(fontSize: 20.sp)),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
 
                     SizedBox(height: 20.h),
@@ -164,17 +177,6 @@ class NamotaSelectionScreen extends StatelessWidget {
               ),
 
               // Close button
-              Align(
-                alignment: Alignment.topLeft,
-                child: Padding(
-                  padding: EdgeInsets.only(left: 10.w, top: 15.h),
-                  child: GamingImageButton(
-                    width: 0.18.sw,
-                    imagePath: Assets.imagesCrossIcon,
-                    onPressed: () => context.pop(),
-                  ),
-                ),
-              ),
             ],
           ),
         ),

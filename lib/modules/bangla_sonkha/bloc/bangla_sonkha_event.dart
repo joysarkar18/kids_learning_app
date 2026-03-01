@@ -7,7 +7,13 @@ sealed class BanglaSonkhaEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-final class BanglaSonkhaInit extends BanglaSonkhaEvent {}
+final class BanglaSonkhaInit extends BanglaSonkhaEvent {
+  final int? startingIndex;
+  const BanglaSonkhaInit({this.startingIndex});
+
+  @override
+  List<Object?> get props => [startingIndex];
+}
 
 final class BanglaSonkhaNext extends BanglaSonkhaEvent {}
 

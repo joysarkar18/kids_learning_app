@@ -52,8 +52,6 @@ class _BanglaSonkhaScreenState extends State<BanglaSonkhaScreen> {
     _confettiController = ConfettiController(
       duration: const Duration(seconds: 2),
     );
-
-    context.read<BanglaSonkhaBloc>().add(BanglaSonkhaInit());
   }
 
   @override

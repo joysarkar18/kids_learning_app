@@ -311,14 +311,50 @@ abstract class AppLocalizations {
   /// No description provided for @allMissionsComplete.
   ///
   /// In en, this message translates to:
-  /// **'All missions complete! +3'**
-  String get allMissionsComplete;
+  /// **'All missions complete! +{count}'**
+  String allMissionsComplete(int count);
 
   /// No description provided for @missionsProgress.
   ///
   /// In en, this message translates to:
-  /// **'{completed}/3 missions done'**
-  String missionsProgress(int completed);
+  /// **'{completed}/{total} missions done'**
+  String missionsProgress(int completed, int total);
+
+  /// No description provided for @miniGames.
+  ///
+  /// In en, this message translates to:
+  /// **'Mini Games'**
+  String get miniGames;
+
+  /// No description provided for @settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settings;
+
+  /// No description provided for @comingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Coming Soon!'**
+  String get comingSoon;
+
+  /// No description provided for @miniGamesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'More games are on their way!'**
+  String get miniGamesSubtitle;
+
+  /// No description provided for @noGamesFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No games found'**
+  String get noGamesFound;
+
+  /// No description provided for @settingsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Coming Soon!'**
+  String get settingsSubtitle;
 }
 
 class _AppLocalizationsDelegate

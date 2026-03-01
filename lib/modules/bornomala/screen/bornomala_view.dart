@@ -35,9 +35,6 @@ class _BornomalaScreenState extends State<BornomalaScreen> {
     _confettiController = ConfettiController(
       duration: const Duration(seconds: 2),
     );
-
-    // 3. Initialize Bloc
-    context.read<BornomalaBloc>().add(BornomalaInit());
   }
 
   @override

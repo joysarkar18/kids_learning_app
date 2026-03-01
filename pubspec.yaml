@@ -67,10 +67,12 @@ dependencies:
   cached_network_image: ^3.4.1
   http: ^1.4.0
   youtube_player_flutter: ^9.1.1
+  flutter_inappwebview: ^6.1.5
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  image: ^4.5.3
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

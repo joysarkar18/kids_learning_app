@@ -12,6 +12,9 @@ abstract class Routes {
   static const namota = _Paths.namota;
   static const namotaPractice = _Paths.namotaPractice;
   static const dailyChallenge = _Paths.dailyChallenge;
+  static const miniGames = _Paths.miniGames;
+  static const miniGamePlay = _Paths.miniGamePlay;
+  static const settings = _Paths.settings;
   static const init = _Paths.init;
   static const language = _Paths.language; // Added
   static const login = _Paths.login;
@@ -35,6 +38,9 @@ abstract class _Paths {
   static const namota = '/namota';
   static const namotaPractice = '/namota-practice';
   static const dailyChallenge = '/daily-challenge';
+  static const miniGames = '/mini-games';
+  static const miniGamePlay = '/mini-game-play';
+  static const settings = '/settings';
   static const init = "/";
   static const language = '/language-selector'; // Added
   static const login = '/login';
@@ -57,6 +63,9 @@ abstract class Names {
   static const namota = _Names.namota;
   static const namotaPractice = _Names.namotaPractice;
   static const dailyChallenge = _Names.dailyChallenge;
+  static const miniGames = _Names.miniGames;
+  static const miniGamePlay = _Names.miniGamePlay;
+  static const settings = _Names.settings;
   static const init = _Names.init;
   static const language = _Names.language; // Added
   static const login = _Names.login;
@@ -79,6 +88,9 @@ abstract class _Names {
   static const namota = 'namota';
   static const namotaPractice = 'namotaPractice';
   static const dailyChallenge = 'dailyChallenge';
+  static const miniGames = 'miniGames';
+  static const miniGamePlay = 'miniGamePlay';
+  static const settings = 'settings';
   static const init = 'init';
   static const language = 'language'; // Added
   static const login = 'login';

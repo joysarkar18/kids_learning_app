@@ -7,7 +7,13 @@ sealed class EnglishSonkhaEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-final class EnglishSonkhaInit extends EnglishSonkhaEvent {}
+final class EnglishSonkhaInit extends EnglishSonkhaEvent {
+  final int? startingIndex;
+  const EnglishSonkhaInit({this.startingIndex});
+
+  @override
+  List<Object?> get props => [startingIndex];
+}
 
 final class EnglishSonkhaNext extends EnglishSonkhaEvent {}
 

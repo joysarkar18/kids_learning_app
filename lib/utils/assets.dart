@@ -238,13 +238,61 @@ class Assets {
   /// assets/audios/ui/yay_sound.wav
   static const String audiosUiYaySound = "assets/audios/ui/yay_sound.wav";
 
+  /// Assets for iconsAkaaki
+  /// assets/icons/akaaki.png
+  static const String iconsAkaaki = "assets/icons/akaaki.png";
+
+  /// Assets for iconsAlphabateIcon
+  /// assets/icons/alphabate_icon.png
+  static const String iconsAlphabateIcon = "assets/icons/alphabate_icon.png";
+
+  /// Assets for iconsBanan
+  /// assets/icons/banan.png
+  static const String iconsBanan = "assets/icons/banan.png";
+
   /// Assets for iconsBanglaIcon
   /// assets/icons/bangla_icon.png
   static const String iconsBanglaIcon = "assets/icons/bangla_icon.png";
 
+  /// Assets for iconsBanglaSonkha
+  /// assets/icons/bangla_sonkha.png
+  static const String iconsBanglaSonkha = "assets/icons/bangla_sonkha.png";
+
+  /// Assets for iconsBornomalaIcon
+  /// assets/icons/bornomala_icon.png
+  static const String iconsBornomalaIcon = "assets/icons/bornomala_icon.png";
+
+  /// Assets for iconsChoraIcon
+  /// assets/icons/chora_icon.png
+  static const String iconsChoraIcon = "assets/icons/chora_icon.png";
+
   /// Assets for iconsEnglishIcon
   /// assets/icons/english_icon.png
   static const String iconsEnglishIcon = "assets/icons/english_icon.png";
+
+  /// Assets for iconsEnglishSonkha
+  /// assets/icons/english_sonkha.png
+  static const String iconsEnglishSonkha = "assets/icons/english_sonkha.png";
+
+  /// Assets for iconsGolpo
+  /// assets/icons/golpo.png
+  static const String iconsGolpo = "assets/icons/golpo.png";
+
+  /// Assets for iconsGonit
+  /// assets/icons/gonit.png
+  static const String iconsGonit = "assets/icons/gonit.png";
+
+  /// Assets for iconsMiniGame
+  /// assets/icons/mini_game.png
+  static const String iconsMiniGame = "assets/icons/mini_game.png";
+
+  /// Assets for iconsNamota
+  /// assets/icons/namota.png
+  static const String iconsNamota = "assets/icons/namota.png";
+
+  /// Assets for iconsSadharonGyan
+  /// assets/icons/sadharon_gyan.png
+  static const String iconsSadharonGyan = "assets/icons/sadharon_gyan.png";
 
   /// Assets for imagesArrowLeft
   /// assets/images/arrow_left.png
@@ -254,21 +302,9 @@ class Assets {
   /// assets/images/arrow_right.png
   static const String imagesArrowRight = "assets/images/arrow_right.png";
 
-  /// Assets for imagesBanglaSonkha
-  /// assets/images/bangla_sonkha.png
-  static const String imagesBanglaSonkha = "assets/images/bangla_sonkha.png";
-
   /// Assets for imagesBanglaSonkhaBg
   /// assets/images/bangla_sonkha_bg.png
   static const String imagesBanglaSonkhaBg = "assets/images/bangla_sonkha_bg.png";
-
-  /// Assets for imagesBegun
-  /// assets/images/begun.png
-  static const String imagesBegun = "assets/images/begun.png";
-
-  /// Assets for imagesBengaliIcon
-  /// assets/images/bengali_icon.png
-  static const String imagesBengaliIcon = "assets/images/bengali_icon.png";
 
   /// Assets for imagesBornomalaBg
   /// assets/images/bornomala_bg.png
@@ -326,10 +362,6 @@ class Assets {
   /// assets/images/chora_frame.png
   static const String imagesChoraFrame = "assets/images/chora_frame.png";
 
-  /// Assets for imagesChoraIcon
-  /// assets/images/chora_icon.png
-  static const String imagesChoraIcon = "assets/images/chora_icon.png";
-
   /// Assets for imagesCowBoard
   /// assets/images/cow_board.png
   static const String imagesCowBoard = "assets/images/cow_board.png";
@@ -350,21 +382,9 @@ class Assets {
   /// assets/images/donki_board.png
   static const String imagesDonkiBoard = "assets/images/donki_board.png";
 
-  /// Assets for imagesDrawingIcon
-  /// assets/images/drawing_icon.png
-  static const String imagesDrawingIcon = "assets/images/drawing_icon.png";
-
   /// Assets for imagesElephantBoard
   /// assets/images/elephant_board.png
   static const String imagesElephantBoard = "assets/images/elephant_board.png";
-
-  /// Assets for imagesEnglishIcon
-  /// assets/images/english_icon.png
-  static const String imagesEnglishIcon = "assets/images/english_icon.png";
-
-  /// Assets for imagesEngrejiSonkha
-  /// assets/images/engreji_sonkha.png
-  static const String imagesEngrejiSonkha = "assets/images/engreji_sonkha.png";
 
   /// Assets for imagesEreaseIcon
   /// assets/images/erease_icon.png
@@ -394,14 +414,6 @@ class Assets {
   /// assets/images/gk_bg3.png
   static const String imagesGkBg3 = "assets/images/gk_bg3.png";
 
-  /// Assets for imagesGkIcon
-  /// assets/images/gk_icon.png
-  static const String imagesGkIcon = "assets/images/gk_icon.png";
-
-  /// Assets for imagesGonit
-  /// assets/images/gonit.png
-  static const String imagesGonit = "assets/images/gonit.png";
-
   /// Assets for imagesGudiyaMenu
   /// assets/images/gudiya_menu.png
   static const String imagesGudiyaMenu = "assets/images/gudiya_menu.png";
@@ -414,14 +426,6 @@ class Assets {
   /// assets/images/image_frame.png
   static const String imagesImageFrame = "assets/images/image_frame.png";
 
-  /// Assets for imagesLionImage
-  /// assets/images/lion_image.png
-  static const String imagesLionImage = "assets/images/lion_image.png";
-
-  /// Assets for imagesMathIcon
-  /// assets/images/math_icon.png
-  static const String imagesMathIcon = "assets/images/math_icon.png";
-
   /// Assets for imagesMicButton
   /// assets/images/mic_button.png
   static const String imagesMicButton = "assets/images/mic_button.png";
@@ -430,10 +434,6 @@ class Assets {
   /// assets/images/moti_menu.png
   static const String imagesMotiMenu = "assets/images/moti_menu.png";
 
-  /// Assets for imagesNamota
-  /// assets/images/namota.png
-  static const String imagesNamota = "assets/images/namota.png";
-
   /// Assets for imagesOwlBoard
   /// assets/images/owl_board.png
   static const String imagesOwlBoard = "assets/images/owl_board.png";
@@ -441,10 +441,6 @@ class Assets {
   /// Assets for imagesRetryButton
   /// assets/images/retry_button.png
   static const String imagesRetryButton = "assets/images/retry_button.png";
-
-  /// Assets for imagesSlateBg
-  /// assets/images/slate_bg.png
-  static const String imagesSlateBg = "assets/images/slate_bg.png";
 
   /// Assets for imagesSonkhaBg
   /// assets/images/sonkha_bg.png

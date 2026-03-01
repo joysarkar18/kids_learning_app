@@ -42,8 +42,11 @@ class AlphabetBloc extends Bloc<AlphabetEvent, AlphabetState> {
 
   // ================= INIT =================
   Future<void> _onInit(AlphabetInit event, Emitter<AlphabetState> emit) async {
-    emit(const AlphabetLoaded(index: 0));
-    await _playAlphabetAudio(0);
+    LoggerService.logInfo('[AlphabetBloc] _onInit called → event.startingIndex=${event.startingIndex}');
+    final index = event.startingIndex ?? 0;
+    LoggerService.logInfo('[AlphabetBloc] Emitting AlphabetLoaded(index: $index)');
+    emit(AlphabetLoaded(index: index));
+    await _playAlphabetAudio(index);
   }
 
   // ================= NAV =================

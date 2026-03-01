@@ -26,4 +26,13 @@ class DailyChallenge {
                 .toList() ??
             [],
       );
+
+  DailyChallenge copyWith({
+    String? date,
+    List<DailyMission>? missions,
+  }) =>
+      DailyChallenge(
+        date: date ?? this.date,
+        missions: missions ?? this.missions,
+      );
 }

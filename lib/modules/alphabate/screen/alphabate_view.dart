@@ -31,8 +31,6 @@ class _AlphabetScreenState extends State<AlphabetScreen> {
     _confettiController = ConfettiController(
       duration: const Duration(seconds: 2),
     );
-
-    context.read<AlphabetBloc>().add(AlphabetInit());
   }
 
   @override

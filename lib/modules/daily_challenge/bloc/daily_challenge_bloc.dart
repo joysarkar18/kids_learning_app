@@ -39,15 +39,20 @@ class DailyChallengeBloc
     CompleteMissionStep event,
     Emitter<DailyChallengeState> emit,
   ) async {
-    final challenge = _service.todayChallenge;
-    if (challenge == null) return;
+    final challengeBefore = _service.todayChallenge;
+    if (challengeBefore == null) return;
 
-    final wasAllCompleted = challenge.isAllCompleted;
+    final wasAllCompleted = challengeBefore.isAllCompleted;
     await _service.reportProgress(event.moduleKey);
-    final nowAllCompleted = challenge.isAllCompleted;
+
+    // Re-read AFTER reportProgress — service now holds a new immutable object
+    final challengeAfter = _service.todayChallenge;
+    if (challengeAfter == null) return;
+
+    final nowAllCompleted = challengeAfter.isAllCompleted;
 
     emit(DailyChallengeLoaded(
-      challenge: challenge,
+      challenge: challengeAfter,
       progress: _service.progress,
       justCompletedAll: !wasAllCompleted && nowAllCompleted,
     ));
@@ -57,7 +62,6 @@ class DailyChallengeBloc
     RefreshChallenge event,
     Emitter<DailyChallengeState> emit,
   ) async {
-    await _service.initialize();
     final challenge = _service.todayChallenge;
     if (challenge != null) {
       emit(DailyChallengeLoaded(

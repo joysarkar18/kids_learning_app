@@ -34,13 +34,29 @@
   "stars": "Stars",
   "goButton": "Go",
   "missionComplete": "Mission Complete!",
-  "allMissionsComplete": "All missions complete! +3",
-  "missionsProgress": "{completed}/3 missions done",
+  "allMissionsComplete": "All missions complete! +{count}",
+  "@allMissionsComplete": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "missionsProgress": "{completed}/{total} missions done",
   "@missionsProgress": {
     "placeholders": {
       "completed": {
         "type": "int"
+      },
+      "total": {
+        "type": "int"
       }
     }
-  }
+  },
+  "miniGames": "Mini Games",
+  "settings": "Settings",
+  "comingSoon": "Coming Soon!",
+  "miniGamesSubtitle": "More games are on their way!",
+  "noGamesFound": "No games found",
+  "settingsSubtitle": "Coming Soon!"
 }

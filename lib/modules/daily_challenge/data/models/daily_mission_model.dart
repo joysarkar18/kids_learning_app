@@ -4,7 +4,8 @@ class DailyMission {
   final String titleEn;
   final String titleBn;
   final int targetCount;
-  int currentCount;
+  final int currentCount;
+  final int? startingIndex;
 
   DailyMission({
     required this.id,
@@ -13,6 +14,7 @@ class DailyMission {
     required this.titleBn,
     required this.targetCount,
     this.currentCount = 0,
+    this.startingIndex,
   });
 
   bool get isCompleted => currentCount >= targetCount;
@@ -27,6 +29,7 @@ class DailyMission {
         'titleBn': titleBn,
         'targetCount': targetCount,
         'currentCount': currentCount,
+        'startingIndex': startingIndex,
       };
 
   factory DailyMission.fromMap(Map<String, dynamic> map) => DailyMission(
@@ -36,14 +39,17 @@ class DailyMission {
         titleBn: map['titleBn'] ?? '',
         targetCount: map['targetCount'] ?? 0,
         currentCount: map['currentCount'] ?? 0,
+        startingIndex: map['startingIndex'] as int?,
       );
 
-  DailyMission copyWith({int? currentCount}) => DailyMission(
+  DailyMission copyWith({int? currentCount, int? startingIndex}) =>
+      DailyMission(
         id: id,
         moduleKey: moduleKey,
         titleEn: titleEn,
         titleBn: titleBn,
         targetCount: targetCount,
         currentCount: currentCount ?? this.currentCount,
+        startingIndex: startingIndex ?? this.startingIndex,
       );
 }

@@ -6,6 +6,7 @@ import 'package:bloc/bloc.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:flutter/foundation.dart';
 import 'package:kids_learning/services/daily_challenge_service.dart';
+import 'package:kids_learning/services/logger_service.dart';
 
 import 'bangla_sonkha_event.dart';
 import 'bangla_sonkha_state.dart';
@@ -46,8 +47,11 @@ class BanglaSonkhaBloc extends Bloc<BanglaSonkhaEvent, BanglaSonkhaState> {
     BanglaSonkhaInit event,
     Emitter<BanglaSonkhaState> emit,
   ) async {
-    emit(const BanglaSonkhaLoaded(index: 0));
-    await _playNumberAudio(0);
+    LoggerService.logInfo('[BanglaSonkhaBloc] _onInit called → event.startingIndex=${event.startingIndex}');
+    final index = event.startingIndex ?? 0;
+    LoggerService.logInfo('[BanglaSonkhaBloc] Emitting BanglaSonkhaLoaded(index: $index)');
+    emit(BanglaSonkhaLoaded(index: index));
+    await _playNumberAudio(index);
   }
 
   // ================= NAV =================
