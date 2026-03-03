@@ -70,6 +70,7 @@ class GanitProblemModel {
   final String questionText;
   final String questionImageUrl;
   final String questionAudioUrl;
+  final String answerAudioUrl;
   final String explanationText;
   final String answerText;
   final List<GanitOptionModel> options;
@@ -83,6 +84,7 @@ class GanitProblemModel {
     required this.questionText,
     required this.questionImageUrl,
     this.questionAudioUrl = '',
+    this.answerAudioUrl = '',
     required this.explanationText,
     required this.answerText,
     required this.options,
@@ -128,6 +130,7 @@ class GanitProblemModel {
       questionText: data['question_text'] ?? '',
       questionImageUrl: data['question_image_url'] ?? '',
       questionAudioUrl: data['question_audio_url'] ?? '',
+      answerAudioUrl: data['answer_audio_url'] ?? '',
       explanationText: data['explanation_text'] ?? '',
       answerText: data['answer_text'] ?? '',
       options: optionsList,

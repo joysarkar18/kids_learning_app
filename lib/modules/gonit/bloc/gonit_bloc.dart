@@ -49,6 +49,7 @@ class GanitBloc extends Bloc<GanitEvent, GanitState> {
         if (currentState.currentProblem?.isOrderingType == true) return;
         if (!currentState.isValidating &&
             !_isPlayingFeedbackAudio &&
+            !currentState.isPlayingSkipAudio &&
             currentState.answerStatus == GanitAnswerStatus.none) {
           add(GanitStartListening());
         }
@@ -221,6 +222,7 @@ class GanitBloc extends Bloc<GanitEvent, GanitState> {
     if (state.isValidating ||
         _isPlayingFeedbackAudio ||
         _isPlayingQuestionAudio ||
+        state.isPlayingSkipAudio ||
         state.answerStatus == GanitAnswerStatus.correct) {
       return;
     }
@@ -485,16 +487,35 @@ class GanitBloc extends Bloc<GanitEvent, GanitState> {
 
     _answeredIds.add(currentProblem.id);
 
+    // Set skip audio playing state
+    emit(currentState.copyWith(isPlayingSkipAudio: true));
+
+    // Play the correct answer audio if available
+    final hasAnswerAudio = currentProblem.answerAudioUrl.isNotEmpty;
+    if (hasAnswerAudio) {
+      await _playCorrectAnswerAudio(currentProblem.answerAudioUrl);
+      await _questionAudioPlayer.onPlayerComplete.first;
+    }
+
+    if (state is! GanitLoaded) return;
+    final afterAudioState = state as GanitLoaded;
+
+    // Reset skip audio state
+    emit(afterAudioState.copyWith(isPlayingSkipAudio: false));
+
+    if (state is! GanitLoaded) return;
+    final latestState = state as GanitLoaded;
+
     // For ordering: show correct order before skipping
     if (currentProblem.isOrderingType) {
       final allPlaced = {
         for (var item in currentProblem.orderItems)
           item.correctPosition: item.id,
       };
-      emit(currentState.copyWith(
+      emit(latestState.copyWith(
         placedItems: allPlaced,
         answerStatus: GanitAnswerStatus.correct,
-        roundAnswered: currentState.roundAnswered + 1,
+        roundAnswered: latestState.roundAnswered + 1,
       ));
       await Future.delayed(const Duration(milliseconds: 1500));
       add(GanitNextProblem());
@@ -509,11 +530,11 @@ class GanitBloc extends Bloc<GanitEvent, GanitState> {
       final allResults = {
         for (var p in currentProblem.matchPairs) p.id: true,
       };
-      emit(currentState.copyWith(
+      emit(latestState.copyWith(
         matchedPairs: allMatched,
         matchResults: allResults,
         answerStatus: GanitAnswerStatus.correct,
-        roundAnswered: currentState.roundAnswered + 1,
+        roundAnswered: latestState.roundAnswered + 1,
       ));
       await Future.delayed(const Duration(milliseconds: 1500));
       add(GanitNextProblem());
@@ -522,10 +543,10 @@ class GanitBloc extends Bloc<GanitEvent, GanitState> {
 
     final correctOption = currentProblem.correctOption;
     if (correctOption != null) {
-      emit(currentState.copyWith(
+      emit(latestState.copyWith(
         selectedOptionId: correctOption.id,
         answerStatus: GanitAnswerStatus.correct,
-        roundAnswered: currentState.roundAnswered + 1,
+        roundAnswered: latestState.roundAnswered + 1,
       ));
       await Future.delayed(const Duration(milliseconds: 1500));
     }
@@ -669,6 +690,19 @@ class GanitBloc extends Bloc<GanitEvent, GanitState> {
       } catch (e) {
         debugPrint('Error playing question audio: $e');
         _isPlayingQuestionAudio = false;
+      }
+    }
+  }
+
+  // ================= CORRECT ANSWER AUDIO =================
+  Future<void> _playCorrectAnswerAudio(String audioUrl) async {
+    await _questionAudioPlayer.stop();
+
+    if (audioUrl.isNotEmpty) {
+      try {
+        await _questionAudioPlayer.play(UrlSource(audioUrl));
+      } catch (e) {
+        debugPrint('Error playing correct answer audio: $e');
       }
     }
   }

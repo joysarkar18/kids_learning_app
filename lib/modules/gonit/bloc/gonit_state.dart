@@ -11,6 +11,7 @@ sealed class GanitState extends Equatable {
   final bool isListening;
   final bool isValidating;
   final bool isLoadingMore;
+  final bool isPlayingSkipAudio;
   final String? errorMessage;
   final String recognizedText;
 
@@ -36,6 +37,7 @@ sealed class GanitState extends Equatable {
     this.isListening = false,
     this.isValidating = false,
     this.isLoadingMore = false,
+    this.isPlayingSkipAudio = false,
     this.errorMessage,
     this.recognizedText = '',
     this.roundCorrect = 0,
@@ -91,6 +93,7 @@ sealed class GanitState extends Equatable {
         isListening,
         isValidating,
         isLoadingMore,
+        isPlayingSkipAudio,
         errorMessage,
         recognizedText,
         roundCorrect,
@@ -121,6 +124,7 @@ final class GanitLoaded extends GanitState {
     super.isListening,
     super.isValidating,
     super.isLoadingMore,
+    super.isPlayingSkipAudio,
     super.errorMessage,
     super.recognizedText,
     super.roundCorrect,
@@ -141,6 +145,7 @@ final class GanitLoaded extends GanitState {
     bool? isListening,
     bool? isValidating,
     bool? isLoadingMore,
+    bool? isPlayingSkipAudio,
     String? errorMessage,
     String? recognizedText,
     int? roundCorrect,
@@ -163,6 +168,7 @@ final class GanitLoaded extends GanitState {
       isListening: isListening ?? this.isListening,
       isValidating: isValidating ?? this.isValidating,
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
+      isPlayingSkipAudio: isPlayingSkipAudio ?? this.isPlayingSkipAudio,
       errorMessage: errorMessage,
       recognizedText: recognizedText ?? this.recognizedText,
       roundCorrect: roundCorrect ?? this.roundCorrect,

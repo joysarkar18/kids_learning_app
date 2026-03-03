@@ -344,7 +344,7 @@ class _GanitProblemScreenState extends State<GanitProblemScreen>
     final options = currentProblem.options;
     final selectedOptionId = state.selectedOptionId;
     final answerStatus = state.answerStatus;
-    final isDisabled = answerStatus != GanitAnswerStatus.none;
+    final isDisabled = answerStatus != GanitAnswerStatus.none || state.isPlayingSkipAudio;
     final hasImages = options.any((o) => o.imageUrl.isNotEmpty);
 
     if (hasImages) {
@@ -1337,6 +1337,7 @@ class _GanitProblemScreenState extends State<GanitProblemScreen>
         state.isValidating ||
         state.isListening ||
         _isPlayingFeedbackAudio ||
+        state.isPlayingSkipAudio ||
         state.answerStatus != GanitAnswerStatus.none ||
         state is GanitLoading;
 
@@ -1393,7 +1394,9 @@ class _GanitProblemScreenState extends State<GanitProblemScreen>
   // ════════════════════════════════════════════════════════════════
   Widget _buildBottomButtons(GanitState state) {
     final isDisabled =
-        state is GanitLoading || state.answerStatus != GanitAnswerStatus.none;
+        state is GanitLoading ||
+        state.isPlayingSkipAudio ||
+        state.answerStatus != GanitAnswerStatus.none;
 
     return Align(
       alignment: Alignment.bottomCenter,
