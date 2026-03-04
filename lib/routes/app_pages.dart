@@ -1,3 +1,4 @@
+import 'package:kids_learning/modules/banan/screen/banan_view.dart';
 import 'package:kids_learning/modules/drawing/screen/drawing_view.dart';
 import 'package:kids_learning/modules/alphabate/screen/alphabate_view.dart';
 import 'package:kids_learning/modules/alphabate/screen/alphabate_wrapper.dart';
@@ -40,6 +41,12 @@ final router = GoRouter(
   initialLocation: Routes.init, // Start at Splash
   navigatorKey: GlobalNavigation.instance.navigatorKey,
   routes: [
+    GoRoute(
+      name: Names.banan,
+      path: Routes.banan,
+      builder: (context, state) => const BananProblemScreen(),
+    ),
+
     GoRoute(
       name: Names.drawing,
       path: Routes.drawing,

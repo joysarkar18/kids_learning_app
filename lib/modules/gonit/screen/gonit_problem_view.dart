@@ -61,7 +61,6 @@ class _GanitProblemScreenState extends State<GanitProblemScreen>
   // Glow animation for correct matches
   late AnimationController _glowController;
 
-
   // Drag-to-match line drawing
   int? _draggingLeftPairId;
   Offset? _dragLineStart;
@@ -344,7 +343,8 @@ class _GanitProblemScreenState extends State<GanitProblemScreen>
     final options = currentProblem.options;
     final selectedOptionId = state.selectedOptionId;
     final answerStatus = state.answerStatus;
-    final isDisabled = answerStatus != GanitAnswerStatus.none || state.isPlayingSkipAudio;
+    final isDisabled =
+        answerStatus != GanitAnswerStatus.none || state.isPlayingSkipAudio;
     final hasImages = options.any((o) => o.imageUrl.isNotEmpty);
 
     if (hasImages) {
@@ -472,7 +472,6 @@ class _GanitProblemScreenState extends State<GanitProblemScreen>
         onTap: isDisabled
             ? null
             : () {
-
                 context.read<GanitBloc>().add(GanitOptionSelected(option.id));
               },
         child: AnimatedContainer(
@@ -562,7 +561,6 @@ class _GanitProblemScreenState extends State<GanitProblemScreen>
               onTap: isDisabled
                   ? null
                   : () {
-      
                       context.read<GanitBloc>().add(
                         GanitOptionSelected(option.id),
                       );
@@ -786,7 +784,10 @@ class _GanitProblemScreenState extends State<GanitProblemScreen>
                         final isMatched = matchResults[pair.id] == true;
                         final isWrong = matchResults[pair.id] == false;
                         final isDefault =
-                            !isMatched && !isWrong && !isSelected && !isDragging;
+                            !isMatched &&
+                            !isWrong &&
+                            !isSelected &&
+                            !isDragging;
                         final isShaking = _wrongMatchLeftId == pair.id;
 
                         Color? solidColor;
@@ -863,7 +864,9 @@ class _GanitProblemScreenState extends State<GanitProblemScreen>
                         card = TweenAnimationBuilder<double>(
                           key: ValueKey('left_${pair.id}_$isSelected'),
                           tween: Tween(
-                              begin: isSelected ? 0.88 : 1.0, end: 1.0),
+                            begin: isSelected ? 0.88 : 1.0,
+                            end: 1.0,
+                          ),
                           duration: const Duration(milliseconds: 300),
                           curve: Curves.easeOutBack,
                           builder: (context, scale, child) =>
@@ -894,7 +897,6 @@ class _GanitProblemScreenState extends State<GanitProblemScreen>
                               ? card
                               : GestureDetector(
                                   onTap: () {
-                    
                                     context.read<GanitBloc>().add(
                                       GanitMatchLeftSelected(pair.id),
                                     );
@@ -916,8 +918,9 @@ class _GanitProblemScreenState extends State<GanitProblemScreen>
                     child: Column(
                       children: () {
                         final rightItems = shuffledRightIds
-                            .map((id) =>
-                                matchPairs.firstWhere((p) => p.id == id))
+                            .map(
+                              (id) => matchPairs.firstWhere((p) => p.id == id),
+                            )
                             .toList();
 
                         return rightItems.asMap().entries.map((entry) {
@@ -936,17 +939,18 @@ class _GanitProblemScreenState extends State<GanitProblemScreen>
                           final isDefault = !isMatched && !isWrong;
 
                           // Check if drag line is hovering over this item
-                          final isHovering = _draggingLeftPairId != null &&
+                          final isHovering =
+                              _draggingLeftPairId != null &&
                               _dragLineEnd != null &&
                               () {
-                                final matchAreaBox = _matchAreaKey
-                                    .currentContext
-                                    ?.findRenderObject() as RenderBox?;
+                                final matchAreaBox =
+                                    _matchAreaKey.currentContext
+                                            ?.findRenderObject()
+                                        as RenderBox?;
                                 if (matchAreaBox == null) return false;
                                 final leftColumnWidth =
                                     (matchAreaBox.size.width - 40.w) / 2;
-                                final rightColumnStart =
-                                    leftColumnWidth + 40.w;
+                                final rightColumnStart = leftColumnWidth + 40.w;
                                 final itemTop = idx * (itemHeight + gap);
                                 final itemBottom = itemTop + itemHeight;
                                 return _dragLineEnd!.dx >=
@@ -975,8 +979,8 @@ class _GanitProblemScreenState extends State<GanitProblemScreen>
                                   : null,
                               color: isDefault
                                   ? (isHovering
-                                      ? const Color(0xFFBBDEFB)
-                                      : null)
+                                        ? const Color(0xFFBBDEFB)
+                                        : null)
                                   : solidColor,
                               borderRadius: BorderRadius.circular(14.r),
                               border: Border.all(
@@ -988,15 +992,13 @@ class _GanitProblemScreenState extends State<GanitProblemScreen>
                               boxShadow: [
                                 if (isHovering)
                                   BoxShadow(
-                                    color:
-                                        Colors.blue.withValues(alpha: 0.3),
+                                    color: Colors.blue.withValues(alpha: 0.3),
                                     blurRadius: 12,
                                     spreadRadius: 2,
                                   )
                                 else
                                   BoxShadow(
-                                    color: _kWoodShadow.withValues(
-                                        alpha: 0.35),
+                                    color: _kWoodShadow.withValues(alpha: 0.35),
                                     blurRadius: 6,
                                     offset: const Offset(0, 3),
                                   ),
@@ -1027,8 +1029,7 @@ class _GanitProblemScreenState extends State<GanitProblemScreen>
                                   color: isHovering
                                       ? const Color(0xFF1565C0)
                                       : Colors.white,
-                                  shadows:
-                                      isHovering ? null : _kTextShadows,
+                                  shadows: isHovering ? null : _kTextShadows,
                                 ),
                                 textAlign: TextAlign.center,
                               ),
@@ -1041,8 +1042,7 @@ class _GanitProblemScreenState extends State<GanitProblemScreen>
                             ),
                             child: TweenAnimationBuilder<double>(
                               tween: Tween(begin: 0.0, end: 1.0),
-                              duration:
-                                  Duration(milliseconds: 300 + idx * 80),
+                              duration: Duration(milliseconds: 300 + idx * 80),
                               curve: Curves.easeOutBack,
                               builder: (context, value, child) => Opacity(
                                 opacity: value.clamp(0.0, 1.0),
@@ -1053,7 +1053,6 @@ class _GanitProblemScreenState extends State<GanitProblemScreen>
                               ),
                               child: GestureDetector(
                                 onTap: () {
-                  
                                   context.read<GanitBloc>().add(
                                     GanitMatchRightSelected(pair.id),
                                   );
@@ -1104,7 +1103,6 @@ class _GanitProblemScreenState extends State<GanitProblemScreen>
                   child: DragTarget<int>(
                     onWillAcceptWithDetails: (_) => true,
                     onAcceptWithDetails: (details) {
-      
                       context.read<GanitBloc>().add(
                         GanitOrderItemPlaced(details.data, slotIndex),
                       );
@@ -1772,14 +1770,7 @@ class _DragLinePainter extends CustomPainter {
     final dx = (end.dx - start.dx).abs() * 0.4;
     final glowPath = Path()
       ..moveTo(start.dx, start.dy)
-      ..cubicTo(
-        start.dx + dx,
-        start.dy,
-        end.dx - dx,
-        end.dy,
-        end.dx,
-        end.dy,
-      );
+      ..cubicTo(start.dx + dx, start.dy, end.dx - dx, end.dy, end.dx, end.dy);
     canvas.drawPath(glowPath, glowPaint);
 
     // Line
@@ -1791,14 +1782,7 @@ class _DragLinePainter extends CustomPainter {
 
     final path = Path()
       ..moveTo(start.dx, start.dy)
-      ..cubicTo(
-        start.dx + dx,
-        start.dy,
-        end.dx - dx,
-        end.dy,
-        end.dx,
-        end.dy,
-      );
+      ..cubicTo(start.dx + dx, start.dy, end.dx - dx, end.dy, end.dx, end.dy);
     canvas.drawPath(path, paint);
 
     // Small dot at the end

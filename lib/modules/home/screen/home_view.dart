@@ -175,7 +175,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           imagePath: Assets.iconsBanan,
                           width: 0.3.sw,
                           onPressed: () {
-                            context.pushNamed(Names.namota);
+                            context.pushNamed(Names.banan);
                           },
                         ),
                       ],
