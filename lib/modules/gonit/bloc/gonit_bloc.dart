@@ -3,7 +3,6 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:kids_learning/services/daily_challenge_service.dart';
-import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'gonit_event.dart';
 import 'gonit_state.dart';
 import '../data/models/gonit_problem_model.dart';
@@ -12,15 +11,13 @@ import '../data/repo/gonit_repository.dart';
 class GanitBloc extends Bloc<GanitEvent, GanitState> {
   final AudioPlayer _audioPlayer = AudioPlayer();
   final AudioPlayer _questionAudioPlayer = AudioPlayer();
-  final stt.SpeechToText _speech = stt.SpeechToText();
   final GanitRepository _repository = GanitRepository();
   final Set<String> _answeredIds = {};
+
   String? _typeFilter;
   bool _isLoadingMoreProblems = false;
   bool _isPlayingFeedbackAudio = false;
   bool _isPlayingQuestionAudio = false;
-  Timer? _listenTimeoutTimer;
-  bool _hasSpoken = false;
 
   GanitBloc() : super(const GanitInitial()) {
     on<GanitInit>(_onInit);
@@ -31,29 +28,15 @@ class GanitBloc extends Bloc<GanitEvent, GanitState> {
     on<GanitStop>(_onStop);
     on<GanitLoadMoreProblems>(_onLoadMore);
     on<GanitPlayAgain>(_onPlayAgain);
-    on<GanitStartListening>(_onStartListening);
-    on<GanitSpeechDetected>(_onSpeechDetected);
     on<GanitReadQuestion>(_onReadQuestion);
     on<GanitMatchLeftSelected>(_onMatchLeftSelected);
     on<GanitMatchRightSelected>(_onMatchRightSelected);
     on<GanitOrderItemPlaced>(_onOrderItemPlaced);
     on<GanitOrderItemRemoved>(_onOrderItemRemoved);
 
-    // Auto-start listening after question audio finishes
+    // Update audio state when question finishes
     _questionAudioPlayer.onPlayerComplete.listen((_) {
       _isPlayingQuestionAudio = false;
-      if (state is GanitLoaded) {
-        final currentState = state as GanitLoaded;
-        // Don't auto-listen for matching/ordering questions
-        if (currentState.currentProblem?.isMatchingType == true) return;
-        if (currentState.currentProblem?.isOrderingType == true) return;
-        if (!currentState.isValidating &&
-            !_isPlayingFeedbackAudio &&
-            !currentState.isPlayingSkipAudio &&
-            currentState.answerStatus == GanitAnswerStatus.none) {
-          add(GanitStartListening());
-        }
-      }
     });
   }
 
@@ -73,10 +56,7 @@ class GanitBloc extends Bloc<GanitEvent, GanitState> {
   }
 
   // ================= INIT =================
-  Future<void> _onInit(
-    GanitInit event,
-    Emitter<GanitState> emit,
-  ) async {
+  Future<void> _onInit(GanitInit event, Emitter<GanitState> emit) async {
     _typeFilter = event.type;
     emit(const GanitLoading());
 
@@ -91,12 +71,14 @@ class GanitBloc extends Bloc<GanitEvent, GanitState> {
         return;
       }
 
-      emit(GanitLoaded(
-        problems: problems,
-        currentIndex: 0,
-        shuffledRightIds: _shuffleRightIds(problems[0]),
-        shuffledOrderIds: _shuffleOrderIds(problems[0]),
-      ));
+      emit(
+        GanitLoaded(
+          problems: problems,
+          currentIndex: 0,
+          shuffledRightIds: _shuffleRightIds(problems[0]),
+          shuffledOrderIds: _shuffleOrderIds(problems[0]),
+        ),
+      );
       _playQuestionAudio();
     } catch (e) {
       emit(GanitError(errorMessage: e.toString()));
@@ -122,9 +104,13 @@ class GanitBloc extends Bloc<GanitEvent, GanitState> {
     );
 
     final isCorrect = selectedOption.isCorrect;
-    _cleanupListening();
-    await _handleAnswer(isCorrect, emit, currentState,
-        selectedOptionId: event.optionId);
+    _stopAudio();
+    await _handleAnswer(
+      isCorrect,
+      emit,
+      currentState,
+      selectedOptionId: event.optionId,
+    );
   }
 
   // ================= MATCH LEFT SELECTED =================
@@ -139,13 +125,16 @@ class GanitBloc extends Bloc<GanitEvent, GanitState> {
     if (currentState.matchResults[event.pairId] == true) return;
 
     // Toggle selection
-    final newSelectedId =
-        currentState.selectedLeftId == event.pairId ? null : event.pairId;
+    final newSelectedId = currentState.selectedLeftId == event.pairId
+        ? null
+        : event.pairId;
 
-    emit(currentState.copyWith(
-      selectedLeftId: newSelectedId,
-      clearSelectedLeft: newSelectedId == null,
-    ));
+    emit(
+      currentState.copyWith(
+        selectedLeftId: newSelectedId,
+        clearSelectedLeft: newSelectedId == null,
+      ),
+    );
   }
 
   // ================= MATCH RIGHT SELECTED =================
@@ -163,8 +152,7 @@ class GanitBloc extends Bloc<GanitEvent, GanitState> {
     // If this right item is already correctly matched, ignore
     final alreadyCorrectlyMatched = currentState.matchedPairs.entries.any(
       (e) =>
-          e.value == event.pairId &&
-          currentState.matchResults[e.key] == true,
+          e.value == event.pairId && currentState.matchResults[e.key] == true,
     );
     if (alreadyCorrectlyMatched) return;
 
@@ -176,11 +164,13 @@ class GanitBloc extends Bloc<GanitEvent, GanitState> {
     newMatched[selectedLeft] = event.pairId;
     newResults[selectedLeft] = isCorrect;
 
-    emit(currentState.copyWith(
-      matchedPairs: newMatched,
-      matchResults: newResults,
-      clearSelectedLeft: true,
-    ));
+    emit(
+      currentState.copyWith(
+        matchedPairs: newMatched,
+        matchResults: newResults,
+        clearSelectedLeft: true,
+      ),
+    );
 
     if (isCorrect) {
       // Check if ALL pairs are now correctly matched
@@ -189,7 +179,7 @@ class GanitBloc extends Bloc<GanitEvent, GanitState> {
           newResults.length == problem.matchPairs.length &&
           newResults.values.every((v) => v == true)) {
         // All matched — treat as correct answer
-        _cleanupListening();
+        _stopAudio();
         if (state is GanitLoaded) {
           await _handleAnswer(true, emit, state as GanitLoaded);
         }
@@ -206,112 +196,14 @@ class GanitBloc extends Bloc<GanitEvent, GanitState> {
         clearedMatched.remove(selectedLeft);
         clearedResults.remove(selectedLeft);
 
-        emit(afterState.copyWith(
-          matchedPairs: clearedMatched,
-          matchResults: clearedResults,
-        ));
+        emit(
+          afterState.copyWith(
+            matchedPairs: clearedMatched,
+            matchResults: clearedResults,
+          ),
+        );
       }
     }
-  }
-
-  // ================= START LISTENING =================
-  Future<void> _onStartListening(
-    GanitStartListening event,
-    Emitter<GanitState> emit,
-  ) async {
-    if (state.isValidating ||
-        _isPlayingFeedbackAudio ||
-        _isPlayingQuestionAudio ||
-        state.isPlayingSkipAudio ||
-        state.answerStatus == GanitAnswerStatus.correct) {
-      return;
-    }
-
-    // Don't start listening for matching/ordering questions
-    if (state.currentProblem?.isMatchingType == true) return;
-    if (state.currentProblem?.isOrderingType == true) return;
-
-    _cleanupListening();
-
-    final available = await _speech.initialize(
-      onError: (_) {},
-      onStatus: (status) {},
-    );
-
-    if (!available) return;
-
-    if (state is GanitLoaded) {
-      emit((state as GanitLoaded).copyWith(
-        isListening: true,
-        answerStatus: GanitAnswerStatus.none,
-      ));
-    }
-
-    await _speech.listen(
-      localeId: 'bn_IN',
-      listenOptions: stt.SpeechListenOptions(
-        listenMode: stt.ListenMode.dictation,
-        partialResults: false,
-      ),
-      onResult: (result) {
-        if (_hasSpoken) return;
-        if (result.finalResult && result.recognizedWords.trim().isNotEmpty) {
-          _hasSpoken = true;
-          add(GanitSpeechDetected(result.recognizedWords));
-        }
-      },
-    );
-
-    // Timeout after 6 seconds
-    _listenTimeoutTimer = Timer(const Duration(seconds: 6), () async {
-      if (_hasSpoken || state.isValidating) return;
-      await _speech.stop();
-      if (state is GanitLoaded) {
-        emit((state as GanitLoaded).copyWith(isListening: false));
-      }
-    });
-  }
-
-  // ================= SPEECH DETECTED =================
-  Future<void> _onSpeechDetected(
-    GanitSpeechDetected event,
-    Emitter<GanitState> emit,
-  ) async {
-    _listenTimeoutTimer?.cancel();
-    await _speech.stop();
-
-    if (state is! GanitLoaded) return;
-    final currentState = state as GanitLoaded;
-
-    emit(currentState.copyWith(
-      isListening: false,
-      isValidating: true,
-      recognizedText: event.text,
-      answerStatus: GanitAnswerStatus.none,
-    ));
-
-    final currentProblem = currentState.currentProblem;
-    if (currentProblem == null) return;
-
-    // Validate: match spoken text against the correct answer
-    final isCorrect = _validateSpeechAnswer(
-      spokenText: event.text,
-      correctAnswer: currentProblem.answerText,
-    );
-
-    if (state is! GanitLoaded) return;
-    final afterState = state as GanitLoaded;
-
-    emit(afterState.copyWith(isValidating: false));
-
-    // Find the correct option to highlight
-    int? matchedOptionId;
-    if (isCorrect) {
-      matchedOptionId = currentProblem.correctOption?.id;
-    }
-
-    await _handleAnswer(isCorrect, emit, afterState,
-        selectedOptionId: matchedOptionId);
   }
 
   // ================= SHARED ANSWER HANDLER =================
@@ -335,13 +227,16 @@ class GanitBloc extends Bloc<GanitEvent, GanitState> {
 
     _isPlayingFeedbackAudio = true;
 
-    emit(currentState.copyWith(
-      selectedOptionId: selectedOptionId,
-      answerStatus:
-          isCorrect ? GanitAnswerStatus.correct : GanitAnswerStatus.wrong,
-      roundCorrect: newRoundCorrect,
-      roundAnswered: newRoundAnswered,
-    ));
+    emit(
+      currentState.copyWith(
+        selectedOptionId: selectedOptionId,
+        answerStatus: isCorrect
+            ? GanitAnswerStatus.correct
+            : GanitAnswerStatus.wrong,
+        roundCorrect: newRoundCorrect,
+        roundAnswered: newRoundAnswered,
+      ),
+    );
 
     if (isCorrect) {
       await _playYayAudio();
@@ -352,71 +247,16 @@ class GanitBloc extends Bloc<GanitEvent, GanitState> {
       await Future.delayed(const Duration(seconds: 1));
 
       if (state is GanitLoaded) {
-        emit((state as GanitLoaded).copyWith(
-          answerStatus: GanitAnswerStatus.none,
-          clearSelectedOption: true,
-        ));
+        emit(
+          (state as GanitLoaded).copyWith(
+            answerStatus: GanitAnswerStatus.none,
+            clearSelectedOption: true,
+          ),
+        );
       }
 
       _isPlayingFeedbackAudio = false;
     }
-  }
-
-  // ================= SPEECH VALIDATION =================
-  bool _validateSpeechAnswer({
-    required String spokenText,
-    required String correctAnswer,
-  }) {
-    final spoken = _normalizeNumber(spokenText.trim().toLowerCase());
-    final correct = _normalizeNumber(correctAnswer.trim().toLowerCase());
-
-    if (spoken == correct) return true;
-
-    // Try parsing both as numbers for comparison
-    final spokenNum = int.tryParse(spoken);
-    final correctNum = int.tryParse(correct);
-    if (spokenNum != null && correctNum != null) {
-      return spokenNum == correctNum;
-    }
-
-    return false;
-  }
-
-  String _normalizeNumber(String text) {
-    // Bengali to ASCII digit conversion
-    const bengaliDigits = '০১২৩৪৫৬৭৮৯';
-    const asciiDigits = '0123456789';
-
-    var result = text;
-    for (int i = 0; i < bengaliDigits.length; i++) {
-      result = result.replaceAll(bengaliDigits[i], asciiDigits[i]);
-    }
-
-    // Common Bengali number words
-    const wordMap = {
-      'এক': '1', 'দুই': '2', 'তিন': '3', 'চার': '4', 'পাঁচ': '5',
-      'ছয়': '6', 'সাত': '7', 'আট': '8', 'নয়': '9', 'দশ': '10',
-      'এগারো': '11', 'বারো': '12', 'তেরো': '13', 'চৌদ্দ': '14', 'পনেরো': '15',
-      'ষোলো': '16', 'সতেরো': '17', 'আঠারো': '18', 'উনিশ': '19', 'বিশ': '20',
-      'শূন্য': '0',
-      // English words
-      'one': '1', 'two': '2', 'three': '3', 'four': '4', 'five': '5',
-      'six': '6', 'seven': '7', 'eight': '8', 'nine': '9', 'ten': '10',
-      'eleven': '11', 'twelve': '12', 'zero': '0',
-    };
-
-    for (final entry in wordMap.entries) {
-      if (result.contains(entry.key)) {
-        result = entry.value;
-        break;
-      }
-    }
-
-    // Strip non-digit characters for final comparison
-    final digitsOnly = result.replaceAll(RegExp(r'[^0-9]'), '');
-    if (digitsOnly.isNotEmpty) return digitsOnly;
-
-    return result;
   }
 
   // ================= NEXT PROBLEM =================
@@ -424,18 +264,20 @@ class GanitBloc extends Bloc<GanitEvent, GanitState> {
     GanitNextProblem event,
     Emitter<GanitState> emit,
   ) async {
-    _cleanupListening();
+    _stopAudio();
 
     if (state is! GanitLoaded) return;
     final currentState = state as GanitLoaded;
 
     if (currentState.roundAnswered >= 10) {
-      emit(GanitRoundCompleted(
-        problems: currentState.problems,
-        currentIndex: currentState.currentIndex,
-        roundCorrect: currentState.roundCorrect,
-        roundAnswered: currentState.roundAnswered,
-      ));
+      emit(
+        GanitRoundCompleted(
+          problems: currentState.problems,
+          currentIndex: currentState.currentIndex,
+          roundCorrect: currentState.roundCorrect,
+          roundAnswered: currentState.roundAnswered,
+        ),
+      );
       return;
     }
 
@@ -450,18 +292,19 @@ class GanitBloc extends Bloc<GanitEvent, GanitState> {
 
     final nextProblem = currentState.problems[nextIndex];
 
-    emit(currentState.copyWith(
-      currentIndex: nextIndex,
-      answerStatus: GanitAnswerStatus.none,
-      recognizedText: '',
-      clearSelectedOption: true,
-      clearSelectedLeft: true,
-      matchedPairs: const {},
-      matchResults: const {},
-      shuffledRightIds: _shuffleRightIds(nextProblem),
-      placedItems: const {},
-      shuffledOrderIds: _shuffleOrderIds(nextProblem),
-    ));
+    emit(
+      currentState.copyWith(
+        currentIndex: nextIndex,
+        answerStatus: GanitAnswerStatus.none,
+        clearSelectedOption: true,
+        clearSelectedLeft: true,
+        matchedPairs: const {},
+        matchResults: const {},
+        shuffledRightIds: _shuffleRightIds(nextProblem),
+        placedItems: const {},
+        shuffledOrderIds: _shuffleOrderIds(nextProblem),
+      ),
+    );
 
     _playQuestionAudio();
 
@@ -477,7 +320,7 @@ class GanitBloc extends Bloc<GanitEvent, GanitState> {
     GanitSkipProblem event,
     Emitter<GanitState> emit,
   ) async {
-    _cleanupListening();
+    _stopAudio();
 
     if (state is! GanitLoaded) return;
     final currentState = state as GanitLoaded;
@@ -512,11 +355,13 @@ class GanitBloc extends Bloc<GanitEvent, GanitState> {
         for (var item in currentProblem.orderItems)
           item.correctPosition: item.id,
       };
-      emit(latestState.copyWith(
-        placedItems: allPlaced,
-        answerStatus: GanitAnswerStatus.correct,
-        roundAnswered: latestState.roundAnswered + 1,
-      ));
+      emit(
+        latestState.copyWith(
+          placedItems: allPlaced,
+          answerStatus: GanitAnswerStatus.correct,
+          roundAnswered: latestState.roundAnswered + 1,
+        ),
+      );
       await Future.delayed(const Duration(milliseconds: 1500));
       add(GanitNextProblem());
       return;
@@ -524,18 +369,16 @@ class GanitBloc extends Bloc<GanitEvent, GanitState> {
 
     // For matching: show all correct matches before skipping
     if (currentProblem.isMatchingType) {
-      final allMatched = {
-        for (var p in currentProblem.matchPairs) p.id: p.id,
-      };
-      final allResults = {
-        for (var p in currentProblem.matchPairs) p.id: true,
-      };
-      emit(latestState.copyWith(
-        matchedPairs: allMatched,
-        matchResults: allResults,
-        answerStatus: GanitAnswerStatus.correct,
-        roundAnswered: latestState.roundAnswered + 1,
-      ));
+      final allMatched = {for (var p in currentProblem.matchPairs) p.id: p.id};
+      final allResults = {for (var p in currentProblem.matchPairs) p.id: true};
+      emit(
+        latestState.copyWith(
+          matchedPairs: allMatched,
+          matchResults: allResults,
+          answerStatus: GanitAnswerStatus.correct,
+          roundAnswered: latestState.roundAnswered + 1,
+        ),
+      );
       await Future.delayed(const Duration(milliseconds: 1500));
       add(GanitNextProblem());
       return;
@@ -543,11 +386,13 @@ class GanitBloc extends Bloc<GanitEvent, GanitState> {
 
     final correctOption = currentProblem.correctOption;
     if (correctOption != null) {
-      emit(latestState.copyWith(
-        selectedOptionId: correctOption.id,
-        answerStatus: GanitAnswerStatus.correct,
-        roundAnswered: latestState.roundAnswered + 1,
-      ));
+      emit(
+        latestState.copyWith(
+          selectedOptionId: correctOption.id,
+          answerStatus: GanitAnswerStatus.correct,
+          roundAnswered: latestState.roundAnswered + 1,
+        ),
+      );
       await Future.delayed(const Duration(milliseconds: 1500));
     }
 
@@ -575,17 +420,17 @@ class GanitBloc extends Bloc<GanitEvent, GanitState> {
 
       if (state is! GanitLoaded) return;
 
-      final filtered =
-          newProblems.where((p) => !_answeredIds.contains(p.id)).toList();
-      final updatedProblems = [
-        ...(state as GanitLoaded).problems,
-        ...filtered,
-      ];
+      final filtered = newProblems
+          .where((p) => !_answeredIds.contains(p.id))
+          .toList();
+      final updatedProblems = [...(state as GanitLoaded).problems, ...filtered];
 
-      emit((state as GanitLoaded).copyWith(
-        problems: updatedProblems,
-        isLoadingMore: false,
-      ));
+      emit(
+        (state as GanitLoaded).copyWith(
+          problems: updatedProblems,
+          isLoadingMore: false,
+        ),
+      );
     } catch (e) {
       debugPrint('Error loading more problems: $e');
       if (state is GanitLoaded) {
@@ -597,29 +442,29 @@ class GanitBloc extends Bloc<GanitEvent, GanitState> {
   }
 
   // ================= RETRY =================
-  Future<void> _onRetry(
-    GanitRetry event,
-    Emitter<GanitState> emit,
-  ) async {
-    _cleanupListening();
+  Future<void> _onRetry(GanitRetry event, Emitter<GanitState> emit) async {
+    _stopAudio();
 
     if (state is GanitLoaded) {
       final currentState = state as GanitLoaded;
       final problem = currentState.currentProblem;
 
-      emit(currentState.copyWith(
-        answerStatus: GanitAnswerStatus.none,
-        recognizedText: '',
-        clearSelectedOption: true,
-        clearSelectedLeft: true,
-        matchedPairs: const {},
-        matchResults: const {},
-        shuffledRightIds:
-            problem != null ? _shuffleRightIds(problem) : const [],
-        placedItems: const {},
-        shuffledOrderIds:
-            problem != null ? _shuffleOrderIds(problem) : const [],
-      ));
+      emit(
+        currentState.copyWith(
+          answerStatus: GanitAnswerStatus.none,
+          clearSelectedOption: true,
+          clearSelectedLeft: true,
+          matchedPairs: const {},
+          matchResults: const {},
+          shuffledRightIds: problem != null
+              ? _shuffleRightIds(problem)
+              : const [],
+          placedItems: const {},
+          shuffledOrderIds: problem != null
+              ? _shuffleOrderIds(problem)
+              : const [],
+        ),
+      );
       _playQuestionAudio();
     }
   }
@@ -629,7 +474,7 @@ class GanitBloc extends Bloc<GanitEvent, GanitState> {
     GanitPlayAgain event,
     Emitter<GanitState> emit,
   ) async {
-    _cleanupListening();
+    _stopAudio();
     _repository.resetPagination();
 
     emit(const GanitLoading());
@@ -647,12 +492,14 @@ class GanitBloc extends Bloc<GanitEvent, GanitState> {
 
       _answeredIds.clear();
 
-      emit(GanitLoaded(
-        problems: problems,
-        currentIndex: 0,
-        shuffledRightIds: _shuffleRightIds(problems[0]),
-        shuffledOrderIds: _shuffleOrderIds(problems[0]),
-      ));
+      emit(
+        GanitLoaded(
+          problems: problems,
+          currentIndex: 0,
+          shuffledRightIds: _shuffleRightIds(problems[0]),
+          shuffledOrderIds: _shuffleOrderIds(problems[0]),
+        ),
+      );
       _playQuestionAudio();
     } catch (e) {
       emit(GanitError(errorMessage: e.toString()));
@@ -661,9 +508,8 @@ class GanitBloc extends Bloc<GanitEvent, GanitState> {
 
   // ================= STOP =================
   void _onStop(GanitStop event, Emitter<GanitState> emit) {
-    _cleanupListening();
+    _stopAudio();
     _audioPlayer.stop();
-    _questionAudioPlayer.stop();
   }
 
   // ================= READ QUESTION =================
@@ -683,7 +529,6 @@ class GanitBloc extends Bloc<GanitEvent, GanitState> {
     final audioUrl = currentProblem.questionAudioUrl;
     if (audioUrl.isNotEmpty) {
       _isPlayingQuestionAudio = true;
-      _hasSpoken = false;
       try {
         await _questionAudioPlayer.stop();
         await _questionAudioPlayer.play(UrlSource(audioUrl));
@@ -719,11 +564,8 @@ class GanitBloc extends Bloc<GanitEvent, GanitState> {
   }
 
   // ================= CLEANUP =================
-  void _cleanupListening() {
-    _listenTimeoutTimer?.cancel();
-    _speech.stop();
+  void _stopAudio() {
     _questionAudioPlayer.stop();
-    _hasSpoken = false;
     _isPlayingFeedbackAudio = false;
     _isPlayingQuestionAudio = false;
   }
@@ -750,11 +592,12 @@ class GanitBloc extends Bloc<GanitEvent, GanitState> {
 
     // Check if all slots are filled
     if (newPlaced.length == problem.orderItems.length) {
-      final allCorrect = problem.orderItems
-          .every((item) => newPlaced[item.correctPosition] == item.id);
+      final allCorrect = problem.orderItems.every(
+        (item) => newPlaced[item.correctPosition] == item.id,
+      );
 
       if (allCorrect) {
-        _cleanupListening();
+        _stopAudio();
         if (state is GanitLoaded) {
           await _handleAnswer(true, emit, state as GanitLoaded);
         }
@@ -785,7 +628,7 @@ class GanitBloc extends Bloc<GanitEvent, GanitState> {
 
   @override
   Future<void> close() {
-    _cleanupListening();
+    _stopAudio();
     _audioPlayer.dispose();
     _questionAudioPlayer.dispose();
     return super.close();

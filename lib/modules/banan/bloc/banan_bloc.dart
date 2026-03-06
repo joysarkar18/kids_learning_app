@@ -227,22 +227,18 @@ class BananBloc extends Bloc<BananEvent, BananState> {
     }
   }
 
-  // ═══════════════════════════════════════════════════════
-  //  SKIP PROBLEM
-  // ═══════════════════════════════════════════════════════
   Future<void> _onSkipProblem(
     BananSkipProblem event,
     Emitter<BananState> emit,
   ) async {
     if (state is! BananLoaded) return;
     final s = state as BananLoaded;
-
     final problem = s.currentProblem;
     if (problem == null) return;
 
     _answeredIds.add(problem.id);
 
-    // Play correct word audio if available
+    // 1. Play correct word audio
     emit(s.copyWith(isPlayingSkipAudio: true));
     if (problem.correctAudioUrl.isNotEmpty) {
       await _playCorrectAnswerAudio(problem.correctAudioUrl);
@@ -250,35 +246,38 @@ class BananBloc extends Bloc<BananEvent, BananState> {
 
     if (state is! BananLoaded) return;
 
-    // Show the correct answer in slots before moving on
+    // 2. Map the correct letters to the actual Tile IDs present in the problem
     final correctSlotMap = <int, String?>{};
-    final correctTiles = <BananLetterTile>[];
+    final List<BananLetterTile> pool = List.from(problem.shuffledTiles);
+
     for (int i = 0; i < problem.letters.length; i++) {
-      final tile = BananLetterTile(
-        id: '${problem.letters[i]}_skip_$i',
-        letter: problem.letters[i],
-      );
-      correctTiles.add(tile);
-      correctSlotMap[i] = tile.id;
+      final targetLetter = problem.letters[i];
+      // Find the first available tile in the pool that matches the letter
+      final tileIndex = pool.indexWhere((t) => t.letter == targetLetter);
+
+      if (tileIndex != -1) {
+        correctSlotMap[i] = pool[tileIndex].id;
+        pool.removeAt(
+          tileIndex,
+        ); // Remove so we don't reuse the same tile instance
+      }
     }
 
     _roundAnswered++;
 
+    // 3. Emit state with the filled slots and "correct" status to trigger green UI
     emit(
       (state as BananLoaded).copyWith(
         slotMap: correctSlotMap,
-        availableTiles: [
-          ...(state as BananLoaded).availableTiles,
-          ...correctTiles,
-        ],
-        answerStatus: BananAnswerStatus.correct,
+        answerStatus: BananAnswerStatus.correct, // Shows green slots
         isPlayingSkipAudio: false,
         roundAnswered: _roundAnswered,
         roundCorrect: _roundCorrect,
       ),
     );
 
-    await Future.delayed(const Duration(milliseconds: 1500));
+    // 4. Wait for the kid to see the correct answer before moving
+    await Future.delayed(const Duration(milliseconds: 2000));
     add(const BananNextProblem());
   }
 

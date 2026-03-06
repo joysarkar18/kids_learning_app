@@ -4,7 +4,7 @@ import 'package:kids_learning/modules/banan/data/models/banan_data_model.dart';
 
 class BananRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  static const String _collectionName = 'banan_problems';
+  static const String _collectionName = 'banan_questions';
 
   DocumentSnapshot? _lastDocument;
   bool _hasMore = true;
