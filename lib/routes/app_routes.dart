@@ -21,6 +21,8 @@ abstract class Routes {
   static const login = _Paths.login;
   static const onboarding = _Paths.onboarding; // Maps to Character Selector
   static const home = _Paths.home;
+  static const stories = _Paths.stories;
+  static const storyReader = _Paths.storyReader;
 
   Routes._();
 }
@@ -48,6 +50,8 @@ abstract class _Paths {
   static const login = '/login';
   static const onboarding = '/onboarding';
   static const home = '/home';
+  static const stories = '/stories';
+  static const storyReader = '/story-reader';
   _Paths._();
 }
 
@@ -74,6 +78,8 @@ abstract class Names {
   static const login = _Names.login;
   static const onboarding = _Names.onboarding;
   static const home = _Names.home;
+  static const stories = _Names.stories;
+  static const storyReader = _Names.storyReader;
   Names._();
 }
 
@@ -100,5 +106,7 @@ abstract class _Names {
   static const login = 'login';
   static const onboarding = 'onboarding';
   static const home = 'home';
+  static const stories = 'stories';
+  static const storyReader = 'storyReader';
   _Names._();
 }

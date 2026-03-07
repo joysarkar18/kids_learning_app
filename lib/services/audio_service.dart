@@ -6,6 +6,7 @@ class AudioService {
   AudioService._internal();
 
   final AudioPlayer _player = AudioPlayer();
+  final AudioPlayer _narrationPlayer = AudioPlayer();
   bool _isPlaying = false;
 
   Future<void> init() async {
@@ -34,6 +35,20 @@ class AudioService {
     _isPlaying = true;
   }
 
+  /// Play a specific audio file (for narration)
+  Future<void> play(String assetPath) async {
+    await _narrationPlayer.stop();
+    await _narrationPlayer.setVolume(1.0);
+    await _narrationPlayer.play(AssetSource(assetPath));
+  }
+
+  /// Play audio from URL or path
+  Future<void> playFromPath(String path) async {
+    await _narrationPlayer.stop();
+    await _narrationPlayer.setVolume(1.0);
+    await _narrationPlayer.play(AssetSource(path));
+  }
+
   Future<void> pause() async {
     if (_isPlaying) {
       await _player.pause();
@@ -48,6 +63,18 @@ class AudioService {
 
   Future<void> stop() async {
     await _player.stop();
+    await _narrationPlayer.stop();
     _isPlaying = false;
   }
+
+  /// Stop only narration audio
+  Future<void> stopNarration() async {
+    await _narrationPlayer.stop();
+  }
+
+  /// Check if narration is playing
+  bool get isNarrationPlaying => _narrationPlayer.state == PlayerState.playing;
+
+  /// Get narration player state
+  AudioPlayer get narrationPlayer => _narrationPlayer;
 }

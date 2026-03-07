@@ -28,6 +28,9 @@ import 'package:kids_learning/routes/app_routes.dart';
 // Screens
 import 'package:kids_learning/modules/onboarding/screen/splash_screen.dart';
 import 'package:kids_learning/modules/home/screen/home_view.dart';
+import 'package:kids_learning/modules/stories/screen/story_selection_screen.dart';
+import 'package:kids_learning/modules/stories/screen/story_reader_screen.dart';
+import 'package:kids_learning/modules/stories/data/models/story_model.dart';
 
 // Global Key for Context access if needed outside widgets
 class GlobalNavigation {
@@ -196,7 +199,27 @@ final router = GoRouter(
       },
     ),
 
-    // 7. Settings
+    // 7. Stories
+    GoRoute(
+      name: Names.stories,
+      path: Routes.stories,
+      builder: (context, state) => const StorySelectionScreen(),
+    ),
+
+    // 7.1 Story Reader
+    GoRoute(
+      name: Names.storyReader,
+      path: Routes.storyReader,
+      builder: (context, state) {
+        final data = state.extra as Map<String, dynamic>?;
+        if (data == null || data['story'] == null) {
+          return const StorySelectionScreen();
+        }
+        return StoryReaderScreen(story: data['story'] as StoryModel);
+      },
+    ),
+
+    // 8. Settings
     GoRoute(
       name: Names.settings,
       path: Routes.settings,

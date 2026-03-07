@@ -68,6 +68,7 @@ dependencies:
   http: ^1.4.0
   youtube_player_flutter: ^9.1.1
   flutter_inappwebview: ^6.1.5
+  flip_card: ^0.7.0
 
 dev_dependencies:
   flutter_test:
@@ -107,6 +108,9 @@ flutter:
     - assets/audios/ui/
     - assets/audios/bengali_audio/
     - assets/audios/english_audio/
+    - assets/audios/stories/
+    - assets/audios/stories/narration/
+    - assets/stories/jungle/
 
 
   # An image asset can refer to one or more resolution-specific "variants", see
@@ -145,6 +149,8 @@ flutter_assets:
     - assets/audios/en/
     - assets/audios/hi/
     - assets/audios/ui/
+    - assets/audios/stories/
+    - assets/stories/jungle/
   output_path: lib/utils/
   filename: assets.dart
   field_prefix:

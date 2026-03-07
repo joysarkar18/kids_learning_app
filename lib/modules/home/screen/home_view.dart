@@ -161,7 +161,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           imagePath: Assets.iconsGolpo,
                           width: 0.3.sw,
                           onPressed: () {
-                            context.pushNamed(Names.englishSonkha);
+                            context.pushNamed(Names.stories);
                           },
                         ),
                         GamingImageButton(

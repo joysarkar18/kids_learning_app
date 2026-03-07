@@ -1,0 +1,43 @@
+
+{
+  "id": "jungle_001",
+  "title": "The Brave Little Lion",
+  "description": "A courageous lion cub learns the true meaning of bravery",
+  "coverImage": "https://your-cdn.com/stories/jungle/lion_cover.png",
+  "category": "jungle",
+  "difficulty": "easy",
+  "isFeatured": true,
+  "order": 1,
+  "tags": ["courage", "friendship", "jungle", "animals"],
+  "estimatedDuration": 5,
+  "createdAt": "2024-01-01T00:00:00.000Z",
+  "updatedAt": "2024-01-01T00:00:00.000Z",
+  "pages": [
+    {
+      "pageNumber": 1,
+      "text": "Once upon a time, in the heart of the green jungle, there lived a little lion cub named Leo.",
+      "image": "https://your-cdn.com/stories/jungle/lion_page1.png",
+      "narration": "https://your-cdn.com/audio/stories/lion_001.mp3",
+      "audio": "https://your-cdn.com/audio/stories/lion_001_sfx.mp3",
+      "layout": 0,
+      "animationType": 0,
+      "backgroundImage": "https://your-cdn.com/stories/jungle/lion_page1_bg.png"
+    },
+    {
+      "pageNumber": 2,
+      "text": "Leo was the smallest in his pride, but he had the biggest heart. He dreamed of being brave like his father.",
+      "image": "https://your-cdn.com/stories/jungle/lion_page2.png",
+      "narration": "https://your-cdn.com/audio/stories/lion_002.mp3",
+      "layout": 0,
+      "animationType": 0
+    },
+    {
+      "pageNumber": 3,
+      "text": "One day, Leo heard a tiny cry for help. \"Who needs help?\" he roared bravely.",
+      "image": "https://your-cdn.com/stories/jungle/lion_page3.png",
+      "narration": "https://your-cdn.com/audio/stories/lion_003.mp3",
+      "layout": 0,
+      "animationType": 0
+    }
+  ]
+}
