@@ -77,4 +77,22 @@ class AudioService {
 
   /// Get narration player state
   AudioPlayer get narrationPlayer => _narrationPlayer;
+
+  /// Set background music volume (0.0 to 1.0)
+  Future<void> setMusicVolume(double volume) async {
+    final clampedVolume = volume.clamp(0.0, 1.0);
+    await _player.setVolume(clampedVolume);
+  }
+
+  /// Set narration volume (0.0 to 1.0)
+  Future<void> setNarrationVolume(double volume) async {
+    final clampedVolume = volume.clamp(0.0, 1.0);
+    await _narrationPlayer.setVolume(clampedVolume);
+  }
+
+  /// Get current music volume
+  double get musicVolume => _player.volume;
+
+  /// Get current narration volume
+  double get narrationVolume => _narrationPlayer.volume;
 }

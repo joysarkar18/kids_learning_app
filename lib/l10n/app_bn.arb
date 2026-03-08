@@ -113,5 +113,14 @@
   "statusProcessing": "প্রক্রিয়াধীন",
   "statusShipped": "প্রেরিত",
   "statusDelivered": "বিতরিত",
-  "statusCancelled": "বাতিল"
+  "statusCancelled": "বাতিল",
+  "menu": "মেনু",
+  "musicVolume": "সঙ্গীতের ভলিউম",
+  "checkForUpdates": "আপডেটের জন্য পরীক্ষা করুন",
+  "update": "আপডেট",
+  "youHaveLatestVersion": "আপনার কাছে সর্বশেষ সংস্করণ রয়েছে!",
+  "checkingForUpdates": "আপডেটের জন্য পরীক্ষা করা হচ্ছে...",
+  "couldNotOpenUrl": "URL খোলা যায়নি",
+  "confirmLogout": "আপনি কি লগআউট করতে চান?",
+  "logout": "লগআউট"
 }

@@ -308,4 +308,31 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get statusCancelled => 'Cancelled';
+
+  @override
+  String get menu => 'Menu';
+
+  @override
+  String get musicVolume => 'Music Volume';
+
+  @override
+  String get checkForUpdates => 'Check for Updates';
+
+  @override
+  String get update => 'Update';
+
+  @override
+  String get youHaveLatestVersion => 'You have the latest version!';
+
+  @override
+  String get checkingForUpdates => 'Checking for updates...';
+
+  @override
+  String get couldNotOpenUrl => 'Could not open URL';
+
+  @override
+  String get confirmLogout => 'Are you sure you want to logout?';
+
+  @override
+  String get logout => 'Logout';
 }

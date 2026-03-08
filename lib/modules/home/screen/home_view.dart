@@ -65,9 +65,6 @@ class _HomeScreenState extends State<HomeScreen> {
             // Friend greeting widget
             const FriendGreetingWidget(),
 
-            // Sun menu in top right
-            SunMenuWidget(),
-
             // Bottom menu with subject buttons
             Align(
               alignment: AlignmentGeometry.bottomCenter,
@@ -240,6 +237,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
+
+            // Sun menu button - always visible, opens overlay menu
+            const SunMenuWidget(),
           ],
         ),
       ),

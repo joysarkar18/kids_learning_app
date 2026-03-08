@@ -113,5 +113,14 @@
   "statusProcessing": "Processing",
   "statusShipped": "Shipped",
   "statusDelivered": "Delivered",
-  "statusCancelled": "Cancelled"
+  "statusCancelled": "Cancelled",
+  "menu": "Menu",
+  "musicVolume": "Music Volume",
+  "checkForUpdates": "Check for Updates",
+  "update": "Update",
+  "youHaveLatestVersion": "You have the latest version!",
+  "checkingForUpdates": "Checking for updates...",
+  "couldNotOpenUrl": "Could not open URL",
+  "confirmLogout": "Are you sure you want to logout?",
+  "logout": "Logout"
 }

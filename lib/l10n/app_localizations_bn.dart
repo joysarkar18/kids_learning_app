@@ -310,4 +310,31 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get statusCancelled => 'বাতিল';
+
+  @override
+  String get menu => 'মেনু';
+
+  @override
+  String get musicVolume => 'সঙ্গীতের ভলিউম';
+
+  @override
+  String get checkForUpdates => 'আপডেটের জন্য পরীক্ষা করুন';
+
+  @override
+  String get update => 'আপডেট';
+
+  @override
+  String get youHaveLatestVersion => 'আপনার কাছে সর্বশেষ সংস্করণ রয়েছে!';
+
+  @override
+  String get checkingForUpdates => 'আপডেটের জন্য পরীক্ষা করা হচ্ছে...';
+
+  @override
+  String get couldNotOpenUrl => 'URL খোলা যায়নি';
+
+  @override
+  String get confirmLogout => 'আপনি কি লগআউট করতে চান?';
+
+  @override
+  String get logout => 'লগআউট';
 }
