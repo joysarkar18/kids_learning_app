@@ -72,7 +72,7 @@ class BananBloc extends Bloc<BananEvent, BananState> {
   bool get _shouldLoadMore =>
       state is BananLoaded &&
       (state as BananLoaded).currentIndex >=
-          (state as BananLoaded).problems.length - 3;
+          (state as BananLoaded).problems.length - 10;
 
   // ═══════════════════════════════════════════════════════
   //  INIT
@@ -85,7 +85,7 @@ class BananBloc extends Bloc<BananEvent, BananState> {
     _repository.resetPagination();
 
     try {
-      final problems = await _repository.fetchProblems(limit: 20);
+      final problems = await _repository.fetchProblems(limit: 50);
       if (problems.isEmpty) {
         emit(const BananError(errorMessage: 'No problems available'));
         return;
@@ -190,23 +190,25 @@ class BananBloc extends Bloc<BananEvent, BananState> {
     if (state is! BananLoaded) return;
     final s = state as BananLoaded;
 
-    // Round complete after 10 answers
-    if (_roundAnswered >= 10) {
-      emit(
-        BananRoundCompleted(
-          roundCorrect: _roundCorrect,
-          roundAnswered: _roundAnswered,
-        ),
-      );
-      return;
-    }
-
     final nextIndex = s.currentIndex + 1;
 
     // Need more problems?
     if (nextIndex >= s.problems.length) {
+      // No more problems in buffer, try to load more
       if (_repository.hasMoreData && !_isLoadingMoreProblems) {
         add(const BananLoadMoreProblems());
+        // Wait for load to complete before proceeding
+        return;
+      } else if (!_repository.hasMoreData) {
+        // No more problems in database - round complete
+        emit(
+          BananRoundCompleted(
+            roundCorrect: _roundCorrect,
+            roundAnswered: _roundAnswered,
+            isAllQuestionsExhausted: true,
+          ),
+        );
+        return;
       }
       return;
     }
@@ -332,10 +334,32 @@ class BananBloc extends Bloc<BananEvent, BananState> {
     emit(s.copyWith(isLoadingMore: true));
 
     try {
-      final more = await _repository.fetchProblems(limit: 20);
+      final more = await _repository.fetchProblems(limit: 50);
       if (state is! BananLoaded) return;
 
       final filtered = more.where((p) => !_answeredIds.contains(p.id)).toList();
+      
+      // If no new filtered problems were added, we've exhausted all questions
+      if (filtered.isEmpty) {
+        _repository.markNoMoreData();
+        if (state is! BananLoaded) return;
+        
+        // If we're at the end of current problems, show completion
+        if (s.currentIndex >= s.problems.length - 1) {
+          emit(
+            (state as BananLoaded).copyWith(isLoadingMore: false),
+          );
+          emit(
+            BananRoundCompleted(
+              roundCorrect: _roundCorrect,
+              roundAnswered: _roundAnswered,
+              isAllQuestionsExhausted: true,
+            ),
+          );
+          return;
+        }
+      }
+      
       final updated = [...(state as BananLoaded).problems, ...filtered];
 
       emit(
@@ -344,6 +368,11 @@ class BananBloc extends Bloc<BananEvent, BananState> {
           isLoadingMore: false,
         ),
       );
+      
+      // If we were waiting for more problems to continue, auto-advance
+      if (s.currentIndex >= s.problems.length - 1) {
+        add(const BananNextProblem());
+      }
     } catch (e) {
       debugPrint('[BananBloc] load more error: $e');
       if (state is BananLoaded) {

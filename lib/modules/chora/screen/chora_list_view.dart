@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -71,8 +73,6 @@ class _ChoraListScreenState extends State<ChoraListScreen> {
                   children: [
                     SizedBox(height: .17.sh),
 
-                    // Title
-
                     // Grid content
                     Expanded(
                       child: BlocBuilder<ChoraBloc, ChoraState>(
@@ -141,7 +141,8 @@ class _ChoraListScreenState extends State<ChoraListScreen> {
                                     crossAxisCount: 2,
                                     crossAxisSpacing: 16.w,
                                     mainAxisSpacing: 16.h,
-                                    childAspectRatio: 0.85,
+                                    childAspectRatio:
+                                        0.78, // ← slightly reduced to fit title
                                   ),
                               itemCount: hasMore
                                   ? choras.length + 2
@@ -210,80 +211,127 @@ class _ChoraCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Stack(
+      child: Column(
         children: [
-          // Thumbnail content with padding for the frame
-          Positioned.fill(
-            child: Padding(
-              padding: EdgeInsets.only(
-                left: 12.w,
-                top: 12.h,
-                right: 12.w,
-                bottom: 18.h,
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(10.r),
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    // Thumbnail
-                    CachedNetworkImage(
-                      imageUrl: chora.thumbnailUrl,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => Container(
-                        color: AppColors.primary1.withValues(alpha: 0.3),
-                        child: Center(
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2.w,
-                            color: AppColors.primary2,
+          // Frame + Image
+          Expanded(
+            child: Stack(
+              children: [
+                // Thumbnail content with padding for the frame
+                Positioned.fill(
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      left: 24.w,
+                      top: 24.h,
+                      right: 24.w,
+                      bottom: 24.h,
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(10.r),
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          // Cover Image
+                          CachedNetworkImage(
+                            imageUrl: chora.coverImage,
+                            fit: BoxFit.cover,
+                            placeholder: (context, url) => Container(
+                              color: AppColors.primary1.withValues(alpha: 0.3),
+                              child: Center(
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2.w,
+                                  color: AppColors.primary2,
+                                ),
+                              ),
+                            ),
+                            errorWidget: (context, url, error) => Container(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: [
+                                    AppColors.primary2.withValues(alpha: 0.6),
+                                    AppColors.primary1.withValues(alpha: 0.6),
+                                  ],
+                                ),
+                              ),
+                              child: Icon(
+                                Icons.music_note_rounded,
+                                size: 50.sp,
+                                color: Colors.white,
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                      errorWidget: (context, url, error) => Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [
-                              AppColors.primary2.withValues(alpha: 0.6),
-                              AppColors.primary1.withValues(alpha: 0.6),
-                            ],
-                          ),
-                        ),
-                        child: Icon(
-                          Icons.music_note_rounded,
-                          size: 50.sp,
-                          color: Colors.white,
-                        ),
+                        ],
                       ),
                     ),
-
-                    // Play icon overlay
-                    Center(
-                      child: Container(
-                        width: 50.w,
-                        height: 50.w,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.9),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          Icons.play_arrow_rounded,
-                          size: 28.sp,
-                          color: AppColors.primary2,
-                        ),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
+
+                // Wooden frame overlay
+                Positioned.fill(
+                  child: IgnorePointer(
+                    child: Image.asset(
+                      Assets.imagesChoraFrame,
+                      fit: BoxFit.fill,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
 
-          // Wooden frame overlay
-          Positioned.fill(
-            child: IgnorePointer(
-              child: Image.asset(Assets.imagesChoraFrame, fit: BoxFit.fill),
+          // Title below the frame
+          // Title below the frame with liquid glass effect
+          Container(
+            margin: EdgeInsets.only(top: 4.h, left: 8.w, right: 8.w),
+            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16.r),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Colors.white.withValues(alpha: 0.65),
+                  Colors.white.withValues(alpha: 0.60),
+                ],
+              ),
+              border: Border.all(
+                color: const Color.fromARGB(
+                  255,
+                  159,
+                  89,
+                  4,
+                ).withValues(alpha: 0.45),
+                width: 1.2,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.15),
+                  blurRadius: 8,
+                  spreadRadius: 1,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Text(
+              chora.title,
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: GoogleFonts.hindSiliguri(
+                fontSize: 13.sp,
+                fontWeight: FontWeight.bold,
+
+                color: const Color.fromARGB(255, 35, 19, 1),
+                shadows: [
+                  Shadow(
+                    blurRadius: 6,
+                    color: const Color.fromARGB(115, 243, 233, 233),
+                    offset: const Offset(0, 1),
+                  ),
+                ],
+              ),
             ),
           ),
         ],

@@ -1,8 +1,6 @@
 import 'package:kids_learning/modules/banan/screen/banan_view.dart';
 import 'package:kids_learning/modules/drawing/screen/drawing_view.dart';
-import 'package:kids_learning/modules/alphabate/screen/alphabate_view.dart';
 import 'package:kids_learning/modules/alphabate/screen/alphabate_wrapper.dart';
-import 'package:kids_learning/modules/bornomala/screen/bornomala_view.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kids_learning/modules/bornomala/screen/bornomala_wrapper.dart';

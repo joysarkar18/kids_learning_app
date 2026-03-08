@@ -68,7 +68,7 @@ dependencies:
   http: ^1.4.0
   youtube_player_flutter: ^9.1.1
   flutter_inappwebview: ^6.1.5
-  flip_card: ^0.7.0
+
 
 dev_dependencies:
   flutter_test:

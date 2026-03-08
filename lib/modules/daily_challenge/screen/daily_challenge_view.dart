@@ -312,6 +312,8 @@ class _DailyChallengeViewState extends State<DailyChallengeView> {
       'english_sonkha': Names.englishSonkha,
       'drawing': Names.drawing,
       'namota': Names.namota,
+      'banan': Names.banan,
+      'chora': Names.chora,
     };
 
     final routeName = routeMap[moduleKey];
@@ -473,6 +475,8 @@ class _MissionCard extends StatelessWidget {
       'english_sonkha': Assets.iconsEnglishSonkha,
       'drawing': Assets.iconsAkaaki,
       'namota': Assets.iconsNamota,
+      'banan': Assets.iconsBanan,
+      'chora': Assets.iconsChoraIcon,
     };
     return map[moduleKey] ?? Assets.iconsSadharonGyan;
   }
@@ -487,6 +491,8 @@ class _MissionCard extends StatelessWidget {
       'english_sonkha': Color(0xFF00BCD4),
       'drawing': Color(0xFF4CAF50),
       'namota': Color(0xFF795548),
+      'banan': Color(0xFFFFC107),
+      'chora': Color(0xFF03A9F4),
     };
     return map[moduleKey] ?? const Color(0xFF5C4BDB);
   }

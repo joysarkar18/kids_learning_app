@@ -257,6 +257,52 @@ class DailyChallengeService extends ChangeNotifier {
       titleBn: '৫টি নামতা অনুশীলন করো',
       targetCount: 5,
     ),
+
+    // Banan (Word spelling)
+    DailyMission(
+      id: 'spell_banan_1',
+      moduleKey: 'banan',
+      titleEn: 'Spell 1 word',
+      titleBn: '১টি শব্দ বানানো শেখো',
+      targetCount: 1,
+    ),
+    DailyMission(
+      id: 'spell_banan_3',
+      moduleKey: 'banan',
+      titleEn: 'Spell 3 words',
+      titleBn: '৩টি শব্দ বানানো শেখো',
+      targetCount: 3,
+    ),
+    DailyMission(
+      id: 'spell_banan_5',
+      moduleKey: 'banan',
+      titleEn: 'Spell 5 words',
+      titleBn: '৫টি শব্দ বানানো শেখো',
+      targetCount: 5,
+    ),
+
+    // Chora (Nursery rhymes)
+    DailyMission(
+      id: 'watch_chora_1',
+      moduleKey: 'chora',
+      titleEn: 'Watch 1 nursery rhyme',
+      titleBn: '১টি ছড়ার ভিডিও দেখো',
+      targetCount: 1,
+    ),
+    DailyMission(
+      id: 'watch_chora_2',
+      moduleKey: 'chora',
+      titleEn: 'Watch 2 nursery rhymes',
+      titleBn: '২টি ছড়ার ভিডিও দেখো',
+      targetCount: 2,
+    ),
+    DailyMission(
+      id: 'watch_chora_3',
+      moduleKey: 'chora',
+      titleEn: 'Watch 3 nursery rhymes',
+      titleBn: '৩টি ছড়ার ভিডিও দেখো',
+      targetCount: 3,
+    ),
   ];
 
   // ─── Initialization ────────────────────────────────────────────────

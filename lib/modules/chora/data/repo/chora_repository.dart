@@ -34,9 +34,7 @@ class ChoraRepository {
         _hasMoreData = false;
       }
 
-      return snapshot.docs
-          .map((doc) => ChoraModel.fromFirestore(doc))
-          .toList();
+      return snapshot.docs.map((doc) => ChoraModel.fromFirestore(doc)).toList();
     } catch (e) {
       throw Exception('Failed to fetch choras: $e');
     }

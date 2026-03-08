@@ -11,9 +11,12 @@ class BananRepository {
 
   bool get hasMoreData => _hasMore;
 
+  /// Fetch problems with pagination support
+  /// [limit] controls batch size, not total fetch limit
+  /// Call repeatedly to load more until [hasMoreData] returns false
   Future<List<BananProblemModel>> fetchProblems({
     String? language, // 'english' | 'bengali' | null (both)
-    int limit = 10,
+    int limit = 50, // Larger batch size for smoother infinite scrolling
   }) async {
     try {
       Query query = _firestore.collection(_collectionName);
@@ -81,5 +84,10 @@ class BananRepository {
   void resetPagination() {
     _lastDocument = null;
     _hasMore = true;
+  }
+
+  /// Mark that there are no more problems to fetch
+  void markNoMoreData() {
+    _hasMore = false;
   }
 }

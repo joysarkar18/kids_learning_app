@@ -149,10 +149,12 @@ class BananError extends BananState {
 class BananRoundCompleted extends BananState {
   final int roundCorrect;
   final int roundAnswered;
+  final bool isAllQuestionsExhausted;
 
   const BananRoundCompleted({
     required this.roundCorrect,
     required this.roundAnswered,
+    this.isAllQuestionsExhausted = false,
   });
 
   int get roundStars {
@@ -164,5 +166,5 @@ class BananRoundCompleted extends BananState {
   }
 
   @override
-  List<Object?> get props => [roundCorrect, roundAnswered];
+  List<Object?> get props => [roundCorrect, roundAnswered, isAllQuestionsExhausted];
 }

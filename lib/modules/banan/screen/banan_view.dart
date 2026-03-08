@@ -821,6 +821,8 @@ class _BananProblemScreenState extends State<BananProblemScreen>
         : 0;
     _confetti.play();
 
+    final isAllExhausted = state.isAllQuestionsExhausted;
+
     showModalBottomSheet(
       context: context,
       isDismissible: false,
@@ -883,7 +885,9 @@ class _BananProblemScreenState extends State<BananProblemScreen>
             ),
             SizedBox(height: 20.h),
             Text(
-              stars >= 2 ? 'চমৎকার! 🎉' : 'আরও চেষ্টা করো!',
+              isAllExhausted
+                  ? 'সব প্রশ্ন শেষ! 🎉'
+                  : (stars >= 2 ? 'চমৎকার! 🎉' : 'আরও চেষ্টা করো!'),
               style: GoogleFonts.hindSiliguri(
                 fontSize: 30.sp,
                 fontWeight: FontWeight.bold,
@@ -891,24 +895,56 @@ class _BananProblemScreenState extends State<BananProblemScreen>
               ),
             ),
             SizedBox(height: 12.h),
-            Container(
-              padding: EdgeInsets.all(16.w),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.6),
-                borderRadius: BorderRadius.circular(16.r),
+            if (!isAllExhausted) ...[
+              Container(
+                padding: EdgeInsets.all(16.w),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.6),
+                  borderRadius: BorderRadius.circular(16.r),
+                ),
+                child: Column(
+                  children: [
+                    _statRow(
+                      'সঠিক',
+                      '${state.roundCorrect}/${state.roundAnswered}',
+                    ),
+                    SizedBox(height: 8.h),
+                    _statRow('নির্ভুলতা', '$accuracy%'),
+                  ],
+                ),
               ),
-              child: Column(
-                children: [
-                  _statRow(
-                    'সঠিক',
-                    '${state.roundCorrect}/${state.roundAnswered}',
-                  ),
-                  SizedBox(height: 8.h),
-                  _statRow('নির্ভুলতা', '$accuracy%'),
-                ],
+              SizedBox(height: 24.h),
+            ] else ...[
+              SizedBox(height: 16.h),
+              Text(
+                'তুমি সব প্রশ্নের উত্তর দিয়েছো!',
+                style: GoogleFonts.hindSiliguri(
+                  fontSize: 18.sp,
+                  color: Colors.brown[700],
+                ),
               ),
-            ),
-            SizedBox(height: 24.h),
+              SizedBox(height: 8.h),
+              Container(
+                padding: EdgeInsets.all(16.w),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.6),
+                  borderRadius: BorderRadius.circular(16.r),
+                ),
+                child: Column(
+                  children: [
+                    _statRow(
+                      'মোট প্রশ্ন',
+                      '${state.roundAnswered}',
+                    ),
+                    SizedBox(height: 8.h),
+                    _statRow('সঠিক', '${state.roundCorrect}'),
+                    SizedBox(height: 8.h),
+                    _statRow('নির্ভুলতা', '$accuracy%'),
+                  ],
+                ),
+              ),
+              SizedBox(height: 24.h),
+            ],
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [

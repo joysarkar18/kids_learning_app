@@ -8,8 +8,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:kids_learning/firebase_options.dart';
 import 'package:kids_learning/l10n/app_localizations.dart';
-import 'package:kids_learning/modules/chora/data/repo/chora_seeder.dart';
-import 'package:kids_learning/modules/gonit/data/repo/gonit_seeder.dart';
 import 'package:kids_learning/modules/onboarding/bloc/onboarding_bloc.dart';
 import 'package:kids_learning/routes/app_pages.dart';
 import 'package:kids_learning/services/auth_service.dart';
@@ -50,8 +48,7 @@ void main() async {
 
       final savedLanguage = await LocaleService.getSavedLanguagePreference();
       await RemoteConfigService().initialize();
-      await ChoraSeeder.seed();
-      await GanitSeeder.seed();
+
       await DailyChallengeService.instance.initialize();
       runApp(MyApp(initialLocale: savedLanguage));
     },
