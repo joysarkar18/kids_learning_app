@@ -8,6 +8,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:kids_learning/services/audio_service.dart';
+import 'package:kids_learning/widgets/module_background.dart';
 import 'package:kids_learning/utils/themes/app_colors.dart';
 import 'package:kids_learning/widgets/gaming_button.dart';
 
@@ -81,25 +82,17 @@ class _SothikUttorScreenState extends State<SothikUttorScreen> {
         },
         builder: (context, state) {
           return Scaffold(
-            body: SizedBox(
-              height: 1.sh,
-              width: 1.sw,
-              child: Stack(
-                children: [
-                  // -------------------------
-                  // 1. BACKGROUND
-                  // -------------------------
-                  Image.asset(
-                    _getBackgroundForQuestion(state),
-                    fit: BoxFit.cover,
-                    height: 1.sh,
-                    width: 1.sw,
-                  ),
-
-                  // -------------------------
-                  // 2. MAIN CONTENT
-                  // -------------------------
-                  _buildMainContent(state),
+            body: ModuleBackground(
+              backgroundImage: _getBackgroundForQuestion(state),
+              child: SizedBox(
+                height: 1.sh,
+                width: 1.sw,
+                child: Stack(
+                  children: [
+                    // -------------------------
+                    // 2. MAIN CONTENT
+                    // -------------------------
+                    _buildMainContent(state),
 
                   // -------------------------
                   // 3. BOTTOM BUTTONS
@@ -128,7 +121,8 @@ class _SothikUttorScreenState extends State<SothikUttorScreen> {
                 ],
               ),
             ),
-          );
+          ),
+        );
         },
       ),
     );

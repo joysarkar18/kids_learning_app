@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:kids_learning/modules/bornomala/screen/writing_screen.dart';
 import 'package:kids_learning/services/audio_service.dart';
 import 'package:kids_learning/services/logger_service.dart';
+import 'package:kids_learning/widgets/module_background.dart';
 
 // Imports for your project structure
 import '../bloc/bornomala_bloc.dart';
@@ -89,25 +90,17 @@ class _BornomalaScreenState extends State<BornomalaScreen> {
             "assets/bengali_images/${state.currentAlphabet}.png",
           );
           return Scaffold(
-            body: SizedBox(
-              height: 1.sh,
-              width: 1.sw,
-              child: Stack(
-                children: [
-                  // -------------------------
-                  // 1. BACKGROUND
-                  // -------------------------
-                  Image.asset(
-                    Assets.imagesBornomalaBg,
-                    fit: BoxFit.cover,
-                    height: 1.sh,
-                    width: 1.sw,
-                  ),
-
-                  // -------------------------
-                  // 2. ALPHABET IMAGE
-                  // -------------------------
-                  Align(
+            body: ModuleBackground(
+              backgroundImage: Assets.imagesBornomalaBg,
+              child: SizedBox(
+                height: 1.sh,
+                width: 1.sw,
+                child: Stack(
+                  children: [
+                    // -------------------------
+                    // 2. ALPHABET IMAGE
+                    // -------------------------
+                    Align(
                     alignment: Alignment.topCenter,
                     child: Padding(
                       padding: EdgeInsets.only(top: 0.19.sh),
@@ -255,7 +248,8 @@ class _BornomalaScreenState extends State<BornomalaScreen> {
                 ],
               ),
             ),
-          );
+          ),
+        );
         },
       ),
     );

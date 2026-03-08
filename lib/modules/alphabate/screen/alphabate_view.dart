@@ -10,6 +10,7 @@ import 'package:kids_learning/modules/alphabate/bloc/alphabate_state.dart';
 
 import 'package:kids_learning/modules/bornomala/screen/writing_screen.dart'; // Reusing writing screen
 import 'package:kids_learning/services/audio_service.dart';
+import 'package:kids_learning/widgets/module_background.dart';
 import '../../../utils/assets.dart';
 import '../../../widgets/gaming_image_button.dart';
 
@@ -75,22 +76,15 @@ class _AlphabetScreenState extends State<AlphabetScreen> {
         },
         builder: (context, state) {
           return Scaffold(
-            body: SizedBox(
-              height: 1.sh,
-              width: 1.sw,
-              child: Stack(
-                children: [
-                  // 1. BACKGROUND
-                  Image.asset(
-                    // Ensure you have this asset or reuse Assets.imagesBornomalaBg
-                    Assets.imagesBornomalaBg,
-                    fit: BoxFit.cover,
-                    height: 1.sh,
-                    width: 1.sw,
-                  ),
-
-                  // 2. ALPHABET IMAGE
-                  Align(
+            body: ModuleBackground(
+              backgroundImage: Assets.imagesBornomalaBg,
+              child: SizedBox(
+                height: 1.sh,
+                width: 1.sw,
+                child: Stack(
+                  children: [
+                    // 2. ALPHABET IMAGE
+                    Align(
                     alignment: Alignment.topCenter,
                     child: Padding(
                       padding: EdgeInsets.only(top: 0.19.sh),
@@ -220,7 +214,8 @@ class _AlphabetScreenState extends State<AlphabetScreen> {
                 ],
               ),
             ),
-          );
+          ),
+        );
         },
       ),
     );

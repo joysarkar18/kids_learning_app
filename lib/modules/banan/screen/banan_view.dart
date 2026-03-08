@@ -10,6 +10,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:kids_learning/modules/banan/data/models/banan_data_model.dart';
 import 'package:kids_learning/modules/banan/data/repo/banan_repo.dart';
 import 'package:kids_learning/services/audio_service.dart';
+import 'package:kids_learning/widgets/module_background.dart';
 import 'package:kids_learning/utils/assets.dart';
 import 'package:kids_learning/widgets/gaming_button.dart';
 import 'package:kids_learning/widgets/gaming_image_button.dart';
@@ -154,24 +155,21 @@ class _BananProblemScreenState extends State<BananProblemScreen>
             final bgIndex = state is BananLoaded ? state.currentIndex : 0;
 
             return Scaffold(
-              body: SizedBox(
-                height: 1.sh,
-                width: 1.sw,
-                child: Stack(
-                  children: [
-                    Image.asset(
-                      _bg(bgIndex),
-                      fit: BoxFit.cover,
-                      height: 1.sh,
-                      width: 1.sw,
-                    ),
-                    _buildContent(context, state),
-                    _buildBottomBar(context, state),
-                    _buildCloseBtn(context),
-                    _buildConfetti(),
-                    if (state is BananInitial || state is BananLoading)
-                      _buildLoading(),
-                  ],
+              body: ModuleBackground(
+                backgroundImage: _bg(bgIndex),
+                child: SizedBox(
+                  height: 1.sh,
+                  width: 1.sw,
+                  child: Stack(
+                    children: [
+                      _buildContent(context, state),
+                      _buildBottomBar(context, state),
+                      _buildCloseBtn(context),
+                      _buildConfetti(),
+                      if (state is BananInitial || state is BananLoading)
+                        _buildLoading(),
+                    ],
+                  ),
                 ),
               ),
             );

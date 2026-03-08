@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:kids_learning/modules/bornomala/screen/writing_screen.dart';
 import 'package:kids_learning/services/audio_service.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:kids_learning/widgets/module_background.dart';
 
 import '../bloc/bangla_sonkha_bloc.dart';
 import '../bloc/bangla_sonkha_event.dart';
@@ -93,21 +94,15 @@ class _BanglaSonkhaScreenState extends State<BanglaSonkhaScreen> {
         },
         builder: (context, state) {
           return Scaffold(
-            body: SizedBox(
-              height: 1.sh,
-              width: 1.sw,
-              child: Stack(
-                children: [
-                  // 1. BACKGROUND
-                  Image.asset(
-                    Assets.imagesSonkhaBg,
-                    fit: BoxFit.cover,
-                    height: 1.sh,
-                    width: 1.sw,
-                  ),
-
-                  // 2. NUMBER DISPLAY
-                  Align(
+            body: ModuleBackground(
+              backgroundImage: Assets.imagesSonkhaBg,
+              child: SizedBox(
+                height: 1.sh,
+                width: 1.sw,
+                child: Stack(
+                  children: [
+                    // 2. NUMBER DISPLAY
+                    Align(
                     alignment: Alignment.topCenter,
                     child: Padding(
                       padding: EdgeInsets.only(top: 0.18.sh),
@@ -266,7 +261,8 @@ class _BanglaSonkhaScreenState extends State<BanglaSonkhaScreen> {
                 ],
               ),
             ),
-          );
+          ),
+        );
         },
       ),
     );

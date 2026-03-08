@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kids_learning/modules/bornomala/screen/writing_screen.dart';
 import 'package:kids_learning/services/audio_service.dart';
+import 'package:kids_learning/widgets/module_background.dart';
 
 import '../bloc/english_sonkha_bloc.dart';
 import '../bloc/english_sonkha_event.dart';
@@ -90,21 +91,15 @@ class _EnglishSonkhaScreenState extends State<EnglishSonkhaScreen> {
         },
         builder: (context, state) {
           return Scaffold(
-            body: SizedBox(
-              height: 1.sh,
-              width: 1.sw,
-              child: Stack(
-                children: [
-                  // 1. BACKGROUND
-                  Image.asset(
-                    Assets.imagesBanglaSonkhaBg,
-                    fit: BoxFit.cover,
-                    height: 1.sh,
-                    width: 1.sw,
-                  ),
-
-                  // 2. NUMBER DISPLAY
-                  Align(
+            body: ModuleBackground(
+              backgroundImage: Assets.imagesBanglaSonkhaBg,
+              child: SizedBox(
+                height: 1.sh,
+                width: 1.sw,
+                child: Stack(
+                  children: [
+                    // 2. NUMBER DISPLAY
+                    Align(
                     alignment: Alignment.topCenter,
                     child: Padding(
                       padding: EdgeInsets.only(top: 0.18.sh),
@@ -263,7 +258,8 @@ class _EnglishSonkhaScreenState extends State<EnglishSonkhaScreen> {
                 ],
               ),
             ),
-          );
+          ),
+        );
         },
       ),
     );

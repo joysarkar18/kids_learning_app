@@ -10,6 +10,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:kids_learning/services/audio_service.dart';
+import 'package:kids_learning/widgets/module_background.dart';
 import 'package:kids_learning/utils/assets.dart';
 import 'package:kids_learning/widgets/gaming_button.dart';
 import 'package:kids_learning/widgets/gaming_image_button.dart';
@@ -148,24 +149,21 @@ class _GanitProblemScreenState extends State<GanitProblemScreen>
         },
         builder: (context, state) {
           return Scaffold(
-            body: SizedBox(
-              height: 1.sh,
-              width: 1.sw,
-              child: Stack(
-                children: [
-                  Image.asset(
-                    _getBackgroundForQuestion(state),
-                    fit: BoxFit.cover,
-                    height: 1.sh,
-                    width: 1.sw,
-                  ),
-                  _buildMainContent(state),
-                  _buildMicButton(state),
-                  _buildBottomButtons(state),
-                  _buildCloseButton(),
-                  _buildConfetti(),
-                  if (state is GanitLoading) _buildLoadingOverlay(),
-                ],
+            body: ModuleBackground(
+              backgroundImage: _getBackgroundForQuestion(state),
+              child: SizedBox(
+                height: 1.sh,
+                width: 1.sw,
+                child: Stack(
+                  children: [
+                    _buildMainContent(state),
+                    _buildMicButton(state),
+                    _buildBottomButtons(state),
+                    _buildCloseButton(),
+                    _buildConfetti(),
+                    if (state is GanitLoading) _buildLoadingOverlay(),
+                  ],
+                ),
               ),
             ),
           );
