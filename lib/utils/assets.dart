@@ -282,6 +282,10 @@ class Assets {
   /// assets/icons/gonit.png
   static const String iconsGonit = "assets/icons/gonit.png";
 
+  /// Assets for iconsGoogle
+  /// assets/icons/google.svg
+  static const String iconsGoogle = "assets/icons/google.svg";
+
   /// Assets for iconsMiniGame
   /// assets/icons/mini_game.png
   static const String iconsMiniGame = "assets/icons/mini_game.png";

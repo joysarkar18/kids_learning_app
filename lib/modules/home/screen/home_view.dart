@@ -21,6 +21,19 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   VoidCallback? _challengeListener;
 
+  void _showStreakCalendar() {
+    final service = DailyChallengeService.instance;
+    context.pushNamed(
+      Names.streakCalendar,
+      extra: {
+        'completedDates': service.completedDates,
+        'currentStreak': service.progress.currentStreak,
+        'longestStreak': service.progress.longestStreak,
+        'totalStars': service.progress.totalStars,
+      },
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -194,20 +207,33 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Row(
                   children: [
                     SizedBox(width: 10.w),
-                    _StatBadge(
-                      icon: Icons.local_fire_department_rounded,
-                      iconColor: const Color(0xFFFF6B35),
-                      value:
-                          DailyChallengeService.instance.progress.currentStreak,
+                    InkWell(
+                      onTap: _showStreakCalendar,
+                      borderRadius: BorderRadius.circular(20),
+                      child: _StatBadge(
+                        icon: Icons.local_fire_department_rounded,
+                        iconColor: const Color(0xFFFF6B35),
+                        value: DailyChallengeService
+                            .instance
+                            .progress
+                            .currentStreak,
+                      ),
                     ),
                     const Spacer(),
                     _DailyChallengeButton(),
                     const Spacer(),
 
-                    _StatBadge(
-                      icon: Icons.star_rounded,
-                      iconColor: const Color(0xFFFFD700),
-                      value: DailyChallengeService.instance.progress.totalStars,
+                    InkWell(
+                      onTap: () {
+                        context.pushNamed(Names.redeemProducts);
+                      },
+                      borderRadius: BorderRadius.circular(20),
+                      child: _StatBadge(
+                        icon: Icons.star_rounded,
+                        iconColor: const Color(0xFFFFD700),
+                        value:
+                            DailyChallengeService.instance.progress.totalStars,
+                      ),
                     ),
                     SizedBox(width: 10.w),
                   ],

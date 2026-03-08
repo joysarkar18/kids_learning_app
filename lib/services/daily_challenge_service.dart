@@ -34,6 +34,9 @@ class DailyChallengeService extends ChangeNotifier {
 
   DailyChallenge? get todayChallenge => _todayChallenge;
   ChallengeProgress get progress => _progress;
+  
+  /// Get completed dates for calendar display
+  List<String> get completedDates => List.unmodifiable(_progress.completedDates);
 
   // Pending launch indices — set before navigation, consumed by wrappers.
   // This bypasses GoRouter's extra param which can be unreliable.
@@ -452,6 +455,12 @@ class DailyChallengeService extends ChangeNotifier {
     if (_todayChallenge!.isAllCompleted) {
       final today = _todayString();
       if (_progress.lastCompletedDate != today) {
+        // Add today to completed dates if not already present
+        final updatedCompletedDates = List<String>.from(_progress.completedDates);
+        if (!updatedCompletedDates.contains(today)) {
+          updatedCompletedDates.add(today);
+        }
+        
         _progress = _progress.copyWith(
           totalStars: _progress.totalStars + _todayChallenge!.starsEarned,
           currentStreak: _progress.currentStreak + 1,
@@ -460,6 +469,7 @@ class DailyChallengeService extends ChangeNotifier {
             _progress.currentStreak + 1,
           ),
           lastCompletedDate: today,
+          completedDates: updatedCompletedDates,
         );
       }
     }
@@ -484,6 +494,19 @@ class DailyChallengeService extends ChangeNotifier {
     }
     // If diff == 1, streak continues (will be incremented on completion)
     // If diff == 0, same day — no change
+    
+    // Clean up old completed dates (keep last 90 days for calendar)
+    final ninetyDaysAgo = todayDate.subtract(const Duration(days: 90));
+    final filteredDates = _progress.completedDates
+        .where((date) {
+          final d = DateTime.tryParse(date);
+          return d != null && d.isAfter(ninetyDaysAgo);
+        })
+        .toList();
+    
+    if (filteredDates.length != _progress.completedDates.length) {
+      _progress = _progress.copyWith(completedDates: filteredDates);
+    }
   }
 
   // ─── Local Persistence (SharedPreferences) ─────────────────────────

@@ -12,6 +12,10 @@ import 'package:kids_learning/modules/english_sonkha/screen/english_sonkha_wrapp
 import 'package:kids_learning/modules/gonit/screen/gonit_category_view.dart';
 import 'package:kids_learning/modules/gonit/screen/gonit_wrapper.dart';
 import 'package:kids_learning/modules/daily_challenge/screen/daily_challenge_view.dart';
+import 'package:kids_learning/modules/daily_challenge/screen/redeem_products_view.dart';
+import 'package:kids_learning/modules/daily_challenge/screen/address_form_view.dart';
+import 'package:kids_learning/modules/daily_challenge/screen/my_redemptions_view.dart';
+import 'package:kids_learning/modules/daily_challenge/screen/streak_calendar_screen.dart';
 import 'package:kids_learning/modules/mini_games/screen/mini_games_view.dart';
 import 'package:kids_learning/modules/mini_games/screen/mini_game_webview.dart';
 import 'package:kids_learning/modules/settings/screen/settings_view.dart';
@@ -222,6 +226,46 @@ final router = GoRouter(
       name: Names.settings,
       path: Routes.settings,
       builder: (context, state) => const SettingsScreen(),
+    ),
+
+    // 9. Redeem Products
+    GoRoute(
+      name: Names.redeemProducts,
+      path: Routes.redeemProducts,
+      builder: (context, state) => const RedeemProductsView(),
+    ),
+
+    // 10. Address Form for Redemption
+    GoRoute(
+      name: Names.addressForm,
+      path: Routes.addressForm,
+      builder: (context, state) {
+        final productId = state.pathParameters['productId'] ?? '';
+        return AddressFormView(productId: productId);
+      },
+    ),
+
+    // 11. My Redemptions
+    GoRoute(
+      name: Names.myRedemptions,
+      path: Routes.myRedemptions,
+      builder: (context, state) => const MyRedemptionsView(),
+    ),
+
+    // 12. Streak Calendar
+    GoRoute(
+      name: Names.streakCalendar,
+      path: Routes.streakCalendar,
+      builder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>?;
+        final completedDates = extra?['completedDates'] as List? ?? [];
+        return StreakCalendarScreen(
+          completedDates: completedDates.cast<String>(),
+          currentStreak: extra?['currentStreak'] as int? ?? 0,
+          longestStreak: extra?['longestStreak'] as int? ?? 0,
+          totalStars: extra?['totalStars'] as int? ?? 0,
+        );
+      },
     ),
   ],
 );

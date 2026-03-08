@@ -29,16 +29,11 @@ class CharacterSelectorScreen extends StatefulWidget {
 
 class _CharacterSelectorScreenState extends State<CharacterSelectorScreen> {
   int? selectedCharacterIndex;
-  late final List<CharacterModel> characters;
   Timer? _audioTimer;
+  bool _audioInitialized = false;
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-
-    final l10n = AppLocalizations.of(context)!;
-
-    characters = [
+  List<CharacterModel> _buildCharacters(AppLocalizations l10n) {
+    return [
       CharacterModel(
         key: "chintu ",
         name: l10n.chintu,
@@ -82,11 +77,18 @@ class _CharacterSelectorScreenState extends State<CharacterSelectorScreen> {
         audioKey: AudioKey.chiku,
       ),
     ];
+  }
 
-    // Play audio on first load
-    _playChooseYourFriendAudio();
-    // Start timer for repeating audio every 5 seconds
-    _startAudioTimer();
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // Play audio only once on first load
+    if (!_audioInitialized && mounted) {
+      _audioInitialized = true;
+      _playChooseYourFriendAudio();
+      _startAudioTimer();
+    }
   }
 
   void _playChooseYourFriendAudio() {
@@ -115,6 +117,7 @@ class _CharacterSelectorScreenState extends State<CharacterSelectorScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final characters = _buildCharacters(l10n);
 
     return Scaffold(
       body: Container(

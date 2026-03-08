@@ -46,3 +46,15 @@ android {
 flutter {
     source = "../.."
 }
+
+
+dependencies {
+    // Firebase BOM — manages all Firebase library versions automatically
+    implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
+
+    // Firebase Analytics (tracks active users, sessions, events, retention, etc.)
+    implementation("com.google.firebase:firebase-analytics")
+
+    // Firebase Crashlytics (already using the plugin, this adds the runtime lib)
+    implementation("com.google.firebase:firebase-crashlytics")
+}

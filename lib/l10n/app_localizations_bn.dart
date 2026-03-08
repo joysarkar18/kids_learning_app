@@ -140,4 +140,174 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsSubtitle => 'শীঘ্রই আসছে!';
+
+  @override
+  String get redeem => 'রিডিম';
+
+  @override
+  String get redeemProducts => 'রিডিম পণ্য';
+
+  @override
+  String get points => 'পয়েন্ট';
+
+  @override
+  String get inStock => 'স্টকে আছে';
+
+  @override
+  String get outOfStock => 'স্টকে নেই';
+
+  @override
+  String get noProductsAvailable => 'এই মুহূর্তে কোনো পণ্য উপলব্ধ নেই';
+
+  @override
+  String get checkBackSoon => 'শীঘ্রই আবার চেক করো!';
+
+  @override
+  String get retry => 'আবার চেষ্টা করো';
+
+  @override
+  String get deliveryAddress => 'ডেলিভারি ঠিকানা';
+
+  @override
+  String get fullName => 'পুরো নাম';
+
+  @override
+  String get fullNameHint => 'পুরো নাম লিখো';
+
+  @override
+  String get nameRequired => 'দয়া করে পুরো নাম লিখো';
+
+  @override
+  String get addressLine1 => 'ঠিকানা লাইন ১';
+
+  @override
+  String get addressLine1Hint => 'বাড়ি নম্বর, বিল্ডিংয়ের নাম';
+
+  @override
+  String get addressLine1Required => 'দয়া করে ঠিকানা লিখো';
+
+  @override
+  String get addressLine2 => 'ঠিকানা লাইন ২';
+
+  @override
+  String get addressLine2Hint => 'এলাকা, স্থানীয় এলাকা';
+
+  @override
+  String get landmark => 'ল্যান্ডমার্ক';
+
+  @override
+  String get landmarkHint => 'কাছাকাছি ল্যান্ডমার্ক (ঐচ্ছিক)';
+
+  @override
+  String get city => 'শহর';
+
+  @override
+  String get cityHint => 'শহরের নাম লিখো';
+
+  @override
+  String get cityRequired => 'দয়া করে শহরের নাম লিখো';
+
+  @override
+  String get state => 'রাজ্য';
+
+  @override
+  String get stateHint => 'রাজ্যের নাম লিখো';
+
+  @override
+  String get stateRequired => 'দয়া করে রাজ্যের নাম লিখো';
+
+  @override
+  String get pincode => 'পিনকোড';
+
+  @override
+  String get pincodeHint => '৬ সংখ্যার পিনকোড লিখো';
+
+  @override
+  String get pincodeRequired => 'দয়া করে পিনকোড লিখো';
+
+  @override
+  String get invalidPincode =>
+      'দয়া করে একটি বৈধ ৬ সংখ্যার ভারতীয় পিনকোড লিখো';
+
+  @override
+  String get phoneNumber => 'ফোন নম্বর';
+
+  @override
+  String get phoneHint => '১০ সংখ্যার মোবাইল নম্বর লিখো';
+
+  @override
+  String get phoneRequired => 'দয়া করে ফোন নম্বর লিখো';
+
+  @override
+  String get invalidPhone =>
+      'দয়া করে একটি বৈধ ১০ সংখ্যার ভারতীয় মোবাইল নম্বর লিখো';
+
+  @override
+  String get addressInfo =>
+      'আমরা বর্তমানে শুধুমাত্র ভারতীয় ঠিকানায় ডেলিভারি করি। দয়া করে একটি বৈধ ভারতীয় ঠিকানা প্রদান করো।';
+
+  @override
+  String get confirmRedeem => 'রিডেম্পশন নিশ্চিত করো';
+
+  @override
+  String get processingRedemption => 'তোমার রিডেম্পশন প্রক্রিয়া করা হচ্ছে...';
+
+  @override
+  String get redemptionSuccess => 'রিডেম্পশন সফল!';
+
+  @override
+  String get redemptionFailed => 'রিডেম্পশন ব্যর্থ';
+
+  @override
+  String get ok => 'ঠিক আছে';
+
+  @override
+  String get tryAgain => 'আবার চেষ্টা করো';
+
+  @override
+  String get limitedDelivery => 'সীমিত ডেলিভারি এলাকা';
+
+  @override
+  String get limitedDeliveryMessage =>
+      'আমরা তোমাদের আরও ভালোভাবে পরিবেশন করার জন্য আমাদের ডেলিভারি পার্টনার বাড়ানোর উপর কাজ করছি। বর্তমানে, আমরা শুধুমাত্র ভারতীয় ঠিকানায় ডেলিভারি করি যেখানে বৈধ ভারতীয় পিনকোড এবং ফোন নম্বর প্রয়োজন।';
+
+  @override
+  String get pleaseContactUs =>
+      'সাহায্যের জন্য অনুগ্রহ করে আমাদের সাথে যোগাযোগ করো';
+
+  @override
+  String get cancel => 'বাতিল';
+
+  @override
+  String get emailUs => 'ইমেইল করো';
+
+  @override
+  String get needHelpContactUs => 'সাহায্য দরকার? আমাদের সাথে যোগাযোগ করো';
+
+  @override
+  String get myRedemptions => 'আমার রিডেম্পশন';
+
+  @override
+  String get failedToLoadRedemptions => 'রিডেম্পশন লোড করা যায়নি';
+
+  @override
+  String get noRedemptionsYet => 'এখনও কোনো রিডেম্পশন নেই';
+
+  @override
+  String get startRedeeming => 'পণ্য রিডিম করা শুরু করো!';
+
+  @override
+  String get statusPending => 'অমীমাংসিত';
+
+  @override
+  String get statusProcessing => 'প্রক্রিয়াধীন';
+
+  @override
+  String get statusShipped => 'প্রেরিত';
+
+  @override
+  String get statusDelivered => 'বিতরিত';
+
+  @override
+  String get statusCancelled => 'বাতিল';
 }

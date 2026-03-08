@@ -23,6 +23,10 @@ abstract class Routes {
   static const home = _Paths.home;
   static const stories = _Paths.stories;
   static const storyReader = _Paths.storyReader;
+  static const redeemProducts = _Paths.redeemProducts;
+  static const addressForm = _Paths.addressForm;
+  static const myRedemptions = _Paths.myRedemptions;
+  static const streakCalendar = _Paths.streakCalendar;
 
   Routes._();
 }
@@ -52,6 +56,10 @@ abstract class _Paths {
   static const home = '/home';
   static const stories = '/stories';
   static const storyReader = '/story-reader';
+  static const redeemProducts = '/redeem-products';
+  static const addressForm = '/address-form/:productId';
+  static const myRedemptions = '/my-redemptions';
+  static const streakCalendar = '/streak-calendar';
   _Paths._();
 }
 
@@ -80,6 +88,10 @@ abstract class Names {
   static const home = _Names.home;
   static const stories = _Names.stories;
   static const storyReader = _Names.storyReader;
+  static const redeemProducts = _Names.redeemProducts;
+  static const addressForm = _Names.addressForm;
+  static const myRedemptions = _Names.myRedemptions;
+  static const streakCalendar = _Names.streakCalendar;
   Names._();
 }
 
@@ -108,5 +120,9 @@ abstract class _Names {
   static const home = 'home';
   static const stories = 'stories';
   static const storyReader = 'storyReader';
+  static const redeemProducts = 'redeemProducts';
+  static const addressForm = 'addressForm';
+  static const myRedemptions = 'myRedemptions';
+  static const streakCalendar = 'streakCalendar';
   _Names._();
 }

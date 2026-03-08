@@ -155,7 +155,7 @@ class _DailyChallengeViewState extends State<DailyChallengeView> {
         children: [
           SizedBox(height: 10.h),
 
-          // Title
+          // Title and Redeem Button Row
           Text(
             l10n?.todaysMissions ?? "Today's Missions",
             style: GoogleFonts.bubblegumSans(
@@ -201,7 +201,7 @@ class _DailyChallengeViewState extends State<DailyChallengeView> {
             child: ListView.separated(
               padding: EdgeInsets.only(bottom: 20.h),
               itemCount: challenge.missions.length,
-              separatorBuilder: (_, __) => SizedBox(height: 16.h),
+              separatorBuilder: (_, _) => SizedBox(height: 16.h),
               itemBuilder: (context, index) {
                 return _MissionCard(
                   mission: challenge.missions[index],
@@ -269,36 +269,60 @@ class _DailyChallengeViewState extends State<DailyChallengeView> {
     required String value,
     required String label,
   }) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, color: iconColor, size: 22.sp),
-          SizedBox(width: 6.w),
-          Text(
-            value,
-            style: GoogleFonts.bubblegumSans(
-              fontSize: 20.sp,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+    final isStreak = icon == Icons.local_fire_department_rounded;
+
+    return InkWell(
+      onTap: () {
+        if (isStreak) {
+          _showStreakCalendar();
+        } else {
+          context.pushNamed(Names.redeemProducts);
+        }
+      },
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, color: iconColor, size: 22.sp),
+            SizedBox(width: 6.w),
+            Text(
+              value,
+              style: GoogleFonts.bubblegumSans(
+                fontSize: 20.sp,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
             ),
-          ),
-          SizedBox(width: 4.w),
-          Text(
-            label,
-            style: GoogleFonts.bubblegumSans(
-              fontSize: 13.sp,
-              color: Colors.white.withValues(alpha: 0.6),
+            SizedBox(width: 4.w),
+            Text(
+              label,
+              style: GoogleFonts.bubblegumSans(
+                fontSize: 13.sp,
+                color: Colors.white.withValues(alpha: 0.6),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
+    );
+  }
+
+  void _showStreakCalendar() {
+    final service = DailyChallengeService.instance;
+    context.pushNamed(
+      Names.streakCalendar,
+      extra: {
+        'completedDates': service.completedDates,
+        'currentStreak': service.progress.currentStreak,
+        'longestStreak': service.progress.longestStreak,
+        'totalStars': service.progress.totalStars,
+      },
     );
   }
 

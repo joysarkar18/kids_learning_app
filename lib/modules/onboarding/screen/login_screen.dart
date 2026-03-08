@@ -5,6 +5,7 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:kids_learning/l10n/app_localizations.dart';
@@ -13,6 +14,7 @@ import 'package:kids_learning/services/auth_service.dart';
 import 'package:kids_learning/services/logger_service.dart';
 import 'package:kids_learning/services/snackbar_service.dart';
 import 'package:kids_learning/services/user_service.dart';
+import 'package:kids_learning/utils/assets.dart';
 import 'package:kids_learning/widgets/gaming_button.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -268,14 +270,7 @@ class _LoginScreenState extends State<LoginScreen>
           loadingWidget: _BouncingDotsLoader(color: const Color(0xFFEA4335)),
           iconWidget: _isGoogleLoading
               ? null
-              : Text(
-                  'G',
-                  style: GoogleFonts.bubblegumSans(
-                    fontSize: 24.sp,
-                    fontWeight: FontWeight.bold,
-                    color: const Color(0xFFEA4335),
-                  ),
-                ),
+              : SvgPicture.asset(Assets.iconsGoogle, width: 24.w, height: 24.h),
           text: l10n?.signInWithGoogle ?? 'Sign in with Google',
           textStyle: GoogleFonts.bubblegumSans(
             color: const Color(0xFF333333),

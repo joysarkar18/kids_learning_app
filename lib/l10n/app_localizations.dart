@@ -355,6 +355,336 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Coming Soon!'**
   String get settingsSubtitle;
+
+  /// No description provided for @redeem.
+  ///
+  /// In en, this message translates to:
+  /// **'Redeem'**
+  String get redeem;
+
+  /// No description provided for @redeemProducts.
+  ///
+  /// In en, this message translates to:
+  /// **'Redeem Products'**
+  String get redeemProducts;
+
+  /// No description provided for @points.
+  ///
+  /// In en, this message translates to:
+  /// **'Points'**
+  String get points;
+
+  /// No description provided for @inStock.
+  ///
+  /// In en, this message translates to:
+  /// **'In Stock'**
+  String get inStock;
+
+  /// No description provided for @outOfStock.
+  ///
+  /// In en, this message translates to:
+  /// **'Out of Stock'**
+  String get outOfStock;
+
+  /// No description provided for @noProductsAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No products available right now'**
+  String get noProductsAvailable;
+
+  /// No description provided for @checkBackSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Check back soon!'**
+  String get checkBackSoon;
+
+  /// No description provided for @retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retry;
+
+  /// No description provided for @deliveryAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery Address'**
+  String get deliveryAddress;
+
+  /// No description provided for @fullName.
+  ///
+  /// In en, this message translates to:
+  /// **'Full Name'**
+  String get fullName;
+
+  /// No description provided for @fullNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter full name'**
+  String get fullNameHint;
+
+  /// No description provided for @nameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter full name'**
+  String get nameRequired;
+
+  /// No description provided for @addressLine1.
+  ///
+  /// In en, this message translates to:
+  /// **'Address Line 1'**
+  String get addressLine1;
+
+  /// No description provided for @addressLine1Hint.
+  ///
+  /// In en, this message translates to:
+  /// **'House no., Building name'**
+  String get addressLine1Hint;
+
+  /// No description provided for @addressLine1Required.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter address'**
+  String get addressLine1Required;
+
+  /// No description provided for @addressLine2.
+  ///
+  /// In en, this message translates to:
+  /// **'Address Line 2'**
+  String get addressLine2;
+
+  /// No description provided for @addressLine2Hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Area, Locality'**
+  String get addressLine2Hint;
+
+  /// No description provided for @landmark.
+  ///
+  /// In en, this message translates to:
+  /// **'Landmark'**
+  String get landmark;
+
+  /// No description provided for @landmarkHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Nearby landmark (optional)'**
+  String get landmarkHint;
+
+  /// No description provided for @city.
+  ///
+  /// In en, this message translates to:
+  /// **'City'**
+  String get city;
+
+  /// No description provided for @cityHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter city'**
+  String get cityHint;
+
+  /// No description provided for @cityRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter city'**
+  String get cityRequired;
+
+  /// No description provided for @state.
+  ///
+  /// In en, this message translates to:
+  /// **'State'**
+  String get state;
+
+  /// No description provided for @stateHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter state'**
+  String get stateHint;
+
+  /// No description provided for @stateRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter state'**
+  String get stateRequired;
+
+  /// No description provided for @pincode.
+  ///
+  /// In en, this message translates to:
+  /// **'Pincode'**
+  String get pincode;
+
+  /// No description provided for @pincodeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter 6-digit pincode'**
+  String get pincodeHint;
+
+  /// No description provided for @pincodeRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter pincode'**
+  String get pincodeRequired;
+
+  /// No description provided for @invalidPincode.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid 6-digit Indian pincode'**
+  String get invalidPincode;
+
+  /// No description provided for @phoneNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone Number'**
+  String get phoneNumber;
+
+  /// No description provided for @phoneHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter 10-digit mobile number'**
+  String get phoneHint;
+
+  /// No description provided for @phoneRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter phone number'**
+  String get phoneRequired;
+
+  /// No description provided for @invalidPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid 10-digit Indian mobile number'**
+  String get invalidPhone;
+
+  /// No description provided for @addressInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'We currently only deliver to Indian addresses. Please provide a valid Indian address.'**
+  String get addressInfo;
+
+  /// No description provided for @confirmRedeem.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Redemption'**
+  String get confirmRedeem;
+
+  /// No description provided for @processingRedemption.
+  ///
+  /// In en, this message translates to:
+  /// **'Processing your redemption...'**
+  String get processingRedemption;
+
+  /// No description provided for @redemptionSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Redemption Successful!'**
+  String get redemptionSuccess;
+
+  /// No description provided for @redemptionFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Redemption Failed'**
+  String get redemptionFailed;
+
+  /// No description provided for @ok.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get ok;
+
+  /// No description provided for @tryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Try Again'**
+  String get tryAgain;
+
+  /// No description provided for @limitedDelivery.
+  ///
+  /// In en, this message translates to:
+  /// **'Limited Delivery Areas'**
+  String get limitedDelivery;
+
+  /// No description provided for @limitedDeliveryMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'We are currently working on increasing our delivery partners to serve you better. At present, we only deliver to Indian addresses with valid Indian pincodes and phone numbers.'**
+  String get limitedDeliveryMessage;
+
+  /// No description provided for @pleaseContactUs.
+  ///
+  /// In en, this message translates to:
+  /// **'Please contact us for assistance'**
+  String get pleaseContactUs;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @emailUs.
+  ///
+  /// In en, this message translates to:
+  /// **'Email Us'**
+  String get emailUs;
+
+  /// No description provided for @needHelpContactUs.
+  ///
+  /// In en, this message translates to:
+  /// **'Need help? Contact us'**
+  String get needHelpContactUs;
+
+  /// No description provided for @myRedemptions.
+  ///
+  /// In en, this message translates to:
+  /// **'My Redemptions'**
+  String get myRedemptions;
+
+  /// No description provided for @failedToLoadRedemptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load redemptions'**
+  String get failedToLoadRedemptions;
+
+  /// No description provided for @noRedemptionsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No redemptions yet'**
+  String get noRedemptionsYet;
+
+  /// No description provided for @startRedeeming.
+  ///
+  /// In en, this message translates to:
+  /// **'Start redeeming products!'**
+  String get startRedeeming;
+
+  /// No description provided for @statusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get statusPending;
+
+  /// No description provided for @statusProcessing.
+  ///
+  /// In en, this message translates to:
+  /// **'Processing'**
+  String get statusProcessing;
+
+  /// No description provided for @statusShipped.
+  ///
+  /// In en, this message translates to:
+  /// **'Shipped'**
+  String get statusShipped;
+
+  /// No description provided for @statusDelivered.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered'**
+  String get statusDelivered;
+
+  /// No description provided for @statusCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get statusCancelled;
 }
 
 class _AppLocalizationsDelegate
