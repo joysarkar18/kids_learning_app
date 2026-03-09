@@ -325,11 +325,11 @@ class _SideMenuOverlayState extends State<SideMenuOverlay>
     if (confirmed == true && mounted) {
       _closeMenu();
       await _authService.signOut();
-      // Clear language preference on logout
-      await LocaleService.clearLanguagePreference();
+      // // Clear language preference on logout
+      // await LocaleService.clearLanguagePreference();
 
       if (mounted) {
-        // Navigate to login screen instead of onboarding
+        // Navigate to language selection screen
         context.goNamed(Names.login);
       }
     }
