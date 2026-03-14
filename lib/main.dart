@@ -18,6 +18,7 @@ import 'package:kids_learning/services/remote_config_service.dart';
 import 'package:kids_learning/services/snackbar_service.dart';
 import 'package:kids_learning/services/review_service.dart';
 import 'package:kids_learning/services/notification_service.dart';
+import 'package:in_app_review/in_app_review.dart';
 import 'package:kids_learning/services/daily_notification_scheduler.dart';
 import 'package:kids_learning/utils/themes/app_colors.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -247,8 +248,14 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
                     onPressed: () async {
                       await ReviewService.instance.markAsCompleted();
                       setState(() => _showReviewDialog = false);
-                      // TODO: Open Play Store/App Store review
-                      // For now, just mark as completed
+
+                      // Open in-app review or store listing
+                      final InAppReview inAppReview = InAppReview.instance;
+                      if (await inAppReview.isAvailable()) {
+                        inAppReview.requestReview();
+                      } else {
+                        inAppReview.openStoreListing();
+                      }
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color(0xFFFFD700),
