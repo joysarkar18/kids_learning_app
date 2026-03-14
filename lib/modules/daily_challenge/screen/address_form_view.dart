@@ -40,7 +40,9 @@ class _AddressFormViewState extends State<AddressFormView> {
 
   Future<void> _loadProduct() async {
     try {
-      final product = await ProductsFirebaseService().getProductById(widget.productId);
+      final product = await ProductsFirebaseService().getProductById(
+        widget.productId,
+      );
       if (mounted) {
         setState(() {
           _product = product;
@@ -144,7 +146,9 @@ class _AddressFormViewState extends State<AddressFormView> {
                           color: const Color(0xFF2196F3).withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: const Color(0xFF2196F3).withValues(alpha: 0.5),
+                            color: const Color(
+                              0xFF2196F3,
+                            ).withValues(alpha: 0.5),
                           ),
                         ),
                         child: Row(
@@ -179,7 +183,8 @@ class _AddressFormViewState extends State<AddressFormView> {
                         icon: Icons.person,
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
-                            return l10n?.nameRequired ?? 'Please enter full name';
+                            return l10n?.nameRequired ??
+                                'Please enter full name';
                           }
                           return null;
                         },
@@ -191,12 +196,15 @@ class _AddressFormViewState extends State<AddressFormView> {
                       _buildTextField(
                         controller: _addressLine1Controller,
                         label: l10n?.addressLine1 ?? 'Address Line 1',
-                        hintText: l10n?.addressLine1Hint ?? 'House no., Building name',
+                        hintText:
+                            l10n?.addressLine1Hint ??
+                            'House no., Building name',
                         icon: Icons.home,
                         maxLines: 2,
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
-                            return l10n?.addressLine1Required ?? 'Please enter address';
+                            return l10n?.addressLine1Required ??
+                                'Please enter address';
                           }
                           return null;
                         },
@@ -219,7 +227,8 @@ class _AddressFormViewState extends State<AddressFormView> {
                       _buildTextField(
                         controller: _landmarkController,
                         label: l10n?.landmark ?? 'Landmark',
-                        hintText: l10n?.landmarkHint ?? 'Nearby landmark (optional)',
+                        hintText:
+                            l10n?.landmarkHint ?? 'Nearby landmark (optional)',
                         icon: Icons.place,
                       ),
 
@@ -267,7 +276,8 @@ class _AddressFormViewState extends State<AddressFormView> {
                         maxLength: 6,
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
-                            return l10n?.pincodeRequired ?? 'Please enter pincode';
+                            return l10n?.pincodeRequired ??
+                                'Please enter pincode';
                           }
                           if (!RegExp(r'^[1-9][0-9]{5}$').hasMatch(value)) {
                             return l10n?.invalidPincode ??
@@ -283,16 +293,19 @@ class _AddressFormViewState extends State<AddressFormView> {
                       _buildTextField(
                         controller: _phoneNumberController,
                         label: l10n?.phoneNumber ?? 'Phone Number',
-                        hintText: l10n?.phoneHint ?? 'Enter 10-digit mobile number',
+                        hintText:
+                            l10n?.phoneHint ?? 'Enter 10-digit mobile number',
                         icon: Icons.phone,
                         keyboardType: TextInputType.phone,
                         maxLength: 10,
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
-                            return l10n?.phoneRequired ?? 'Please enter phone number';
+                            return l10n?.phoneRequired ??
+                                'Please enter phone number';
                           }
-                          if (!RegExp(r'^[6-9][0-9]{9}$')
-                              .hasMatch(value.replaceAll(RegExp(r'\D'), ''))) {
+                          if (!RegExp(
+                            r'^[6-9][0-9]{9}$',
+                          ).hasMatch(value.replaceAll(RegExp(r'\D'), ''))) {
                             return l10n?.invalidPhone ??
                                 'Please enter a valid 10-digit Indian mobile number';
                           }
@@ -338,7 +351,8 @@ class _AddressFormViewState extends State<AddressFormView> {
                                     ),
                                     SizedBox(width: 8.w),
                                     Text(
-                                      l10n?.confirmRedeem ?? 'Confirm Redemption',
+                                      l10n?.confirmRedeem ??
+                                          'Confirm Redemption',
                                       style: GoogleFonts.bubblegumSans(
                                         fontSize: 18.sp,
                                         fontWeight: FontWeight.bold,
@@ -469,7 +483,11 @@ class _AddressFormViewState extends State<AddressFormView> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.star_rounded, color: Color(0xFFFFD700), size: 16),
+                      const Icon(
+                        Icons.star_rounded,
+                        color: Color(0xFFFFD700),
+                        size: 16,
+                      ),
                       SizedBox(width: 4.w),
                       Text(
                         '${product.pointsRequired} ${l10n?.points ?? "Points"}',
@@ -525,11 +543,15 @@ class _AddressFormViewState extends State<AddressFormView> {
             fillColor: Colors.white.withValues(alpha: 0.1),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.2)),
+              borderSide: BorderSide(
+                color: Colors.white.withValues(alpha: 0.2),
+              ),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.2)),
+              borderSide: BorderSide(
+                color: Colors.white.withValues(alpha: 0.2),
+              ),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
@@ -569,7 +591,10 @@ class _AddressFormViewState extends State<AddressFormView> {
 
     // Validate Indian address
     final pincode = _pincodeController.text.trim();
-    final phone = _phoneNumberController.text.trim().replaceAll(RegExp(r'\D'), '');
+    final phone = _phoneNumberController.text.trim().replaceAll(
+      RegExp(r'\D'),
+      '',
+    );
 
     // Check if pincode matches Indian format
     final isIndianPincode = RegExp(r'^[1-9][0-9]{5}$').hasMatch(pincode);
@@ -644,9 +669,7 @@ class _AddressFormViewState extends State<AddressFormView> {
       barrierDismissible: false,
       builder: (context) => AlertDialog(
         backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -704,10 +727,7 @@ class _AddressFormViewState extends State<AddressFormView> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF7CFF6B),
                 foregroundColor: Colors.black,
-                padding: EdgeInsets.symmetric(
-                  horizontal: 32.w,
-                  vertical: 16.h,
-                ),
+                padding: EdgeInsets.symmetric(horizontal: 32.w, vertical: 16.h),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -733,9 +753,7 @@ class _AddressFormViewState extends State<AddressFormView> {
       barrierDismissible: false,
       builder: (context) => AlertDialog(
         backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -780,10 +798,7 @@ class _AddressFormViewState extends State<AddressFormView> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red[400],
                 foregroundColor: Colors.white,
-                padding: EdgeInsets.symmetric(
-                  horizontal: 32.w,
-                  vertical: 16.h,
-                ),
+                padding: EdgeInsets.symmetric(horizontal: 32.w, vertical: 16.h),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -809,9 +824,7 @@ class _AddressFormViewState extends State<AddressFormView> {
       barrierDismissible: false,
       builder: (context) => AlertDialog(
         backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -874,9 +887,7 @@ class _AddressFormViewState extends State<AddressFormView> {
                   ),
                   child: Text(
                     l10n?.cancel ?? 'Cancel',
-                    style: GoogleFonts.bubblegumSans(
-                      fontSize: 14.sp,
-                    ),
+                    style: GoogleFonts.bubblegumSans(fontSize: 14.sp),
                   ),
                 ),
               ),
@@ -923,7 +934,8 @@ class _AddressFormViewState extends State<AddressFormView> {
       path: 'byteberg18@gmail.com',
       query: _encodeQueryParameters(<String, String>{
         'subject': 'Redemption Delivery Inquiry',
-        'body': 'Hello,\n\nI need assistance with delivery for a redemption. Please help.\n\nThank you.',
+        'body':
+            'Hello,\n\nI need assistance with delivery for a redemption. Please help.\n\nThank you.',
       }),
     );
 
@@ -949,17 +961,17 @@ class _AddressFormViewState extends State<AddressFormView> {
       LoggerService.logError('Error opening email client: $e');
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Email us at: byteberg18@gmail.com'),
-        ),
+        SnackBar(content: Text('Email us at: byteberg18@gmail.com')),
       );
     }
   }
 
   String _encodeQueryParameters(Map<String, String> params) {
     return params.entries
-        .map((MapEntry<String, String> e) =>
-            '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}')
+        .map(
+          (MapEntry<String, String> e) =>
+              '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}',
+        )
         .join('&');
   }
 }

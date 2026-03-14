@@ -6,7 +6,7 @@
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <application
-        android:label="KothaKoli AI"
+        android:label="বর্ণমালা AI"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

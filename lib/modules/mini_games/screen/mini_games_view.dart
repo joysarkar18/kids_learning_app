@@ -84,7 +84,11 @@ class _MiniGamesBodyState extends State<_MiniGamesBody> {
               // Top bar: cross button + title in same row
               Padding(
                 padding: EdgeInsets.only(
-                    left: 10.w, right: 16.w, top: 5.h, bottom: 5.h),
+                  left: 10.w,
+                  right: 16.w,
+                  top: 5.h,
+                  bottom: 5.h,
+                ),
                 child: Row(
                   children: [
                     GamingImageButton(
@@ -115,9 +119,7 @@ class _MiniGamesBodyState extends State<_MiniGamesBody> {
                   builder: (context, state) {
                     if (state is MiniGamesLoading) {
                       return const Center(
-                        child: CircularProgressIndicator(
-                          color: Colors.white70,
-                        ),
+                        child: CircularProgressIndicator(color: Colors.white70),
                       );
                     }
 
@@ -142,7 +144,8 @@ class _MiniGamesBodyState extends State<_MiniGamesBody> {
                           mainAxisSpacing: 14.h,
                           childAspectRatio: 0.78,
                         ),
-                        itemCount: state.games.length +
+                        itemCount:
+                            state.games.length +
                             (state.hasMore || state.isLoadingMore ? 1 : 0),
                         itemBuilder: (context, index) {
                           if (index >= state.games.length) {
@@ -268,8 +271,10 @@ class _GameCard extends StatelessWidget {
                 ),
                 // Name at the bottom
                 Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 8.w, vertical: 10.h),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 8.w,
+                    vertical: 10.h,
+                  ),
                   child: Text(
                     game.name,
                     textAlign: TextAlign.center,

@@ -10,10 +10,7 @@ import 'package:kids_learning/services/audio_service.dart';
 class StoryReaderScreen extends StatefulWidget {
   final StoryModel story;
 
-  const StoryReaderScreen({
-    super.key,
-    required this.story,
-  });
+  const StoryReaderScreen({super.key, required this.story});
 
   @override
   State<StoryReaderScreen> createState() => _StoryReaderScreenState();
@@ -52,11 +49,11 @@ class _StoryReaderScreenState extends State<StoryReaderScreen>
     final currentPage = widget.story.pages[_currentPageIndex];
     if (currentPage.narration != null) {
       setState(() => _isAudioPlaying = true);
-      
+
       try {
         await AudioService().play(currentPage.narration!);
         setState(() => _isAudioPlaying = false);
-        
+
         // Auto-advance to next page after audio completes
         if (_currentPageIndex < widget.story.pages.length - 1) {
           _autoAdvanceTimer = Timer(const Duration(seconds: 2), () {
@@ -76,17 +73,19 @@ class _StoryReaderScreenState extends State<StoryReaderScreen>
     if (_currentPageIndex < widget.story.pages.length - 1) {
       setState(() => _isLoadingImage = true);
       _curlAnimationController.forward().then((_) {
-        _pageController.nextPage(
-          duration: const Duration(milliseconds: 600),
-          curve: Curves.easeInOut,
-        ).then((_) {
-          setState(() {
-            _currentPageIndex++;
-            _isLoadingImage = true;
-          });
-          _curlAnimationController.reset();
-          _playPageAudio();
-        });
+        _pageController
+            .nextPage(
+              duration: const Duration(milliseconds: 600),
+              curve: Curves.easeInOut,
+            )
+            .then((_) {
+              setState(() {
+                _currentPageIndex++;
+                _isLoadingImage = true;
+              });
+              _curlAnimationController.reset();
+              _playPageAudio();
+            });
       });
     }
   }
@@ -95,17 +94,19 @@ class _StoryReaderScreenState extends State<StoryReaderScreen>
     if (_currentPageIndex > 0) {
       setState(() => _isLoadingImage = true);
       _curlAnimationController.forward().then((_) {
-        _pageController.previousPage(
-          duration: const Duration(milliseconds: 600),
-          curve: Curves.easeInOut,
-        ).then((_) {
-          setState(() {
-            _currentPageIndex--;
-            _isLoadingImage = true;
-          });
-          _curlAnimationController.reset();
-          _playPageAudio();
-        });
+        _pageController
+            .previousPage(
+              duration: const Duration(milliseconds: 600),
+              curve: Curves.easeInOut,
+            )
+            .then((_) {
+              setState(() {
+                _currentPageIndex--;
+                _isLoadingImage = true;
+              });
+              _curlAnimationController.reset();
+              _playPageAudio();
+            });
       });
     }
   }
@@ -223,10 +224,7 @@ class _StoryReaderScreenState extends State<StoryReaderScreen>
                 width: double.infinity,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [
-                      const Color(0xFF4A7C2C),
-                      const Color(0xFF2D5016),
-                    ],
+                    colors: [const Color(0xFF4A7C2C), const Color(0xFF2D5016)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -248,14 +246,12 @@ class _StoryReaderScreenState extends State<StoryReaderScreen>
                           ),
                         ),
                         errorWidget: (context, url, error) => Center(
-                          child: Text(
-                            '🖼️',
-                            style: TextStyle(fontSize: 60.sp),
-                          ),
+                          child: Text('🖼️', style: TextStyle(fontSize: 60.sp)),
                         ),
                         imageBuilder: (context, imageProvider) {
                           WidgetsBinding.instance.addPostFrameCallback((_) {
-                            if (mounted) setState(() => _isLoadingImage = false);
+                            if (mounted)
+                              setState(() => _isLoadingImage = false);
                           });
                           return Container(
                             decoration: BoxDecoration(
@@ -269,10 +265,7 @@ class _StoryReaderScreenState extends State<StoryReaderScreen>
                       )
                     else
                       Center(
-                        child: Text(
-                          '🖼️',
-                          style: TextStyle(fontSize: 60.sp),
-                        ),
+                        child: Text('🖼️', style: TextStyle(fontSize: 60.sp)),
                       ),
 
                     // Loading indicator
@@ -323,7 +316,7 @@ class _StoryReaderScreenState extends State<StoryReaderScreen>
                     ),
                   ),
                   SizedBox(height: 16.h),
-                  
+
                   // Story text
                   Expanded(
                     child: Center(
@@ -340,7 +333,7 @@ class _StoryReaderScreenState extends State<StoryReaderScreen>
                       ),
                     ),
                   ),
-                  
+
                   // Page number
                   SizedBox(height: 12.h),
                   Text(
@@ -364,9 +357,7 @@ class _StoryReaderScreenState extends State<StoryReaderScreen>
             child: GestureDetector(
               onTap: _previousPage,
               behavior: HitTestBehavior.translucent,
-              child: Container(
-                color: Colors.transparent,
-              ),
+              child: Container(color: Colors.transparent),
             ),
           ),
           Positioned(
@@ -377,9 +368,7 @@ class _StoryReaderScreenState extends State<StoryReaderScreen>
             child: GestureDetector(
               onTap: _nextPage,
               behavior: HitTestBehavior.translucent,
-              child: Container(
-                color: Colors.transparent,
-              ),
+              child: Container(color: Colors.transparent),
             ),
           ),
         ],
@@ -465,7 +454,7 @@ class PageCurlPainter extends CustomPainter {
 
     final path = Path();
     final curlWidth = size.width * progress * 0.4;
-    
+
     path.moveTo(size.width - curlWidth, 0);
     path.lineTo(size.width, 0);
     path.lineTo(size.width, size.height);
@@ -483,7 +472,7 @@ class PageCurlPainter extends CustomPainter {
     final shadowPaint = Paint()
       ..color = Colors.black.withValues(alpha: 0.2 * progress)
       ..maskFilter = MaskFilter.blur(BlurStyle.normal, 10);
-    
+
     final shadowPath = Path();
     shadowPath.moveTo(size.width - curlWidth * 0.8, 0);
     shadowPath.lineTo(size.width, 0);
@@ -494,7 +483,7 @@ class PageCurlPainter extends CustomPainter {
       size.width - curlWidth * 0.8,
       0,
     );
-    
+
     canvas.drawPath(shadowPath, shadowPaint);
   }
 

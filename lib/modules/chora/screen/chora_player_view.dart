@@ -315,7 +315,7 @@ class _ChoraPlayerScreenState extends State<ChoraPlayerScreen>
                   children: [
                     _buildTopBar(),
                     _buildAuthorRow(),
-                    SizedBox(height: 6.h),
+                    SizedBox(height: 2.h),
                     _buildDivider(),
                     SizedBox(height: 10.h),
                     Expanded(child: _buildPoemScroll()),
@@ -363,34 +363,39 @@ class _ChoraPlayerScreenState extends State<ChoraPlayerScreen>
         padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
         child: Row(
           children: [
+            // Cross button on the left
             GamingImageButton(
               width: 0.18.sw,
               imagePath: Assets.imagesCrossIcon,
               onPressed: () => context.pop(),
             ),
-            SizedBox(width: 10.w),
+            // Centered title
             Expanded(
-              child: ShaderMask(
-                shaderCallback: (bounds) => const LinearGradient(
-                  colors: [_kTitleColor, Color(0xFFFFE082)],
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                ).createShader(bounds),
-                child: Text(
-                  _currentChora.title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.playfairDisplay(
-                    fontSize: 20.sp,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white, // masked by shader
-                    letterSpacing: 0.3,
-                    shadows: [
-                      Shadow(
-                        color: _kTitleColor.withValues(alpha: 0.6),
-                        blurRadius: 12,
-                      ),
-                    ],
+              child: Padding(
+                padding: EdgeInsets.only(right: 0.18.sw),
+                child: ShaderMask(
+                  shaderCallback: (bounds) => const LinearGradient(
+                    colors: [_kTitleColor, Color(0xFFFFE082)],
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                  ).createShader(bounds),
+                  child: Text(
+                    _currentChora.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.playfairDisplay(
+                      fontSize: 20.sp,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white, // masked by shader
+                      letterSpacing: 0.3,
+                      shadows: [
+                        Shadow(
+                          color: _kTitleColor.withValues(alpha: 0.6),
+                          blurRadius: 12,
+                        ),
+                      ],
+                    ),
+                    textAlign: TextAlign.center,
                   ),
                 ),
               ),
@@ -408,8 +413,9 @@ class _ChoraPlayerScreenState extends State<ChoraPlayerScreen>
     return FadeTransition(
       opacity: _headerFade,
       child: Padding(
-        padding: EdgeInsets.only(left: 0.18.sw + 22.w, bottom: 4.h),
+        padding: EdgeInsets.only(bottom: 4.h),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
               width: 3,

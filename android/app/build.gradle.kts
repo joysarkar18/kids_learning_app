@@ -49,12 +49,8 @@ flutter {
 
 
 dependencies {
-    // Firebase BOM — manages all Firebase library versions automatically
-    implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
-
-    // Firebase Analytics (tracks active users, sessions, events, retention, etc.)
-    implementation("com.google.firebase:firebase-analytics")
-
-    // Firebase Crashlytics (already using the plugin, this adds the runtime lib)
+    
+    implementation(platform("com.google.firebase:firebase-bom:34.10.0"))
     implementation("com.google.firebase:firebase-crashlytics")
+    implementation("com.google.firebase:firebase-analytics")
 }
