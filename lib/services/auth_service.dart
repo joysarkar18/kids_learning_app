@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:kids_learning/services/logger_service.dart';
+import 'package:kids_learning/services/notification_service.dart';
+import 'package:kids_learning/services/user_service.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 class AuthService {
@@ -38,12 +40,19 @@ class AuthService {
         idToken: googleAuth.idToken,
       );
 
-      final UserCredential userCredential =
-          await _auth.signInWithCredential(credential);
+      final UserCredential userCredential = await _auth.signInWithCredential(
+        credential,
+      );
 
       LoggerService.logInfo(
         'Google Sign-In successful: ${userCredential.user?.email}',
       );
+
+      // Save user data with FCM token
+      if (userCredential.user != null) {
+        await UserService.instance.saveUserData(userCredential.user!);
+      }
+
       return userCredential.user;
     } on FirebaseAuthException catch (e) {
       LoggerService.logError('Firebase Auth Error: ${e.message}');
@@ -73,8 +82,9 @@ class AuthService {
         accessToken: appleCredential.authorizationCode,
       );
 
-      final UserCredential userCredential =
-          await _auth.signInWithCredential(oauthCredential);
+      final UserCredential userCredential = await _auth.signInWithCredential(
+        oauthCredential,
+      );
 
       // Apple only provides name on first sign-in, update profile if available
       final user = userCredential.user;
@@ -93,6 +103,12 @@ class AuthService {
       LoggerService.logInfo(
         'Apple Sign-In successful: ${userCredential.user?.email}',
       );
+
+      // Save user data with FCM token
+      if (userCredential.user != null) {
+        await UserService.instance.saveUserData(userCredential.user!);
+      }
+
       return _auth.currentUser;
     } catch (e) {
       if (e is SignInWithAppleAuthorizationException &&
@@ -107,6 +123,12 @@ class AuthService {
 
   Future<void> signOut() async {
     try {
+      // Delete FCM token from Firestore before signing out
+      await UserService.instance.deleteFCMToken();
+
+      // Delete FCM token from device
+      await NotificationService.instance.deleteFCMToken();
+
       await Future.wait([_auth.signOut(), _googleSignIn.signOut()]);
       LoggerService.logInfo('User signed out');
     } catch (e) {

@@ -17,6 +17,8 @@ import 'package:kids_learning/services/daily_challenge_service.dart';
 import 'package:kids_learning/services/remote_config_service.dart';
 import 'package:kids_learning/services/snackbar_service.dart';
 import 'package:kids_learning/services/review_service.dart';
+import 'package:kids_learning/services/notification_service.dart';
+import 'package:kids_learning/services/daily_notification_scheduler.dart';
 import 'package:kids_learning/utils/themes/app_colors.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -49,6 +51,10 @@ void main() async {
 
       final savedLanguage = await LocaleService.getSavedLanguagePreference();
       await RemoteConfigService().initialize();
+
+      // Initialize notifications
+      await NotificationService.instance.initialize();
+      await DailyNotificationScheduler.instance.initialize();
 
       await DailyChallengeService.instance.initialize();
       runApp(MyApp(initialLocale: savedLanguage));
