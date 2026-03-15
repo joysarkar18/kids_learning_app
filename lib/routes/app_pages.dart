@@ -26,6 +26,7 @@ import 'package:kids_learning/modules/onboarding/screen/language_selection_scree
 import 'package:kids_learning/modules/onboarding/screen/login_screen.dart';
 import 'package:kids_learning/modules/onboarding/screen/onboarding_view.dart';
 import 'package:kids_learning/routes/app_routes.dart';
+import 'package:kids_learning/services/analytics_service.dart';
 
 // Screens
 import 'package:kids_learning/modules/onboarding/screen/splash_screen.dart';
@@ -45,6 +46,7 @@ class GlobalNavigation {
 final router = GoRouter(
   initialLocation: Routes.init, // Start at Splash
   navigatorKey: GlobalNavigation.instance.navigatorKey,
+  observers: [AnalyticsService().observer], // Automatic screen view tracking
   routes: [
     GoRoute(
       name: Names.banan,

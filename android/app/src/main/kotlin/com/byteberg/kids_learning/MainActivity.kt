@@ -9,7 +9,6 @@ import com.google.android.play.core.install.InstallState
 import com.google.android.play.core.install.InstallStateUpdatedListener
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.InstallStatus
-import com.google.android.play.core.install.model.UpdateResult
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 
@@ -170,10 +169,7 @@ class MainActivity : FlutterActivity(), InstallStateUpdatedListener {
                     Log.d(TAG, "Update flow canceled by user")
                 }
                 else -> {
-                    val updateResult = appUpdateManager.getAppUpdateInfo().result
-                    if (updateResult == UpdateResult.FAILED) {
-                        Log.e(TAG, "Immediate update failed")
-                    }
+                    Log.e(TAG, "Immediate update flow failed with result code: $resultCode")
                 }
             }
         }

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -35,6 +36,11 @@ void main() async {
 
       // Initialize Crashlytics (disable in debug mode)
       await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(
+        !kDebugMode,
+      );
+
+      // Initialize Firebase Analytics
+      await FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(
         !kDebugMode,
       );
 
