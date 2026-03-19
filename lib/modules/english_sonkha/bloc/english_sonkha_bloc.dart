@@ -7,6 +7,7 @@ import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:flutter/foundation.dart';
 import 'package:kids_learning/services/daily_challenge_service.dart';
 import 'package:kids_learning/services/logger_service.dart';
+import 'package:kids_learning/services/app_lifecycle_service.dart';
 
 import 'english_sonkha_event.dart';
 import 'english_sonkha_state.dart';
@@ -23,12 +24,17 @@ class EnglishSonkhaBloc extends Bloc<EnglishSonkhaEvent, EnglishSonkhaState> {
   bool _isListening = false;
 
   bool _isPlayingFeedbackAudio = false;
+  bool _isAudioPlayerDisposed = false;
 
   // Debounce timer for partial speech results
   Timer? _partialResultTimer;
   String _lastPartialResult = '';
 
   EnglishSonkhaBloc() : super(const EnglishSonkhaInitial()) {
+    // Register audio player and speech recognizer for lifecycle management
+    AppLifecycleService().registerAudioPlayer(_audioPlayer);
+    AppLifecycleService().registerSpeechRecognizer(_speech);
+
     on<EnglishSonkhaInit>(_onInit);
     on<EnglishSonkhaNext>(_onNext);
     on<EnglishSonkhaPrevious>(_onPrevious);
@@ -38,7 +44,8 @@ class EnglishSonkhaBloc extends Bloc<EnglishSonkhaEvent, EnglishSonkhaState> {
     on<EnglishSonkhaStop>(_onStop);
 
     _audioPlayer.onPlayerComplete.listen((_) {
-      if (state.isValidating ||
+      if (_isAudioPlayerDisposed ||
+          state.isValidating ||
           _isPlayingFeedbackAudio ||
           state.answerStatus == EnglishSonkhaAnswerStatus.correct)
         return;
@@ -52,9 +59,13 @@ class EnglishSonkhaBloc extends Bloc<EnglishSonkhaEvent, EnglishSonkhaState> {
     EnglishSonkhaInit event,
     Emitter<EnglishSonkhaState> emit,
   ) async {
-    LoggerService.logInfo('[EnglishSonkhaBloc] _onInit called → event.startingIndex=${event.startingIndex}');
+    LoggerService.logInfo(
+      '[EnglishSonkhaBloc] _onInit called → event.startingIndex=${event.startingIndex}',
+    );
     final index = event.startingIndex ?? 0;
-    LoggerService.logInfo('[EnglishSonkhaBloc] Emitting EnglishSonkhaLoaded(index: $index)');
+    LoggerService.logInfo(
+      '[EnglishSonkhaBloc] Emitting EnglishSonkhaLoaded(index: $index)',
+    );
     emit(EnglishSonkhaLoaded(index: index));
     await _playNumberAudio(index);
   }
@@ -214,8 +225,11 @@ class EnglishSonkhaBloc extends Bloc<EnglishSonkhaEvent, EnglishSonkhaState> {
     _listenTimeoutTimer?.cancel();
     _partialResultTimer?.cancel();
     await _speech.stop();
-    await _audioPlayer.stop();
     _isListening = false;
+
+    if (!_isAudioPlayerDisposed) {
+      await _audioPlayer.stop();
+    }
 
     if (state is EnglishSonkhaLoaded) {
       emit(
@@ -460,24 +474,44 @@ class EnglishSonkhaBloc extends Bloc<EnglishSonkhaEvent, EnglishSonkhaState> {
 
   // ================= AUDIO HELPERS =================
   Future<void> _playNumberAudio(int index) async {
-    if (state.isValidating) return;
+    if (state.isValidating || _isAudioPlayerDisposed) return;
 
     _hasSpoken = false;
     _isPlayingFeedbackAudio = false;
     final number = englishNumbers[index];
 
-    await _audioPlayer.stop();
-    await _audioPlayer.play(AssetSource('audios/english_audio/$number.wav'));
+    try {
+      await _audioPlayer.stop();
+      await _audioPlayer.play(AssetSource('audios/english_audio/$number.wav'));
+    } catch (e) {
+      LoggerService.logError(
+        '[EnglishSonkhaBloc] Error playing number audio: $e',
+      );
+    }
   }
 
   Future<void> _playHurrayAudio() async {
-    await _audioPlayer.stop();
-    await _audioPlayer.play(AssetSource('audios/ui/yay_sound.wav'));
+    if (_isAudioPlayerDisposed) return;
+    try {
+      await _audioPlayer.stop();
+      await _audioPlayer.play(AssetSource('audios/ui/yay_sound.wav'));
+    } catch (e) {
+      LoggerService.logError(
+        '[EnglishSonkhaBloc] Error playing hurray audio: $e',
+      );
+    }
   }
 
   Future<void> _playWrongAudio() async {
-    await _audioPlayer.stop();
-    await _audioPlayer.play(AssetSource('audios/ui/no_sound.mp3'));
+    if (_isAudioPlayerDisposed) return;
+    try {
+      await _audioPlayer.stop();
+      await _audioPlayer.play(AssetSource('audios/ui/no_sound.mp3'));
+    } catch (e) {
+      LoggerService.logError(
+        '[EnglishSonkhaBloc] Error playing wrong audio: $e',
+      );
+    }
   }
 
   // ================= CLEANUP =================
@@ -493,12 +527,18 @@ class EnglishSonkhaBloc extends Bloc<EnglishSonkhaEvent, EnglishSonkhaState> {
 
   void _onStop(EnglishSonkhaStop event, Emitter<EnglishSonkhaState> emit) {
     _cleanupListening();
-    _audioPlayer.stop();
+    if (!_isAudioPlayerDisposed) {
+      _audioPlayer.stop();
+    }
   }
 
   @override
   Future<void> close() {
     _cleanupListening();
+    _isAudioPlayerDisposed = true;
+    // Unregister from lifecycle service
+    AppLifecycleService().unregisterAudioPlayer(_audioPlayer);
+    AppLifecycleService().unregisterSpeechRecognizer(_speech);
     _audioPlayer.dispose();
     return super.close();
   }

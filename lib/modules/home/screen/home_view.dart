@@ -7,6 +7,7 @@ import 'package:kids_learning/modules/home/screen/widgets/friend_greeting_widget
 import 'package:kids_learning/modules/home/screen/widgets/sun_menu_widget.dart';
 import 'package:kids_learning/routes/app_routes.dart';
 import 'package:kids_learning/services/daily_challenge_service.dart';
+import 'package:kids_learning/services/audio_service.dart';
 import 'package:kids_learning/utils/assets.dart';
 import 'package:kids_learning/widgets/gaming_button.dart';
 import 'package:kids_learning/widgets/gaming_image_button.dart';
@@ -41,6 +42,8 @@ class _HomeScreenState extends State<HomeScreen> {
       if (mounted) setState(() {});
     };
     DailyChallengeService.instance.addListener(_challengeListener!);
+    // Start background music when entering home page
+    AudioService().playBackgroundMusic();
   }
 
   @override
@@ -48,6 +51,8 @@ class _HomeScreenState extends State<HomeScreen> {
     if (_challengeListener != null) {
       DailyChallengeService.instance.removeListener(_challengeListener!);
     }
+    // Stop background music when leaving home page
+    AudioService().stopBackgroundMusic();
     super.dispose();
   }
 

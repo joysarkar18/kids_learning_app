@@ -12,6 +12,9 @@ class RemoteConfigService {
   late FirebaseRemoteConfig _remoteConfig;
   bool _initialized = false;
 
+  /// Get the FirebaseRemoteConfig instance
+  FirebaseRemoteConfig get remoteConfig => _remoteConfig;
+
   // Cached data
   List<String>? _drawingImages;
   List<String>? _filledImages;

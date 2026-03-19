@@ -18,7 +18,6 @@ import 'package:kids_learning/modules/daily_challenge/screen/my_redemptions_view
 import 'package:kids_learning/modules/daily_challenge/screen/streak_calendar_screen.dart';
 import 'package:kids_learning/modules/mini_games/screen/mini_games_view.dart';
 import 'package:kids_learning/modules/mini_games/screen/mini_game_webview.dart';
-import 'package:kids_learning/modules/settings/screen/settings_view.dart';
 import 'package:kids_learning/modules/namota/screen/namota_selection_view.dart';
 import 'package:kids_learning/modules/namota/screen/namota_wrapper.dart';
 import 'package:kids_learning/modules/sothik_uttor/screen/sothik_uttor_wrapper.dart';
@@ -221,13 +220,6 @@ final router = GoRouter(
         }
         return StoryReaderScreen(story: data['story'] as StoryModel);
       },
-    ),
-
-    // 8. Settings
-    GoRoute(
-      name: Names.settings,
-      path: Routes.settings,
-      builder: (context, state) => const SettingsScreen(),
     ),
 
     // 9. Redeem Products

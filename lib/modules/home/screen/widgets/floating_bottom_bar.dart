@@ -48,10 +48,7 @@ class FloatingBottomBar extends StatelessWidget {
                     gradient: const LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
-                      colors: [
-                        Color(0xFF9333EA),
-                        Color(0xFF7C3AED),
-                      ],
+                      colors: [Color(0xFF9333EA), Color(0xFF7C3AED)],
                     ),
                     borderRadius: BorderRadius.circular(33),
                     border: Border.all(
@@ -76,19 +73,8 @@ class FloatingBottomBar extends StatelessWidget {
                       ),
                       // Spacer for center button
                       SizedBox(width: 84.w),
-                      // Right: Settings
-                      Expanded(
-                        child: _Bar3DItem(
-                          icon: Icons.settings_rounded,
-                          label: l10n?.settings ?? 'Settings',
-                          buttonGradient: const [
-                            Color(0xFF22D3EE),
-                            Color(0xFF06B6D4),
-                          ],
-                          shadowColor: const Color(0xFF0E7490),
-                          onTap: () => context.pushNamed(Names.settings),
-                        ),
-                      ),
+                      // Right: Empty (Settings moved to sun menu)
+                      const Expanded(child: SizedBox()),
                     ],
                   ),
                 ),
@@ -209,8 +195,7 @@ class _DailyChallenge3DButton extends StatelessWidget {
     final mainColors = allDone
         ? const [Color(0xFFFBBF24), Color(0xFFF59E0B)]
         : const [Color(0xFF34D399), Color(0xFF10B981)];
-    final shadow =
-        allDone ? const Color(0xFFB45309) : const Color(0xFF047857);
+    final shadow = allDone ? const Color(0xFFB45309) : const Color(0xFF047857);
 
     return GestureDetector(
       onTap: onTap,

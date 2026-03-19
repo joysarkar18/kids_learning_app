@@ -6,20 +6,19 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:kids_learning/firebase_options.dart';
 import 'package:kids_learning/l10n/app_localizations.dart';
 import 'package:kids_learning/modules/onboarding/bloc/onboarding_bloc.dart';
 import 'package:kids_learning/routes/app_pages.dart';
 import 'package:kids_learning/services/auth_service.dart';
 import 'package:kids_learning/services/audio_service.dart';
+import 'package:kids_learning/services/app_lifecycle_service.dart';
 import 'package:kids_learning/services/locale_service.dart';
 import 'package:kids_learning/services/daily_challenge_service.dart';
 import 'package:kids_learning/services/remote_config_service.dart';
 import 'package:kids_learning/services/snackbar_service.dart';
 import 'package:kids_learning/services/review_service.dart';
 import 'package:kids_learning/services/notification_service.dart';
-import 'package:in_app_review/in_app_review.dart';
 import 'package:kids_learning/services/daily_notification_scheduler.dart';
 import 'package:kids_learning/utils/themes/app_colors.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -86,7 +85,6 @@ class MyApp extends StatefulWidget {
 
 class MyAppState extends State<MyApp> with WidgetsBindingObserver {
   late Locale _locale;
-  bool _showReviewDialog = false;
 
   @override
   void initState() {
@@ -104,12 +102,7 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
   Future<void> _initializeReview() async {
     // Increment launch count
     await ReviewService.instance.incrementLaunchCount();
-
-    // Check if we should show review dialog
-    final shouldShow = await ReviewService.instance.shouldShowReview();
-    if (shouldShow && mounted) {
-      setState(() => _showReviewDialog = true);
-    }
+    // Note: Rate Us is now available in the sidebar menu (sun icon)
   }
 
   @override
@@ -123,21 +116,21 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
     switch (state) {
       case AppLifecycleState.paused:
       case AppLifecycleState.inactive:
-        // App goes to background
-        AudioService().pause();
+        // App goes to background - stop all audio and STT
+        AppLifecycleService().onEnterBackground();
         break;
 
       case AppLifecycleState.resumed:
         // App comes back to foreground
-        AudioService().resume();
+        AppLifecycleService().onEnterForeground();
         break;
 
       case AppLifecycleState.detached:
-        AudioService().stop();
+        AppLifecycleService().onEnterBackground();
         break;
       case AppLifecycleState.hidden:
         // iOS only: App is not visible
-        AudioService().pause();
+        AppLifecycleService().onEnterBackground();
         break;
     }
   }
@@ -178,116 +171,9 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
           return MultiBlocProvider(
             providers: [BlocProvider(create: (_) => OnboardingBloc())],
-            child: Stack(
-              children: [
-                child!,
-                if (_showReviewDialog) _buildReviewDialog(context),
-              ],
-            ),
+            child: child!,
           );
         },
-      ),
-    );
-  }
-
-  Widget _buildReviewDialog(BuildContext context) {
-    return Align(
-      alignment: Alignment.bottomCenter,
-      child: Container(
-        padding: EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Color(0xFF1B7A40), Color(0xFF0E4A2A)],
-          ),
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        child: SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 40.w,
-                height: 4.h,
-                decoration: BoxDecoration(
-                  color: Colors.white24,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              SizedBox(height: 16),
-              Icon(Icons.star_rate_rounded, size: 64, color: Color(0xFFFFD700)),
-              SizedBox(height: 16),
-              Text(
-                'Enjoying the app?',
-                style: GoogleFonts.bubblegumSans(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              SizedBox(height: 8),
-              Text(
-                'Rate us to help other parents discover this app!',
-                textAlign: TextAlign.center,
-                style: GoogleFonts.lato(fontSize: 14, color: Colors.white70),
-              ),
-              SizedBox(height: 24),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  TextButton(
-                    onPressed: () async {
-                      await ReviewService.instance.markAsDismissed();
-                      setState(() => _showReviewDialog = false);
-                    },
-                    child: Text(
-                      'Later',
-                      style: GoogleFonts.lato(
-                        fontSize: 16,
-                        color: Colors.white70,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                  ElevatedButton(
-                    onPressed: () async {
-                      await ReviewService.instance.markAsCompleted();
-                      setState(() => _showReviewDialog = false);
-
-                      // Open in-app review or store listing
-                      final InAppReview inAppReview = InAppReview.instance;
-                      if (await inAppReview.isAvailable()) {
-                        inAppReview.requestReview();
-                      } else {
-                        inAppReview.openStoreListing();
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFFFFD700),
-                      foregroundColor: Color(0xFF0A1628),
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 32,
-                        vertical: 12,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: Text(
-                      'Rate Now',
-                      style: GoogleFonts.lato(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 16.h),
-            ],
-          ),
-        ),
       ),
     );
   }

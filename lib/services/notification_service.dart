@@ -361,6 +361,9 @@ class NotificationService {
     required Time scheduledTime,
     Map<String, dynamic>? payload,
   }) async {
+    // Cancel existing notification with this ID first to prevent duplicates
+    await _localNotifications.cancel(id);
+
     final androidDetails = AndroidNotificationDetails(
       'daily_challenge_channel',
       'Daily Challenge Reminders',

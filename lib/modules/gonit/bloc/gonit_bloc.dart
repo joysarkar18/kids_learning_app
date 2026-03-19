@@ -3,6 +3,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:kids_learning/services/daily_challenge_service.dart';
+import 'package:kids_learning/services/app_lifecycle_service.dart';
 import 'gonit_event.dart';
 import 'gonit_state.dart';
 import '../data/models/gonit_problem_model.dart';
@@ -18,8 +19,14 @@ class GanitBloc extends Bloc<GanitEvent, GanitState> {
   bool _isLoadingMoreProblems = false;
   bool _isPlayingFeedbackAudio = false;
   bool _isPlayingQuestionAudio = false;
+  bool _isAudioPlayerDisposed = false;
+  bool _isQuestionAudioPlayerDisposed = false;
 
   GanitBloc() : super(const GanitInitial()) {
+    // Register audio players for lifecycle management
+    AppLifecycleService().registerAudioPlayer(_audioPlayer);
+    AppLifecycleService().registerAudioPlayer(_questionAudioPlayer);
+
     on<GanitInit>(_onInit);
     on<GanitOptionSelected>(_onOptionSelected);
     on<GanitNextProblem>(_onNextProblem);
@@ -335,7 +342,7 @@ class GanitBloc extends Bloc<GanitEvent, GanitState> {
 
     // Play the correct answer audio if available
     final hasAnswerAudio = currentProblem.answerAudioUrl.isNotEmpty;
-    if (hasAnswerAudio) {
+    if (hasAnswerAudio && !_isQuestionAudioPlayerDisposed) {
       await _playCorrectAnswerAudio(currentProblem.answerAudioUrl);
       await _questionAudioPlayer.onPlayerComplete.first;
     }
@@ -509,7 +516,9 @@ class GanitBloc extends Bloc<GanitEvent, GanitState> {
   // ================= STOP =================
   void _onStop(GanitStop event, Emitter<GanitState> emit) {
     _stopAudio();
-    _audioPlayer.stop();
+    if (!_isAudioPlayerDisposed) {
+      _audioPlayer.stop();
+    }
   }
 
   // ================= READ QUESTION =================
@@ -522,7 +531,7 @@ class GanitBloc extends Bloc<GanitEvent, GanitState> {
 
   // ================= QUESTION AUDIO =================
   Future<void> _playQuestionAudio() async {
-    if (state is! GanitLoaded) return;
+    if (state is! GanitLoaded || _isQuestionAudioPlayerDisposed) return;
     final currentProblem = (state as GanitLoaded).currentProblem;
     if (currentProblem == null) return;
 
@@ -541,31 +550,42 @@ class GanitBloc extends Bloc<GanitEvent, GanitState> {
 
   // ================= CORRECT ANSWER AUDIO =================
   Future<void> _playCorrectAnswerAudio(String audioUrl) async {
-    await _questionAudioPlayer.stop();
+    if (_isQuestionAudioPlayerDisposed) return;
+    try {
+      await _questionAudioPlayer.stop();
 
-    if (audioUrl.isNotEmpty) {
-      try {
+      if (audioUrl.isNotEmpty) {
         await _questionAudioPlayer.play(UrlSource(audioUrl));
-      } catch (e) {
-        debugPrint('Error playing correct answer audio: $e');
       }
+    } catch (e) {
+      debugPrint('Error playing correct answer audio: $e');
     }
   }
 
   // ================= AUDIO =================
   Future<void> _playYayAudio() async {
-    await _audioPlayer.stop();
-    await _audioPlayer.play(AssetSource('audios/ui/yay_sound.wav'));
+    if (_isAudioPlayerDisposed) return;
+    try {
+      await _audioPlayer.stop();
+      await _audioPlayer.play(AssetSource('audios/ui/yay_sound.wav'));
+    } catch (e) {
+      debugPrint('Error playing yay audio: $e');
+    }
   }
 
   Future<void> _playWrongAudio() async {
-    await _audioPlayer.stop();
-    await _audioPlayer.play(AssetSource('audios/ui/no_sound.mp3'));
+    if (_isAudioPlayerDisposed) return;
+    try {
+      await _audioPlayer.stop();
+      await _audioPlayer.play(AssetSource('audios/ui/no_sound.mp3'));
+    } catch (e) {
+      debugPrint('Error playing wrong audio: $e');
+    }
   }
 
   // ================= CLEANUP =================
   void _stopAudio() {
-    _questionAudioPlayer.stop();
+    if (!_isQuestionAudioPlayerDisposed) _questionAudioPlayer.stop();
     _isPlayingFeedbackAudio = false;
     _isPlayingQuestionAudio = false;
   }
@@ -629,6 +649,11 @@ class GanitBloc extends Bloc<GanitEvent, GanitState> {
   @override
   Future<void> close() {
     _stopAudio();
+    _isAudioPlayerDisposed = true;
+    _isQuestionAudioPlayerDisposed = true;
+    // Unregister from lifecycle service
+    AppLifecycleService().unregisterAudioPlayer(_audioPlayer);
+    AppLifecycleService().unregisterAudioPlayer(_questionAudioPlayer);
     _audioPlayer.dispose();
     _questionAudioPlayer.dispose();
     return super.close();

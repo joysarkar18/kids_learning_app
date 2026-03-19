@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:in_app_review/in_app_review.dart';
 import 'package:kids_learning/audio/audio_player_service.dart';
 import 'package:kids_learning/audio/ui_audio_key.dart';
 import 'package:kids_learning/l10n/app_localizations.dart';
@@ -11,6 +12,8 @@ import 'package:kids_learning/services/audio_service.dart';
 import 'package:kids_learning/services/auth_service.dart';
 import 'package:kids_learning/services/daily_challenge_service.dart';
 import 'package:kids_learning/services/locale_service.dart';
+import 'package:kids_learning/services/remote_config_service.dart';
+import 'package:kids_learning/services/review_service.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -112,44 +115,160 @@ class _SideMenuOverlayState extends State<SideMenuOverlay>
       ),
     );
 
-    await Future.delayed(const Duration(seconds: 2));
+    try {
+      final packageInfo = await PackageInfo.fromPlatform();
+      final currentVersion = packageInfo.version;
+      print('[UpdateCheck] Current app version: $currentVersion');
 
-    if (mounted) {
-      Navigator.of(context).pop(); // Close loading dialog
+      // Get minimum required version from Firebase Remote Config
+      final minVersion = RemoteConfigService().remoteConfig.getString(
+        'minimum_required_version',
+      );
+      print(
+        '[UpdateCheck] Minimum required version from Remote Config: $minVersion',
+      );
 
-      // For now, show a simple message that no update is available
-      // In production, you would check against a remote version
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20.r),
-          ),
-          title: Text(
-            AppLocalizations.of(context)?.update ?? 'Update',
-            style: GoogleFonts.bubblegumSans(
-              fontSize: 18.sp,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          content: Text(
-            AppLocalizations.of(context)?.youHaveLatestVersion ??
-                'You have the latest version!',
-            style: GoogleFonts.bubblegumSans(fontSize: 14.sp),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text(
-                AppLocalizations.of(context)?.ok ?? 'OK',
+      if (mounted) {
+        Navigator.of(context).pop(); // Close loading dialog
+
+        if (minVersion.isNotEmpty) {
+          final isUpdateRequired = _compareVersions(minVersion, currentVersion);
+
+          if (isUpdateRequired) {
+            // Show update required dialog
+            showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20.r),
+                ),
+                title: Text(
+                  'Update Required',
+                  style: GoogleFonts.bubblegumSans(
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                content: Text(
+                  'A new version ($minVersion) is available! Please update to continue using the app.',
+                  style: GoogleFonts.bubblegumSans(fontSize: 14.sp),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () async {
+                      Navigator.of(context).pop();
+                      final InAppReview inAppReview = InAppReview.instance;
+                      await inAppReview.openStoreListing();
+                    },
+                    child: Text(
+                      'Update Now',
+                      style: GoogleFonts.bubblegumSans(
+                        color: Theme.of(context).primaryColor,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          } else {
+            // Show latest version message
+            showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20.r),
+                ),
+                title: Text(
+                  AppLocalizations.of(context)?.update ?? 'Update',
+                  style: GoogleFonts.bubblegumSans(
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                content: Text(
+                  AppLocalizations.of(context)?.youHaveLatestVersion ??
+                      'You have the latest version!',
+                  style: GoogleFonts.bubblegumSans(fontSize: 14.sp),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Text(
+                      AppLocalizations.of(context)?.ok ?? 'OK',
+                      style: GoogleFonts.bubblegumSans(
+                        color: Theme.of(context).primaryColor,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+        } else {
+          // No version set in Remote Config
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20.r),
+              ),
+              title: Text(
+                AppLocalizations.of(context)?.update ?? 'Update',
                 style: GoogleFonts.bubblegumSans(
-                  color: Theme.of(context).primaryColor,
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
+              content: Text(
+                'You have the latest version!',
+                style: GoogleFonts.bubblegumSans(fontSize: 14.sp),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text(
+                    AppLocalizations.of(context)?.ok ?? 'OK',
+                    style: GoogleFonts.bubblegumSans(
+                      color: Theme.of(context).primaryColor,
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-      );
+          );
+        }
+      }
+    } catch (e) {
+      print('[UpdateCheck] Error checking for updates: $e');
+      if (mounted) {
+        Navigator.of(context).pop(); // Close loading dialog
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to check for updates. Please try again.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  /// Compares two version strings
+  /// Returns true if version1 > version2
+  bool _compareVersions(String version1, String version2) {
+    try {
+      final v1Parts = version1.split('.').map(int.parse).toList();
+      final v2Parts = version2.split('.').map(int.parse).toList();
+
+      for (var i = 0; i < v1Parts.length && i < v2Parts.length; i++) {
+        if (v1Parts[i] > v2Parts[i]) return true;
+        if (v1Parts[i] < v2Parts[i]) return false;
+      }
+
+      return v1Parts.length > v2Parts.length;
+    } catch (e) {
+      print('[UpdateCheck] Error comparing versions: $e');
+      return false;
     }
   }
 
@@ -275,6 +394,39 @@ class _SideMenuOverlayState extends State<SideMenuOverlay>
               AppLocalizations.of(context)?.couldNotOpenUrl ??
                   'Could not open URL',
             ),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _showRateUsDialog() async {
+    AudioPlayerService.instance.playUi(key: UiAudioKey.button_press);
+    print('[RateUs] User clicked "Rate Us" from sidebar menu');
+
+    // Close the menu first
+    _closeMenu();
+
+    // Show the rating dialog
+    final InAppReview inAppReview = InAppReview.instance;
+    try {
+      print('[RateUs] Opening store listing...');
+      // Always open store listing for more reliable behavior
+      // In-app review dialog is controlled by Google and may not always show
+      await inAppReview.openStoreListing();
+      print('[RateUs] Store listing opened successfully');
+
+      // Mark as completed after successful action
+      await ReviewService.instance.markAsCompleted();
+      print('[RateUs] Marked as completed');
+    } catch (e) {
+      print('[RateUs] Error during review process: $e');
+      // If review fails, don't mark as completed so user can try again
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Could not open store. Please try again later.'),
             backgroundColor: Colors.red,
           ),
         );
@@ -436,6 +588,12 @@ class _SideMenuOverlayState extends State<SideMenuOverlay>
                               title:
                                   l10n?.checkForUpdates ?? 'Check for Updates',
                               onTap: _checkForUpdates,
+                            ),
+
+                            _buildMenuItem(
+                              icon: Icons.star_rate_rounded,
+                              title: 'Rate Us',
+                              onTap: _showRateUsDialog,
                             ),
 
                             SizedBox(height: 16.h),

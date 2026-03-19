@@ -1,10 +1,11 @@
 // ignore_for_file: prefer_single_quotes
 class Assets {
   Assets._();
-  
+
   /// Assets for animationsSplashAnimation
   /// assets/animations/splash_animation.json
-  static const String animationsSplashAnimation = "assets/animations/splash_animation.json";
+  static const String animationsSplashAnimation =
+      "assets/animations/splash_animation.json";
 
   /// Assets for audiosBnChiku
   /// assets/audios/bn/chiku.wav
@@ -40,7 +41,8 @@ class Assets {
 
   /// Assets for audiosBnChooseYourFriend
   /// assets/audios/bn/choose_your_friend.wav
-  static const String audiosBnChooseYourFriend = "assets/audios/bn/choose_your_friend.wav";
+  static const String audiosBnChooseYourFriend =
+      "assets/audios/bn/choose_your_friend.wav";
 
   /// Assets for audiosBnGajraj
   /// assets/audios/bn/gajraj.wav
@@ -140,7 +142,8 @@ class Assets {
 
   /// Assets for audiosEnChooseYourFriend
   /// assets/audios/en/choose_your_friend.wav
-  static const String audiosEnChooseYourFriend = "assets/audios/en/choose_your_friend.wav";
+  static const String audiosEnChooseYourFriend =
+      "assets/audios/en/choose_your_friend.wav";
 
   /// Assets for audiosEnGajraj
   /// assets/audios/en/gajraj.wav
@@ -308,7 +311,8 @@ class Assets {
 
   /// Assets for imagesBanglaSonkhaBg
   /// assets/images/bangla_sonkha_bg.png
-  static const String imagesBanglaSonkhaBg = "assets/images/bangla_sonkha_bg.png";
+  static const String imagesBanglaSonkhaBg =
+      "assets/images/bangla_sonkha_bg.png";
 
   /// Assets for imagesBornomalaBg
   /// assets/images/bornomala_bg.png
@@ -348,7 +352,8 @@ class Assets {
 
   /// Assets for imagesChikuBlackBoard
   /// assets/images/chiku_black_board.png
-  static const String imagesChikuBlackBoard = "assets/images/chiku_black_board.png";
+  static const String imagesChikuBlackBoard =
+      "assets/images/chiku_black_board.png";
 
   /// Assets for imagesChikuMenu
   /// assets/images/chiku_menu.png
@@ -458,4 +463,3 @@ class Assets {
   /// assets/images/writing_bg.png
   static const String imagesWritingBg = "assets/images/writing_bg.png";
 }
-

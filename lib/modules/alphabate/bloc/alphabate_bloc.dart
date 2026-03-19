@@ -7,6 +7,7 @@ import 'package:kids_learning/modules/alphabate/bloc/alphabate_event.dart';
 import 'package:kids_learning/modules/alphabate/bloc/alphabate_state.dart';
 import 'package:kids_learning/services/daily_challenge_service.dart';
 import 'package:kids_learning/services/logger_service.dart';
+import 'package:kids_learning/services/app_lifecycle_service.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:flutter/foundation.dart';
 
@@ -20,8 +21,13 @@ class AlphabetBloc extends Bloc<AlphabetEvent, AlphabetState> {
   bool _hasSpoken = false;
   bool _isListening = false;
   bool _isPlayingFeedbackAudio = false;
+  bool _isAudioPlayerDisposed = false;
 
   AlphabetBloc() : super(const AlphabetInitial()) {
+    // Register audio player and speech recognizer for lifecycle management
+    AppLifecycleService().registerAudioPlayer(_audioPlayer);
+    AppLifecycleService().registerSpeechRecognizer(_speech);
+
     on<AlphabetInit>(_onInit);
     on<AlphabetNext>(_onNext);
     on<AlphabetPrevious>(_onPrevious);
@@ -31,7 +37,8 @@ class AlphabetBloc extends Bloc<AlphabetEvent, AlphabetState> {
     on<AlphabetStop>(_onStop);
 
     _audioPlayer.onPlayerComplete.listen((_) {
-      if (state.isValidating ||
+      if (_isAudioPlayerDisposed ||
+          state.isValidating ||
           _isPlayingFeedbackAudio ||
           state.answerStatus == AnswerStatus.correct)
         return;
@@ -42,9 +49,13 @@ class AlphabetBloc extends Bloc<AlphabetEvent, AlphabetState> {
 
   // ================= INIT =================
   Future<void> _onInit(AlphabetInit event, Emitter<AlphabetState> emit) async {
-    LoggerService.logInfo('[AlphabetBloc] _onInit called → event.startingIndex=${event.startingIndex}');
+    LoggerService.logInfo(
+      '[AlphabetBloc] _onInit called → event.startingIndex=${event.startingIndex}',
+    );
     final index = event.startingIndex ?? 0;
-    LoggerService.logInfo('[AlphabetBloc] Emitting AlphabetLoaded(index: $index)');
+    LoggerService.logInfo(
+      '[AlphabetBloc] Emitting AlphabetLoaded(index: $index)',
+    );
     emit(AlphabetLoaded(index: index));
     await _playAlphabetAudio(index);
   }
@@ -136,8 +147,11 @@ class AlphabetBloc extends Bloc<AlphabetEvent, AlphabetState> {
   ) async {
     _listenTimeoutTimer?.cancel();
     await _speech.stop();
-    await _audioPlayer.stop();
     _isListening = false;
+
+    if (!_isAudioPlayerDisposed) {
+      await _audioPlayer.stop();
+    }
 
     if (state is AlphabetLoaded) {
       emit(
@@ -213,25 +227,38 @@ class AlphabetBloc extends Bloc<AlphabetEvent, AlphabetState> {
 
   // ================= AUDIO HELPERS =================
   Future<void> _playAlphabetAudio(int index) async {
-    if (state.isValidating) return;
+    if (state.isValidating || _isAudioPlayerDisposed) return;
 
     _hasSpoken = false;
     _isPlayingFeedbackAudio = false;
     final letter = englishAlphabet[index];
 
-    await _audioPlayer.stop();
-    // Assuming you have English audio assets here
-    await _audioPlayer.play(AssetSource('audios/english_audio/$letter.wav'));
+    try {
+      await _audioPlayer.stop();
+      await _audioPlayer.play(AssetSource('audios/english_audio/$letter.wav'));
+    } catch (e) {
+      LoggerService.logError('[AlphabetBloc] Error playing alphabet audio: $e');
+    }
   }
 
   Future<void> _playHurrayAudio() async {
-    await _audioPlayer.stop();
-    await _audioPlayer.play(AssetSource('audios/ui/yay_sound.wav'));
+    if (_isAudioPlayerDisposed) return;
+    try {
+      await _audioPlayer.stop();
+      await _audioPlayer.play(AssetSource('audios/ui/yay_sound.wav'));
+    } catch (e) {
+      LoggerService.logError('[AlphabetBloc] Error playing hurray audio: $e');
+    }
   }
 
   Future<void> _playWrongAudio() async {
-    await _audioPlayer.stop();
-    await _audioPlayer.play(AssetSource('audios/ui/no_sound.mp3'));
+    if (_isAudioPlayerDisposed) return;
+    try {
+      await _audioPlayer.stop();
+      await _audioPlayer.play(AssetSource('audios/ui/no_sound.mp3'));
+    } catch (e) {
+      LoggerService.logError('[AlphabetBloc] Error playing wrong audio: $e');
+    }
   }
 
   // ================= CLEANUP =================
@@ -245,12 +272,18 @@ class AlphabetBloc extends Bloc<AlphabetEvent, AlphabetState> {
 
   void _onStop(AlphabetStop event, Emitter<AlphabetState> emit) {
     _cleanupListening();
-    _audioPlayer.stop();
+    if (!_isAudioPlayerDisposed) {
+      _audioPlayer.stop();
+    }
   }
 
   @override
   Future<void> close() {
     _cleanupListening();
+    _isAudioPlayerDisposed = true;
+    // Unregister from lifecycle service
+    AppLifecycleService().unregisterAudioPlayer(_audioPlayer);
+    AppLifecycleService().unregisterSpeechRecognizer(_speech);
     _audioPlayer.dispose();
     return super.close();
   }

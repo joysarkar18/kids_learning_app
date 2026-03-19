@@ -7,6 +7,7 @@ import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:flutter/foundation.dart'; // For debugPrint
 import 'package:kids_learning/services/daily_challenge_service.dart';
 import 'package:kids_learning/services/logger_service.dart';
+import 'package:kids_learning/services/app_lifecycle_service.dart';
 
 import 'bornomala_event.dart';
 import 'bornomala_state.dart';
@@ -23,8 +24,13 @@ class BornomalaBloc extends Bloc<BornomalaEvent, BornomalaState> {
 
   // Prevents mic from opening when feedback/validation is happening
   bool _isPlayingFeedbackAudio = false;
+  bool _isAudioPlayerDisposed = false;
 
   BornomalaBloc() : super(const BornomalaInitial()) {
+    // Register audio player and speech recognizer for lifecycle management
+    AppLifecycleService().registerAudioPlayer(_audioPlayer);
+    AppLifecycleService().registerSpeechRecognizer(_speech);
+
     on<BornomalaInit>(_onInit);
     on<BornomalaNext>(_onNext);
     on<BornomalaPrevious>(_onPrevious);
@@ -38,7 +44,8 @@ class BornomalaBloc extends Bloc<BornomalaEvent, BornomalaState> {
       // 1. If we are waiting for API (isValidating) -> STOP.
       // 2. If we are playing "Yay/No" (Feedback) -> STOP.
       // 3. If the answer is Correct (Waiting for navigation) -> STOP.
-      if (state.isValidating ||
+      if (_isAudioPlayerDisposed ||
+          state.isValidating ||
           _isPlayingFeedbackAudio ||
           state.answerStatus == AnswerStatus.correct)
         return;
@@ -52,9 +59,13 @@ class BornomalaBloc extends Bloc<BornomalaEvent, BornomalaState> {
     BornomalaInit event,
     Emitter<BornomalaState> emit,
   ) async {
-    LoggerService.logInfo('[BornomalaBloc] _onInit called → event.startingIndex=${event.startingIndex}');
+    LoggerService.logInfo(
+      '[BornomalaBloc] _onInit called → event.startingIndex=${event.startingIndex}',
+    );
     final index = event.startingIndex ?? 0;
-    LoggerService.logInfo('[BornomalaBloc] Emitting BornomalaLoaded(index: $index)');
+    LoggerService.logInfo(
+      '[BornomalaBloc] Emitting BornomalaLoaded(index: $index)',
+    );
     emit(BornomalaLoaded(index: index));
     await _playAlphabetAudio(index);
   }
@@ -158,8 +169,11 @@ class BornomalaBloc extends Bloc<BornomalaEvent, BornomalaState> {
     // 1. STOP EVERYTHING IMMEDIATELY
     _listenTimeoutTimer?.cancel(); // Kill the timer
     await _speech.stop(); // Kill the mic
-    await _audioPlayer.stop(); // Kill any audio that might have just started
     _isListening = false;
+
+    if (!_isAudioPlayerDisposed) {
+      await _audioPlayer.stop(); // Kill any audio that might have just started
+    }
 
     // 2. Set Validating State
     if (state is BornomalaLoaded) {
@@ -240,24 +254,40 @@ class BornomalaBloc extends Bloc<BornomalaEvent, BornomalaState> {
   // ================= AUDIO HELPERS =================
   Future<void> _playAlphabetAudio(int index) async {
     // CRITICAL FIX: Never play alphabet audio if we are in the middle of validating
-    if (state.isValidating) return;
+    if (state.isValidating || _isAudioPlayerDisposed) return;
 
     _hasSpoken = false;
     _isPlayingFeedbackAudio = false;
     final letter = bengaliAlphabet[index];
 
-    await _audioPlayer.stop();
-    await _audioPlayer.play(AssetSource('audios/bengali_audio/$letter.wav'));
+    try {
+      await _audioPlayer.stop();
+      await _audioPlayer.play(AssetSource('audios/bengali_audio/$letter.wav'));
+    } catch (e) {
+      LoggerService.logError(
+        '[BornomalaBloc] Error playing alphabet audio: $e',
+      );
+    }
   }
 
   Future<void> _playHurrayAudio() async {
-    await _audioPlayer.stop();
-    await _audioPlayer.play(AssetSource('audios/ui/yay_sound.wav'));
+    if (_isAudioPlayerDisposed) return;
+    try {
+      await _audioPlayer.stop();
+      await _audioPlayer.play(AssetSource('audios/ui/yay_sound.wav'));
+    } catch (e) {
+      LoggerService.logError('[BornomalaBloc] Error playing hurray audio: $e');
+    }
   }
 
   Future<void> _playWrongAudio() async {
-    await _audioPlayer.stop();
-    await _audioPlayer.play(AssetSource('audios/ui/no_sound.mp3'));
+    if (_isAudioPlayerDisposed) return;
+    try {
+      await _audioPlayer.stop();
+      await _audioPlayer.play(AssetSource('audios/ui/no_sound.mp3'));
+    } catch (e) {
+      LoggerService.logError('[BornomalaBloc] Error playing wrong audio: $e');
+    }
   }
 
   // ================= CLEANUP =================
@@ -271,12 +301,18 @@ class BornomalaBloc extends Bloc<BornomalaEvent, BornomalaState> {
 
   void _onStop(BornomalaStop event, Emitter<BornomalaState> emit) {
     _cleanupListening();
-    _audioPlayer.stop();
+    if (!_isAudioPlayerDisposed) {
+      _audioPlayer.stop();
+    }
   }
 
   @override
   Future<void> close() {
     _cleanupListening();
+    _isAudioPlayerDisposed = true;
+    // Unregister from lifecycle service
+    AppLifecycleService().unregisterAudioPlayer(_audioPlayer);
+    AppLifecycleService().unregisterSpeechRecognizer(_speech);
     _audioPlayer.dispose();
     return super.close();
   }

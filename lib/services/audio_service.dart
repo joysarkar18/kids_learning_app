@@ -1,4 +1,6 @@
+import 'dart:math';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/foundation.dart';
 
 class AudioService {
   static final AudioService _instance = AudioService._internal();
@@ -9,6 +11,15 @@ class AudioService {
   final AudioPlayer _narrationPlayer = AudioPlayer();
   bool _isPlaying = false;
 
+  /// List of background audio files to choose from randomly
+  static const List<String> _bgAudioFiles = [
+    'audios/ui/bg_audio.mp3',
+    'audios/ui/bg_audio2.mp3',
+    'audios/ui/bg_audio3.mp3',
+    'audios/ui/bg_audio4.mp3',
+  ];
+
+  /// Initialize audio service without starting playback
   Future<void> init() async {
     if (_isPlaying) return;
 
@@ -27,12 +38,36 @@ class AudioService {
     );
 
     await AudioPlayer.global.setAudioContext(audioContext);
-
     await _player.setVolume(0.05);
     await _player.setReleaseMode(ReleaseMode.loop);
-    await _player.play(AssetSource('audios/ui/bg_audio2.mp3'));
+  }
 
-    _isPlaying = true;
+  /// Start playing background music (call this on home page)
+  Future<void> playBackgroundMusic() async {
+    if (_isPlaying) return;
+
+    // Randomly select a background audio file
+    final random = Random();
+    final selectedAudio = _bgAudioFiles[random.nextInt(_bgAudioFiles.length)];
+
+    try {
+      await _player.play(AssetSource(selectedAudio));
+      _isPlaying = true;
+    } catch (e) {
+      debugPrint('Error playing background music: $e');
+    }
+  }
+
+  /// Stop playing background music (call this when leaving home page)
+  Future<void> stopBackgroundMusic() async {
+    if (!_isPlaying) return;
+
+    try {
+      await _player.stop();
+      _isPlaying = false;
+    } catch (e) {
+      debugPrint('Error stopping background music: $e');
+    }
   }
 
   /// Play a specific audio file (for narration)

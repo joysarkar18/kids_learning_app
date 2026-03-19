@@ -172,15 +172,15 @@ class DailyNotificationScheduler {
 
   /// Get pending notification count
   Future<int> getPendingNotificationCount() async {
-    final pendingNotifications =
-        await _notificationService.getPendingNotifications();
+    final pendingNotifications = await _notificationService
+        .getPendingNotifications();
     return pendingNotifications?.length ?? 0;
   }
 
   /// Get list of pending notifications
   Future<List<String>> getPendingNotificationTitles() async {
-    final pendingNotifications =
-        await _notificationService.getPendingNotifications();
+    final pendingNotifications = await _notificationService
+        .getPendingNotifications();
     if (pendingNotifications == null) return [];
 
     return pendingNotifications.map((n) => n.title ?? '').toList();

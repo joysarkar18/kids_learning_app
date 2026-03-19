@@ -6,6 +6,7 @@ import 'package:bloc/bloc.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:flutter/foundation.dart';
 import 'package:kids_learning/services/daily_challenge_service.dart';
+import 'package:kids_learning/services/app_lifecycle_service.dart';
 
 import 'namota_event.dart';
 import 'namota_state.dart';
@@ -23,8 +24,13 @@ class NamotaBloc extends Bloc<NamotaEvent, NamotaState> {
   bool _isPlayingFeedbackAudio = false;
   bool _isPlayingAll = false;
   int _playAllIndex = 0;
+  bool _isAudioPlayerDisposed = false;
 
   NamotaBloc() : super(const NamotaInitial()) {
+    // Register audio player and speech recognizer for lifecycle management
+    AppLifecycleService().registerAudioPlayer(_audioPlayer);
+    AppLifecycleService().registerSpeechRecognizer(_speech);
+
     on<NamotaInit>(_onInit);
     on<NamotaStartListening>(_onListen);
     on<NamotaSpeechDetected>(_onSpeechDetected);
@@ -48,7 +54,8 @@ class NamotaBloc extends Bloc<NamotaEvent, NamotaState> {
         return;
       }
 
-      if (state.isValidating ||
+      if (_isAudioPlayerDisposed ||
+          state.isValidating ||
           _isPlayingFeedbackAudio ||
           state.answerStatus == NamotaAnswerStatus.correct)
         return;
@@ -66,7 +73,9 @@ class NamotaBloc extends Bloc<NamotaEvent, NamotaState> {
 
   // ================= RETRY =================
   Future<void> _onRetry(NamotaRetry event, Emitter<NamotaState> emit) async {
-    debugPrint("[NamotaBloc] RETRY: currentRow=${state.currentRowIndex}, table=${state.tableNumber}");
+    debugPrint(
+      "[NamotaBloc] RETRY: currentRow=${state.currentRowIndex}, table=${state.tableNumber}",
+    );
     _cleanupListening();
     _isPlayingAll = false;
     emit(
@@ -98,9 +107,11 @@ class NamotaBloc extends Bloc<NamotaEvent, NamotaState> {
     NamotaStartListening event,
     Emitter<NamotaState> emit,
   ) async {
-    debugPrint("[NamotaBloc] START LISTENING: row=${state.currentRowIndex}, "
-        "isValidating=${state.isValidating}, isPlayingFeedback=$_isPlayingFeedbackAudio, "
-        "isPlayingAll=$_isPlayingAll");
+    debugPrint(
+      "[NamotaBloc] START LISTENING: row=${state.currentRowIndex}, "
+      "isValidating=${state.isValidating}, isPlayingFeedback=$_isPlayingFeedbackAudio, "
+      "isPlayingAll=$_isPlayingAll",
+    );
     if (state.isValidating ||
         _isPlayingFeedbackAudio ||
         state.answerStatus == NamotaAnswerStatus.correct ||
@@ -136,19 +147,25 @@ class NamotaBloc extends Bloc<NamotaEvent, NamotaState> {
       listenMode: stt.ListenMode.dictation,
       partialResults: false,
       onResult: (result) {
-        debugPrint("[NamotaBloc] SPEECH RESULT: final=${result.finalResult}, "
-            "words='${result.recognizedWords}', confidence=${result.confidence}");
+        debugPrint(
+          "[NamotaBloc] SPEECH RESULT: final=${result.finalResult}, "
+          "words='${result.recognizedWords}', confidence=${result.confidence}",
+        );
         if (_hasSpoken) return;
         if (result.finalResult && result.recognizedWords.trim().isNotEmpty) {
           _hasSpoken = true;
-          debugPrint("[NamotaBloc] SPEECH ACCEPTED: '${result.recognizedWords}'");
+          debugPrint(
+            "[NamotaBloc] SPEECH ACCEPTED: '${result.recognizedWords}'",
+          );
           add(NamotaSpeechDetected(result.recognizedWords));
         }
       },
     );
 
     _listenTimeoutTimer = Timer(const Duration(seconds: 6), () async {
-      debugPrint("[NamotaBloc] LISTEN TIMEOUT: hasSpoken=$_hasSpoken, isValidating=${state.isValidating}");
+      debugPrint(
+        "[NamotaBloc] LISTEN TIMEOUT: hasSpoken=$_hasSpoken, isValidating=${state.isValidating}",
+      );
       if (_hasSpoken || state.isValidating) return;
 
       await _speech.stop();
@@ -164,13 +181,18 @@ class NamotaBloc extends Bloc<NamotaEvent, NamotaState> {
     Emitter<NamotaState> emit,
   ) async {
     final tableKey = '${state.tableNumber}x${state.currentMultiplier}';
-    debugPrint("[NamotaBloc] SPEECH DETECTED: text='${event.text}', "
-        "tableKey=$tableKey, expectedResult=${state.currentResult} (${state.currentResultBengali}), "
-        "row=${state.currentRowIndex}");
+    debugPrint(
+      "[NamotaBloc] SPEECH DETECTED: text='${event.text}', "
+      "tableKey=$tableKey, expectedResult=${state.currentResult} (${state.currentResultBengali}), "
+      "row=${state.currentRowIndex}",
+    );
     _listenTimeoutTimer?.cancel();
     await _speech.stop();
-    await _audioPlayer.stop();
     _isListening = false;
+
+    if (!_isAudioPlayerDisposed) {
+      await _audioPlayer.stop();
+    }
 
     if (state is NamotaLoaded) {
       emit(
@@ -190,8 +212,10 @@ class NamotaBloc extends Bloc<NamotaEvent, NamotaState> {
       debugPrint("[NamotaBloc] API Error: $e");
     }
 
-    debugPrint("[NamotaBloc] VALIDATION RESULT: isCorrect=$isCorrect, "
-        "text='${event.text}', expected='${state.currentResultBengali}'");
+    debugPrint(
+      "[NamotaBloc] VALIDATION RESULT: isCorrect=$isCorrect, "
+      "text='${event.text}', expected='${state.currentResultBengali}'",
+    );
 
     _isPlayingFeedbackAudio = true;
 
@@ -216,7 +240,9 @@ class NamotaBloc extends Bloc<NamotaEvent, NamotaState> {
 
       // Check if all rows are complete
       if (newCompleted.length >= 10) {
-        debugPrint("[NamotaBloc] ALL ROWS COMPLETE! table=${state.tableNumber}");
+        debugPrint(
+          "[NamotaBloc] ALL ROWS COMPLETE! table=${state.tableNumber}",
+        );
         return;
       }
 
@@ -235,7 +261,9 @@ class NamotaBloc extends Bloc<NamotaEvent, NamotaState> {
         );
       }
 
-      debugPrint("[NamotaBloc] ADVANCING to nextRow=$nextRow, completed=$newCompleted");
+      debugPrint(
+        "[NamotaBloc] ADVANCING to nextRow=$nextRow, completed=$newCompleted",
+      );
       await _playRowAudio(state.tableNumber, nextRow);
     } else {
       if (state is NamotaLoaded) {
@@ -281,7 +309,9 @@ class NamotaBloc extends Bloc<NamotaEvent, NamotaState> {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        debugPrint("[NamotaBloc] API Result: isCorrect=${data['isCorrect']}, matchedBy=${data['matchedBy']}");
+        debugPrint(
+          "[NamotaBloc] API Result: isCorrect=${data['isCorrect']}, matchedBy=${data['matchedBy']}",
+        );
         return data['isCorrect'] == true;
       }
       debugPrint("[NamotaBloc] API Error: non-200 status");
@@ -294,7 +324,7 @@ class NamotaBloc extends Bloc<NamotaEvent, NamotaState> {
 
   // ================= AUDIO HELPERS =================
   Future<void> _playRowAudio(int tableNumber, int rowIndex) async {
-    if (state.isValidating) return;
+    if (state.isValidating || _isAudioPlayerDisposed) return;
 
     _hasSpoken = false;
     if (!_isPlayingAll) {
@@ -303,19 +333,37 @@ class NamotaBloc extends Bloc<NamotaEvent, NamotaState> {
     final multiplier = rowIndex + 1;
     final audioFile = '${tableNumber}x$multiplier';
 
-    debugPrint("[NamotaBloc] PLAY AUDIO: $audioFile.wav (table=$tableNumber, row=$rowIndex)");
-    await _audioPlayer.stop();
-    await _audioPlayer.play(AssetSource('audios/bengali_audio/$audioFile.wav'));
+    debugPrint(
+      "[NamotaBloc] PLAY AUDIO: $audioFile.wav (table=$tableNumber, row=$rowIndex)",
+    );
+    try {
+      await _audioPlayer.stop();
+      await _audioPlayer.play(
+        AssetSource('audios/bengali_audio/$audioFile.wav'),
+      );
+    } catch (e) {
+      debugPrint("[NamotaBloc] Error playing row audio: $e");
+    }
   }
 
   Future<void> _playHurrayAudio() async {
-    await _audioPlayer.stop();
-    await _audioPlayer.play(AssetSource('audios/ui/yay_sound.wav'));
+    if (_isAudioPlayerDisposed) return;
+    try {
+      await _audioPlayer.stop();
+      await _audioPlayer.play(AssetSource('audios/ui/yay_sound.wav'));
+    } catch (e) {
+      debugPrint("[NamotaBloc] Error playing hurray audio: $e");
+    }
   }
 
   Future<void> _playWrongAudio() async {
-    await _audioPlayer.stop();
-    await _audioPlayer.play(AssetSource('audios/ui/no_sound.mp3'));
+    if (_isAudioPlayerDisposed) return;
+    try {
+      await _audioPlayer.stop();
+      await _audioPlayer.play(AssetSource('audios/ui/no_sound.mp3'));
+    } catch (e) {
+      debugPrint("[NamotaBloc] Error playing wrong audio: $e");
+    }
   }
 
   // ================= CLEANUP =================
@@ -331,12 +379,18 @@ class NamotaBloc extends Bloc<NamotaEvent, NamotaState> {
     debugPrint("[NamotaBloc] STOP");
     _cleanupListening();
     _isPlayingAll = false;
-    _audioPlayer.stop();
+    if (!_isAudioPlayerDisposed) {
+      _audioPlayer.stop();
+    }
   }
 
   @override
   Future<void> close() {
     _cleanupListening();
+    _isAudioPlayerDisposed = true;
+    // Unregister from lifecycle service
+    AppLifecycleService().unregisterAudioPlayer(_audioPlayer);
+    AppLifecycleService().unregisterSpeechRecognizer(_speech);
     _audioPlayer.dispose();
     return super.close();
   }

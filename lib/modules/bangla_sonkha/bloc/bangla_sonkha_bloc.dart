@@ -7,6 +7,7 @@ import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:flutter/foundation.dart';
 import 'package:kids_learning/services/daily_challenge_service.dart';
 import 'package:kids_learning/services/logger_service.dart';
+import 'package:kids_learning/services/app_lifecycle_service.dart';
 
 import 'bangla_sonkha_event.dart';
 import 'bangla_sonkha_state.dart';
@@ -22,8 +23,13 @@ class BanglaSonkhaBloc extends Bloc<BanglaSonkhaEvent, BanglaSonkhaState> {
   bool _isListening = false;
 
   bool _isPlayingFeedbackAudio = false;
+  bool _isAudioPlayerDisposed = false;
 
   BanglaSonkhaBloc() : super(const BanglaSonkhaInitial()) {
+    // Register audio player and speech recognizer for lifecycle management
+    AppLifecycleService().registerAudioPlayer(_audioPlayer);
+    AppLifecycleService().registerSpeechRecognizer(_speech);
+
     on<BanglaSonkhaInit>(_onInit);
     on<BanglaSonkhaNext>(_onNext);
     on<BanglaSonkhaPrevious>(_onPrevious);
@@ -33,7 +39,8 @@ class BanglaSonkhaBloc extends Bloc<BanglaSonkhaEvent, BanglaSonkhaState> {
     on<BanglaSonkhaStop>(_onStop);
 
     _audioPlayer.onPlayerComplete.listen((_) {
-      if (state.isValidating ||
+      if (_isAudioPlayerDisposed ||
+          state.isValidating ||
           _isPlayingFeedbackAudio ||
           state.answerStatus == SonkhaAnswerStatus.correct)
         return;
@@ -47,9 +54,13 @@ class BanglaSonkhaBloc extends Bloc<BanglaSonkhaEvent, BanglaSonkhaState> {
     BanglaSonkhaInit event,
     Emitter<BanglaSonkhaState> emit,
   ) async {
-    LoggerService.logInfo('[BanglaSonkhaBloc] _onInit called → event.startingIndex=${event.startingIndex}');
+    LoggerService.logInfo(
+      '[BanglaSonkhaBloc] _onInit called → event.startingIndex=${event.startingIndex}',
+    );
     final index = event.startingIndex ?? 0;
-    LoggerService.logInfo('[BanglaSonkhaBloc] Emitting BanglaSonkhaLoaded(index: $index)');
+    LoggerService.logInfo(
+      '[BanglaSonkhaBloc] Emitting BanglaSonkhaLoaded(index: $index)',
+    );
     emit(BanglaSonkhaLoaded(index: index));
     await _playNumberAudio(index);
   }
@@ -155,8 +166,11 @@ class BanglaSonkhaBloc extends Bloc<BanglaSonkhaEvent, BanglaSonkhaState> {
   ) async {
     _listenTimeoutTimer?.cancel();
     await _speech.stop();
-    await _audioPlayer.stop();
     _isListening = false;
+
+    if (!_isAudioPlayerDisposed) {
+      await _audioPlayer.stop();
+    }
 
     if (state is BanglaSonkhaLoaded) {
       emit(
@@ -212,26 +226,106 @@ class BanglaSonkhaBloc extends Bloc<BanglaSonkhaEvent, BanglaSonkhaState> {
 
   // ================= NORMALIZATION =================
   static const _digitToWord = {
-    '১': 'এক', '২': 'দুই', '৩': 'তিন', '৪': 'চার', '৫': 'পাঁচ',
-    '৬': 'ছয়', '৭': 'সাত', '৮': 'আট', '৯': 'নয়', '১০': 'দশ',
-    '১১': 'এগারো', '১২': 'বারো', '১৩': 'তেরো', '১৪': 'চৌদ্দ', '১৫': 'পনেরো',
-    '১৬': 'ষোলো', '১৭': 'সতেরো', '১৮': 'আঠারো', '১৯': 'উনিশ', '২০': 'কুড়ি',
-    '২১': 'একুশ', '২২': 'বাইশ', '২৩': 'তেইশ', '২৪': 'চব্বিশ', '২৫': 'পঁচিশ',
-    '২৬': 'ছাব্বিশ', '২৭': 'সাতাশ', '২৮': 'আটাশ', '২৯': 'উনত্রিশ', '৩০': 'ত্রিশ',
-    '৩১': 'একত্রিশ', '৩২': 'বত্রিশ', '৩৩': 'তেত্রিশ', '৩৪': 'চৌত্রিশ', '৩৫': 'পঁয়ত্রিশ',
-    '৩৬': 'ছত্রিশ', '৩৭': 'সাতত্রিশ', '৩৮': 'আটত্রিশ', '৩৯': 'উনচল্লিশ', '৪০': 'চল্লিশ',
-    '৪১': 'একচল্লিশ', '৪২': 'বিয়াল্লিশ', '৪৩': 'তেতাল্লিশ', '৪৪': 'চুয়াল্লিশ', '৪৫': 'পঁয়তাল্লিশ',
-    '৪৬': 'ছেচল্লিশ', '৪৭': 'সাতচল্লিশ', '৪৮': 'আটচল্লিশ', '৪৯': 'উনপঞ্চাশ', '৫০': 'পঞ্চাশ',
-    '৫১': 'একান্ন', '৫২': 'বায়ান্ন', '৫৩': 'তিপান্ন', '৫৪': 'চুয়ান্ন', '৫৫': 'পঞ্চান্ন',
-    '৫৬': 'ছাপান্ন', '৫৭': 'সাতান্ন', '৫৮': 'আটান্ন', '৫৯': 'উনষাট', '৬০': 'ষাট',
-    '৬১': 'একষট্টি', '৬২': 'বাষট্টি', '৬৩': 'তেষট্টি', '৬৪': 'চৌষট্টি', '৬৫': 'পঁয়ষট্টি',
-    '৬৬': 'ছেষট্টি', '৬৭': 'সাতষট্টি', '৬৮': 'আটষট্টি', '৬৯': 'উনসত্তর', '৭০': 'সত্তর',
-    '৭১': 'একাত্তর', '৭২': 'বাহাত্তর', '৭৩': 'তিয়াত্তর', '৭৪': 'চুয়াত্তর', '৭৫': 'পঁচাত্তর',
-    '৭৬': 'ছিয়াত্তর', '৭৭': 'সাতাত্তর', '৭৮': 'আটাত্তর', '৭৯': 'উনআশি', '৮০': 'আশি',
-    '৮১': 'একাশি', '৮২': 'বিরাশি', '৮৩': 'তিরাশি', '৮৪': 'চুরাশি', '৮৫': 'পঁচাশি',
-    '৮৬': 'ছিয়াশি', '৮৭': 'সাতাশি', '৮৮': 'আটাশি', '৮৯': 'উননব্বই', '৯০': 'নব্বই',
-    '৯১': 'একানব্বই', '৯২': 'বিরানব্বই', '৯৩': 'তিরানব্বই', '৯৪': 'চুরানব্বই', '৯৫': 'পঁচানব্বই',
-    '৯৬': 'ছিয়ানব্বই', '৯৭': 'সাতানব্বই', '৯৮': 'আটানব্বই', '৯৯': 'নিরানব্বই', '১০০': 'একশো',
+    '১': 'এক',
+    '২': 'দুই',
+    '৩': 'তিন',
+    '৪': 'চার',
+    '৫': 'পাঁচ',
+    '৬': 'ছয়',
+    '৭': 'সাত',
+    '৮': 'আট',
+    '৯': 'নয়',
+    '১০': 'দশ',
+    '১১': 'এগারো',
+    '১২': 'বারো',
+    '১৩': 'তেরো',
+    '১৪': 'চৌদ্দ',
+    '১৫': 'পনেরো',
+    '১৬': 'ষোলো',
+    '১৭': 'সতেরো',
+    '১৮': 'আঠারো',
+    '১৯': 'উনিশ',
+    '২০': 'কুড়ি',
+    '২১': 'একুশ',
+    '২২': 'বাইশ',
+    '২৩': 'তেইশ',
+    '২৪': 'চব্বিশ',
+    '২৫': 'পঁচিশ',
+    '২৬': 'ছাব্বিশ',
+    '২৭': 'সাতাশ',
+    '২৮': 'আটাশ',
+    '২৯': 'উনত্রিশ',
+    '৩০': 'ত্রিশ',
+    '৩১': 'একত্রিশ',
+    '৩২': 'বত্রিশ',
+    '৩৩': 'তেত্রিশ',
+    '৩৪': 'চৌত্রিশ',
+    '৩৫': 'পঁয়ত্রিশ',
+    '৩৬': 'ছত্রিশ',
+    '৩৭': 'সাতত্রিশ',
+    '৩৮': 'আটত্রিশ',
+    '৩৯': 'উনচল্লিশ',
+    '৪০': 'চল্লিশ',
+    '৪১': 'একচল্লিশ',
+    '৪২': 'বিয়াল্লিশ',
+    '৪৩': 'তেতাল্লিশ',
+    '৪৪': 'চুয়াল্লিশ',
+    '৪৫': 'পঁয়তাল্লিশ',
+    '৪৬': 'ছেচল্লিশ',
+    '৪৭': 'সাতচল্লিশ',
+    '৪৮': 'আটচল্লিশ',
+    '৪৯': 'উনপঞ্চাশ',
+    '৫০': 'পঞ্চাশ',
+    '৫১': 'একান্ন',
+    '৫২': 'বায়ান্ন',
+    '৫৩': 'তিপান্ন',
+    '৫৪': 'চুয়ান্ন',
+    '৫৫': 'পঞ্চান্ন',
+    '৫৬': 'ছাপান্ন',
+    '৫৭': 'সাতান্ন',
+    '৫৮': 'আটান্ন',
+    '৫৯': 'উনষাট',
+    '৬০': 'ষাট',
+    '৬১': 'একষট্টি',
+    '৬২': 'বাষট্টি',
+    '৬৩': 'তেষট্টি',
+    '৬৪': 'চৌষট্টি',
+    '৬৫': 'পঁয়ষট্টি',
+    '৬৬': 'ছেষট্টি',
+    '৬৭': 'সাতষট্টি',
+    '৬৮': 'আটষট্টি',
+    '৬৯': 'উনসত্তর',
+    '৭০': 'সত্তর',
+    '৭১': 'একাত্তর',
+    '৭২': 'বাহাত্তর',
+    '৭৩': 'তিয়াত্তর',
+    '৭৪': 'চুয়াত্তর',
+    '৭৫': 'পঁচাত্তর',
+    '৭৬': 'ছিয়াত্তর',
+    '৭৭': 'সাতাত্তর',
+    '৭৮': 'আটাত্তর',
+    '৭৯': 'উনআশি',
+    '৮০': 'আশি',
+    '৮১': 'একাশি',
+    '৮২': 'বিরাশি',
+    '৮৩': 'তিরাশি',
+    '৮৪': 'চুরাশি',
+    '৮৫': 'পঁচাশি',
+    '৮৬': 'ছিয়াশি',
+    '৮৭': 'সাতাশি',
+    '৮৮': 'আটাশি',
+    '৮৯': 'উননব্বই',
+    '৯০': 'নব্বই',
+    '৯১': 'একানব্বই',
+    '৯২': 'বিরানব্বই',
+    '৯৩': 'তিরানব্বই',
+    '৯৪': 'চুরানব্বই',
+    '৯৫': 'পঁচানব্বই',
+    '৯৬': 'ছিয়ানব্বই',
+    '৯৭': 'সাতানব্বই',
+    '৯৮': 'আটানব্বই',
+    '৯৯': 'নিরানব্বই',
+    '১০০': 'একশো',
   };
 
   // ================= API LOGIC =================
@@ -268,24 +362,44 @@ class BanglaSonkhaBloc extends Bloc<BanglaSonkhaEvent, BanglaSonkhaState> {
 
   // ================= AUDIO HELPERS =================
   Future<void> _playNumberAudio(int index) async {
-    if (state.isValidating) return;
+    if (state.isValidating || _isAudioPlayerDisposed) return;
 
     _hasSpoken = false;
     _isPlayingFeedbackAudio = false;
     final number = bengaliNumbers[index];
 
-    await _audioPlayer.stop();
-    await _audioPlayer.play(AssetSource('audios/bengali_audio/$number.wav'));
+    try {
+      await _audioPlayer.stop();
+      await _audioPlayer.play(AssetSource('audios/bengali_audio/$number.wav'));
+    } catch (e) {
+      LoggerService.logError(
+        '[BanglaSonkhaBloc] Error playing number audio: $e',
+      );
+    }
   }
 
   Future<void> _playHurrayAudio() async {
-    await _audioPlayer.stop();
-    await _audioPlayer.play(AssetSource('audios/ui/yay_sound.wav'));
+    if (_isAudioPlayerDisposed) return;
+    try {
+      await _audioPlayer.stop();
+      await _audioPlayer.play(AssetSource('audios/ui/yay_sound.wav'));
+    } catch (e) {
+      LoggerService.logError(
+        '[BanglaSonkhaBloc] Error playing hurray audio: $e',
+      );
+    }
   }
 
   Future<void> _playWrongAudio() async {
-    await _audioPlayer.stop();
-    await _audioPlayer.play(AssetSource('audios/ui/no_sound.mp3'));
+    if (_isAudioPlayerDisposed) return;
+    try {
+      await _audioPlayer.stop();
+      await _audioPlayer.play(AssetSource('audios/ui/no_sound.mp3'));
+    } catch (e) {
+      LoggerService.logError(
+        '[BanglaSonkhaBloc] Error playing wrong audio: $e',
+      );
+    }
   }
 
   // ================= CLEANUP =================
@@ -299,12 +413,18 @@ class BanglaSonkhaBloc extends Bloc<BanglaSonkhaEvent, BanglaSonkhaState> {
 
   void _onStop(BanglaSonkhaStop event, Emitter<BanglaSonkhaState> emit) {
     _cleanupListening();
-    _audioPlayer.stop();
+    if (!_isAudioPlayerDisposed) {
+      _audioPlayer.stop();
+    }
   }
 
   @override
   Future<void> close() {
     _cleanupListening();
+    _isAudioPlayerDisposed = true;
+    // Unregister from lifecycle service
+    AppLifecycleService().unregisterAudioPlayer(_audioPlayer);
+    AppLifecycleService().unregisterSpeechRecognizer(_speech);
     _audioPlayer.dispose();
     return super.close();
   }

@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:kids_learning/modules/banan/data/models/banan_data_model.dart';
 import 'package:kids_learning/modules/banan/data/repo/banan_repo.dart';
 import 'package:kids_learning/services/daily_challenge_service.dart';
+import 'package:kids_learning/services/app_lifecycle_service.dart';
 
 import 'banan_event.dart';
 import 'banan_state.dart';
@@ -20,6 +21,8 @@ class BananBloc extends Bloc<BananEvent, BananState> {
   bool _isLoadingMoreProblems = false;
   bool _isPlayingFeedbackAudio = false;
   bool _isPlayingQuestionAudio = false;
+  bool _isAudioPlayerDisposed = false;
+  bool _isQuestionAudioPlayerDisposed = false;
 
   int _roundCorrect = 0;
   int _roundAnswered = 0;
@@ -27,6 +30,10 @@ class BananBloc extends Bloc<BananEvent, BananState> {
   BananBloc({BananRepository? repository})
     : _repository = repository ?? BananRepository(),
       super(const BananInitial()) {
+    // Register audio players for lifecycle management
+    AppLifecycleService().registerAudioPlayer(_audioPlayer);
+    AppLifecycleService().registerAudioPlayer(_questionAudioPlayer);
+
     on<BananInit>(_onInit);
     on<BananTilePlaced>(_onTilePlaced);
     on<BananTileRemoved>(_onTileRemoved);
@@ -338,17 +345,15 @@ class BananBloc extends Bloc<BananEvent, BananState> {
       if (state is! BananLoaded) return;
 
       final filtered = more.where((p) => !_answeredIds.contains(p.id)).toList();
-      
+
       // If no new filtered problems were added, we've exhausted all questions
       if (filtered.isEmpty) {
         _repository.markNoMoreData();
         if (state is! BananLoaded) return;
-        
+
         // If we're at the end of current problems, show completion
         if (s.currentIndex >= s.problems.length - 1) {
-          emit(
-            (state as BananLoaded).copyWith(isLoadingMore: false),
-          );
+          emit((state as BananLoaded).copyWith(isLoadingMore: false));
           emit(
             BananRoundCompleted(
               roundCorrect: _roundCorrect,
@@ -359,7 +364,7 @@ class BananBloc extends Bloc<BananEvent, BananState> {
           return;
         }
       }
-      
+
       final updated = [...(state as BananLoaded).problems, ...filtered];
 
       emit(
@@ -368,7 +373,7 @@ class BananBloc extends Bloc<BananEvent, BananState> {
           isLoadingMore: false,
         ),
       );
-      
+
       // If we were waiting for more problems to continue, auto-advance
       if (s.currentIndex >= s.problems.length - 1) {
         add(const BananNextProblem());
@@ -387,8 +392,8 @@ class BananBloc extends Bloc<BananEvent, BananState> {
   //  STOP
   // ═══════════════════════════════════════════════════════
   void _onStop(BananStop event, Emitter<BananState> emit) {
-    _audioPlayer.stop();
-    _questionAudioPlayer.stop();
+    if (!_isAudioPlayerDisposed) _audioPlayer.stop();
+    if (!_isQuestionAudioPlayerDisposed) _questionAudioPlayer.stop();
     _isPlayingFeedbackAudio = false;
     _isPlayingQuestionAudio = false;
   }
@@ -400,8 +405,8 @@ class BananBloc extends Bloc<BananEvent, BananState> {
     BananPlayAgain event,
     Emitter<BananState> emit,
   ) async {
-    _audioPlayer.stop();
-    _questionAudioPlayer.stop();
+    if (!_isAudioPlayerDisposed) _audioPlayer.stop();
+    if (!_isQuestionAudioPlayerDisposed) _questionAudioPlayer.stop();
     _isPlayingFeedbackAudio = false;
     _isPlayingQuestionAudio = false;
     _repository.resetPagination();
@@ -430,7 +435,8 @@ class BananBloc extends Bloc<BananEvent, BananState> {
   //  AUDIO HELPERS
   // ═══════════════════════════════════════════════════════
   Future<void> _playQuestionAudio(BananProblemModel problem) async {
-    if (problem.questionAudioUrl.isEmpty) return;
+    if (problem.questionAudioUrl.isEmpty || _isQuestionAudioPlayerDisposed)
+      return;
     _isPlayingQuestionAudio = true;
     try {
       await _questionAudioPlayer.stop();
@@ -443,6 +449,7 @@ class BananBloc extends Bloc<BananEvent, BananState> {
   }
 
   Future<void> _playCorrectAnswerAudio(String url) async {
+    if (_isQuestionAudioPlayerDisposed) return;
     try {
       await _questionAudioPlayer.stop();
       await _questionAudioPlayer.play(UrlSource(url));
@@ -453,6 +460,7 @@ class BananBloc extends Bloc<BananEvent, BananState> {
   }
 
   Future<void> _playYayAudio() async {
+    if (_isAudioPlayerDisposed) return;
     try {
       await _audioPlayer.stop();
       await _audioPlayer.play(AssetSource('audios/ui/yay_sound.wav'));
@@ -463,6 +471,7 @@ class BananBloc extends Bloc<BananEvent, BananState> {
   }
 
   Future<void> _playWrongAudio() async {
+    if (_isAudioPlayerDisposed) return;
     try {
       await _audioPlayer.stop();
       await _audioPlayer.play(AssetSource('audios/ui/no_sound.mp3'));
@@ -477,6 +486,11 @@ class BananBloc extends Bloc<BananEvent, BananState> {
   // ═══════════════════════════════════════════════════════
   @override
   Future<void> close() {
+    _isAudioPlayerDisposed = true;
+    _isQuestionAudioPlayerDisposed = true;
+    // Unregister from lifecycle service
+    AppLifecycleService().unregisterAudioPlayer(_audioPlayer);
+    AppLifecycleService().unregisterAudioPlayer(_questionAudioPlayer);
     _audioPlayer.dispose();
     _questionAudioPlayer.dispose();
     return super.close();

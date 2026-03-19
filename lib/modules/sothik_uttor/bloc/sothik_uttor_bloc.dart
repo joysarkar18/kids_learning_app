@@ -6,6 +6,7 @@ import 'package:bloc/bloc.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:flutter/foundation.dart';
 import 'package:kids_learning/services/daily_challenge_service.dart';
+import 'package:kids_learning/services/app_lifecycle_service.dart';
 import 'sothik_uttor_event.dart';
 import 'sothik_uttor_state.dart';
 import '../data/repo/question_repository.dart';
@@ -23,8 +24,13 @@ class SothikUttorBloc extends Bloc<SothikUttorEvent, SothikUttorState> {
   bool _isListening = false;
   bool _isPlayingFeedbackAudio = false;
   bool _isLoadingMoreQuestions = false;
+  bool _isAudioPlayerDisposed = false;
 
   SothikUttorBloc() : super(const SothikUttorInitial()) {
+    // Register audio player and speech recognizer for lifecycle management
+    AppLifecycleService().registerAudioPlayer(_audioPlayer);
+    AppLifecycleService().registerSpeechRecognizer(_speech);
+
     on<SothikUttorInit>(_onInit);
     on<SothikUttorNextQuestion>(_onNextQuestion);
     on<SothikUttorSkipQuestion>(_onSkipQuestion);
@@ -42,7 +48,8 @@ class SothikUttorBloc extends Bloc<SothikUttorEvent, SothikUttorState> {
         return;
       }
 
-      if (state.isValidating ||
+      if (_isAudioPlayerDisposed ||
+          state.isValidating ||
           _isPlayingFeedbackAudio ||
           state.answerStatus == SothikUttorAnswerStatus.correct ||
           state.isPlayingSkipAudio) {
@@ -137,7 +144,9 @@ class SothikUttorBloc extends Bloc<SothikUttorEvent, SothikUttorState> {
     await _playCorrectAnswerAudio(currentQuestion.correctAnswerAudioUrl);
 
     // Wait for audio to finish (we'll use a completer for this)
-    await _audioPlayer.onPlayerComplete.first;
+    if (!_isAudioPlayerDisposed) {
+      await _audioPlayer.onPlayerComplete.first;
+    }
 
     if (state is! SothikUttorLoaded) return;
 
@@ -247,8 +256,11 @@ class SothikUttorBloc extends Bloc<SothikUttorEvent, SothikUttorState> {
   ) async {
     _listenTimeoutTimer?.cancel();
     await _speech.stop();
-    await _audioPlayer.stop();
     _isListening = false;
+
+    if (!_isAudioPlayerDisposed) {
+      await _audioPlayer.stop();
+    }
 
     if (state is! SothikUttorLoaded) return;
     final currentState = state as SothikUttorLoaded;
@@ -394,7 +406,9 @@ class SothikUttorBloc extends Bloc<SothikUttorEvent, SothikUttorState> {
   // ================= STOP =================
   void _onStop(SothikUttorStop event, Emitter<SothikUttorState> emit) {
     _cleanupListening();
-    _audioPlayer.stop();
+    if (!_isAudioPlayerDisposed) {
+      _audioPlayer.stop();
+    }
   }
 
   // ================= API VALIDATION =================
@@ -465,7 +479,7 @@ class SothikUttorBloc extends Bloc<SothikUttorEvent, SothikUttorState> {
 
   // ================= AUDIO HELPERS =================
   Future<void> _playQuestionAudio() async {
-    if (state.isValidating) return;
+    if (state.isValidating || _isAudioPlayerDisposed) return;
 
     _hasSpoken = false;
     _isPlayingFeedbackAudio = false;
@@ -473,43 +487,54 @@ class SothikUttorBloc extends Bloc<SothikUttorEvent, SothikUttorState> {
     final currentQuestion = state.currentQuestion;
     if (currentQuestion == null) return;
 
-    await _audioPlayer.stop();
+    try {
+      await _audioPlayer.stop();
 
-    final audioUrl = currentQuestion.questionAudioUrl;
-    if (audioUrl.isNotEmpty) {
-      try {
+      final audioUrl = currentQuestion.questionAudioUrl;
+      if (audioUrl.isNotEmpty) {
         await _audioPlayer.play(UrlSource(audioUrl));
-      } catch (e) {
-        debugPrint('Error playing question audio: $e');
-        // If audio fails, still start listening
+      } else {
+        // No audio URL, start listening directly
         add(SothikUttorStartListening());
       }
-    } else {
-      // No audio URL, start listening directly
+    } catch (e) {
+      debugPrint('Error playing question audio: $e');
+      // If audio fails, still start listening
       add(SothikUttorStartListening());
     }
   }
 
   Future<void> _playCorrectAnswerAudio(String audioUrl) async {
-    await _audioPlayer.stop();
+    if (_isAudioPlayerDisposed) return;
+    try {
+      await _audioPlayer.stop();
 
-    if (audioUrl.isNotEmpty) {
-      try {
+      if (audioUrl.isNotEmpty) {
         await _audioPlayer.play(UrlSource(audioUrl));
-      } catch (e) {
-        debugPrint('Error playing correct answer audio: $e');
       }
+    } catch (e) {
+      debugPrint('Error playing correct answer audio: $e');
     }
   }
 
   Future<void> _playYayAudio() async {
-    await _audioPlayer.stop();
-    await _audioPlayer.play(AssetSource('audios/ui/yay_sound.wav'));
+    if (_isAudioPlayerDisposed) return;
+    try {
+      await _audioPlayer.stop();
+      await _audioPlayer.play(AssetSource('audios/ui/yay_sound.wav'));
+    } catch (e) {
+      debugPrint('Error playing yay audio: $e');
+    }
   }
 
   Future<void> _playWrongAudio() async {
-    await _audioPlayer.stop();
-    await _audioPlayer.play(AssetSource('audios/ui/no_sound.mp3'));
+    if (_isAudioPlayerDisposed) return;
+    try {
+      await _audioPlayer.stop();
+      await _audioPlayer.play(AssetSource('audios/ui/no_sound.mp3'));
+    } catch (e) {
+      debugPrint('Error playing wrong audio: $e');
+    }
   }
 
   // ================= CLEANUP =================
@@ -524,6 +549,10 @@ class SothikUttorBloc extends Bloc<SothikUttorEvent, SothikUttorState> {
   @override
   Future<void> close() {
     _cleanupListening();
+    _isAudioPlayerDisposed = true;
+    // Unregister from lifecycle service
+    AppLifecycleService().unregisterAudioPlayer(_audioPlayer);
+    AppLifecycleService().unregisterSpeechRecognizer(_speech);
     _audioPlayer.dispose();
     return super.close();
   }
