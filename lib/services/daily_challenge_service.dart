@@ -311,28 +311,52 @@ class DailyChallengeService extends ChangeNotifier {
   // ─── Initialization ────────────────────────────────────────────────
   Future<void> initialize() async {
     LoggerService.logInfo('DailyChallengeService.initialize() started');
-    await _loadFromLocal();
+    LoggerService.logInfo('Current user: ${AuthService.instance.currentUser?.uid ?? "NULL"}');
+
+    // Always load from Firestore as source of truth, fall back to local
+    LoggerService.logInfo('Restoring from Firestore...');
+    await _restoreFromFirestore();
     LoggerService.logInfo(
-      'After _loadFromLocal: challenge=${_todayChallenge?.date}, stars=${_progress.totalStars}',
+      'After Firestore restore: challenge=${_todayChallenge?.date}, '
+      'stars=${_progress.totalStars}, streak=${_progress.currentStreak}, '
+      'longestStreak=${_progress.longestStreak}, '
+      'lastCompleted=${_progress.lastCompletedDate}, '
+      'completedDates=${_progress.completedDates}',
     );
 
-    // If no local data (e.g. after uninstall), restore from Firestore
+    // Fall back to local data if Firestore restore didn't yield anything (e.g. offline, no user)
     if (_todayChallenge == null && _progress.totalStars == 0) {
-      LoggerService.logInfo('No local data found, restoring from Firestore...');
-      await _restoreFromFirestore();
+      LoggerService.logInfo('Firestore returned nothing, falling back to local...');
+      await _loadFromLocal();
+      LoggerService.logInfo(
+        'After _loadFromLocal: challenge=${_todayChallenge?.date}, '
+        'stars=${_progress.totalStars}, streak=${_progress.currentStreak}, '
+        'completedDates=${_progress.completedDates}',
+      );
     }
 
     final today = _todayString();
 
     if (_todayChallenge == null || _todayChallenge!.date != today) {
-      LoggerService.logInfo('Generating new challenge for $today');
+      LoggerService.logInfo(
+        'Generating new challenge for $today (old=${_todayChallenge?.date})',
+      );
       _todayChallenge = _generateChallenge(today);
       _updateStreakOnNewDay(today);
       await _saveToLocal();
+      LoggerService.logInfo(
+        'After _updateStreakOnNewDay: streak=${_progress.currentStreak}, '
+        'longestStreak=${_progress.longestStreak}',
+      );
+    } else {
+      LoggerService.logInfo('Challenge already exists for today: $today');
     }
 
     LoggerService.logInfo(
-      'initialize() done: ${_todayChallenge!.missions.length} missions → ${_todayChallenge!.missions.map((m) => "${m.moduleKey}(${m.currentCount}/${m.targetCount})").toList()}',
+      'initialize() done: ${_todayChallenge!.missions.length} missions → '
+      '${_todayChallenge!.missions.map((m) => "${m.moduleKey}(${m.currentCount}/${m.targetCount})").toList()}\n'
+      '  stars=${_progress.totalStars}, streak=${_progress.currentStreak}, '
+      'longestStreak=${_progress.longestStreak}, completedDates=${_progress.completedDates}',
     );
     notifyListeners();
   }
@@ -475,7 +499,7 @@ class DailyChallengeService extends ChangeNotifier {
     }
 
     await _saveToLocal();
-    _syncToFirestore();
+    await _syncToFirestore();
     notifyListeners();
   }
 
@@ -515,6 +539,7 @@ class DailyChallengeService extends ChangeNotifier {
       final prefs = await SharedPreferences.getInstance();
 
       final challengeJson = prefs.getString(_prefKeyChallenge);
+      LoggerService.logInfo('_loadFromLocal: challengeJson=${challengeJson != null ? "exists (${challengeJson.length} chars)" : "NULL"}');
       if (challengeJson != null) {
         _todayChallenge = DailyChallenge.fromMap(
           jsonDecode(challengeJson) as Map<String, dynamic>,
@@ -522,6 +547,7 @@ class DailyChallengeService extends ChangeNotifier {
       }
 
       final progressJson = prefs.getString(_prefKeyProgress);
+      LoggerService.logInfo('_loadFromLocal: progressJson=${progressJson ?? "NULL"}');
       if (progressJson != null) {
         _progress = ChallengeProgress.fromMap(
           jsonDecode(progressJson) as Map<String, dynamic>,
@@ -559,14 +585,38 @@ class DailyChallengeService extends ChangeNotifier {
       final userDoc = await userRef.get();
       if (userDoc.exists) {
         final data = userDoc.data()!;
+
+        // Restore completedDates from user doc, or rebuild from subcollection
+        List<String> completedDates = [];
+        if (data['completedDates'] != null) {
+          completedDates = List<String>.from(data['completedDates'] as List);
+        } else {
+          // Fallback: rebuild completedDates from daily_progress subcollection
+          final progressDocs = await userRef
+              .collection('daily_progress')
+              .orderBy(FieldPath.documentId)
+              .get();
+          for (final doc in progressDocs.docs) {
+            final docData = doc.data();
+            // Only count dates where all missions were completed
+            if (docData['completedAt'] != null) {
+              completedDates.add(doc.id);
+            }
+          }
+          LoggerService.logInfo(
+            'Rebuilt completedDates from subcollection: $completedDates',
+          );
+        }
+
         _progress = ChallengeProgress(
           totalStars: data['totalStars'] ?? 0,
           currentStreak: data['currentStreak'] ?? 0,
           longestStreak: data['longestStreak'] ?? 0,
           lastCompletedDate: data['lastCompletedDate'] ?? '',
+          completedDates: completedDates,
         );
         LoggerService.logInfo(
-          'Restored stats from Firestore: stars=${_progress.totalStars}, streak=${_progress.currentStreak}',
+          'Restored stats from Firestore: stars=${_progress.totalStars}, streak=${_progress.currentStreak}, completedDates=${_progress.completedDates.length}',
         );
       }
 
@@ -629,6 +679,7 @@ class DailyChallengeService extends ChangeNotifier {
         'currentStreak': _progress.currentStreak,
         'longestStreak': _progress.longestStreak,
         'lastCompletedDate': _progress.lastCompletedDate,
+        'completedDates': _progress.completedDates,
         'lastActive': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
     } catch (e) {

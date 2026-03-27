@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:audioplayers/audioplayers.dart';
+import 'package:kids_learning/services/audio_service.dart';
 
 /// Service to manage app lifecycle events and coordinate audio/STT cleanup
 class AppLifecycleService {
@@ -11,6 +12,7 @@ class AppLifecycleService {
 
   final List<AudioPlayer> _registeredPlayers = [];
   final List<stt.SpeechToText> _registeredSpeechRecognizers = [];
+  final List<AudioPlayer> _pausedPlayers = [];
   bool _isInBackground = false;
 
   /// Register an AudioPlayer instance for lifecycle management
@@ -37,17 +39,24 @@ class AppLifecycleService {
     _registeredSpeechRecognizers.remove(speech);
   }
 
-  /// Called when app enters background - stops all audio and STT
+  /// Called when app enters background - pauses audio and stops STT
   Future<void> onEnterBackground() async {
     _isInBackground = true;
-    debugPrint('[AppLifecycleService] App entered background - stopping all audio and STT');
+    _pausedPlayers.clear();
+    debugPrint('[AppLifecycleService] App entered background - pausing audio and stopping STT');
 
-    // Stop all registered audio players
+    // Let AudioService handle its own background music pause/resume
+    await AudioService().onEnterBackground();
+
+    // Pause all other registered audio players (e.g., narration)
     for (final player in _registeredPlayers) {
       try {
-        await player.stop();
+        if (player.state == PlayerState.playing) {
+          await player.pause();
+          _pausedPlayers.add(player);
+        }
       } catch (e) {
-        debugPrint('[AppLifecycleService] Error stopping audio player: $e');
+        debugPrint('[AppLifecycleService] Error pausing audio player: $e');
       }
     }
 
@@ -61,10 +70,23 @@ class AppLifecycleService {
     }
   }
 
-  /// Called when app enters foreground
+  /// Called when app enters foreground - resumes audio if appropriate
   Future<void> onEnterForeground() async {
     _isInBackground = false;
     debugPrint('[AppLifecycleService] App entered foreground');
+
+    // Let AudioService handle its own background music resume
+    await AudioService().onEnterForeground();
+
+    // Resume other paused players (e.g., narration)
+    for (final player in _pausedPlayers) {
+      try {
+        await player.resume();
+      } catch (e) {
+        debugPrint('[AppLifecycleService] Error resuming audio player: $e');
+      }
+    }
+    _pausedPlayers.clear();
   }
 
   /// Check if app is currently in background

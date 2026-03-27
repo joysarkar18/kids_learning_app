@@ -40,12 +40,17 @@ class GlobalNavigation {
   GlobalNavigation._internal();
 
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+  final RouteObserver<ModalRoute<void>> routeObserver =
+      RouteObserver<ModalRoute<void>>();
 }
 
 final router = GoRouter(
   initialLocation: Routes.init, // Start at Splash
   navigatorKey: GlobalNavigation.instance.navigatorKey,
-  observers: [AnalyticsService().observer], // Automatic screen view tracking
+  observers: [
+    AnalyticsService().observer, // Automatic screen view tracking
+    GlobalNavigation.instance.routeObserver,
+  ],
   routes: [
     GoRoute(
       name: Names.banan,

@@ -30,7 +30,7 @@ class RemoteConfigService {
       await _remoteConfig.setConfigSettings(
         RemoteConfigSettings(
           fetchTimeout: const Duration(seconds: 10),
-          minimumFetchInterval: const Duration(hours: 1), // Adjust as needed
+          minimumFetchInterval: const Duration(hours: 1),
         ),
       );
 
@@ -38,6 +38,8 @@ class RemoteConfigService {
       await _remoteConfig.setDefaults({
         'drawing_images': '[]',
         'filled_images': '[]',
+        'minimum_required_version': '',
+        'force_update': false,
       });
 
       // Fetch and activate

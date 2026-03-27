@@ -19,7 +19,6 @@ import 'package:kids_learning/services/remote_config_service.dart';
 import 'package:kids_learning/services/snackbar_service.dart';
 import 'package:kids_learning/services/review_service.dart';
 import 'package:kids_learning/services/notification_service.dart';
-import 'package:kids_learning/services/daily_notification_scheduler.dart';
 import 'package:kids_learning/utils/themes/app_colors.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -60,8 +59,6 @@ void main() async {
 
       // Initialize notifications
       await NotificationService.instance.initialize();
-      await DailyNotificationScheduler.instance.initialize();
-
       await DailyChallengeService.instance.initialize();
       runApp(MyApp(initialLocale: savedLanguage));
     },
@@ -115,9 +112,12 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     switch (state) {
       case AppLifecycleState.paused:
-      case AppLifecycleState.inactive:
-        // App goes to background - stop all audio and STT
+        // App goes to background - pause audio and stop STT
         AppLifecycleService().onEnterBackground();
+        break;
+
+      case AppLifecycleState.inactive:
+        // Notification panel, permission dialogs, etc. - do nothing
         break;
 
       case AppLifecycleState.resumed:

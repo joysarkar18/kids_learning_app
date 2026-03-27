@@ -12,7 +12,7 @@ import 'package:kids_learning/services/audio_service.dart';
 import 'package:kids_learning/services/auth_service.dart';
 import 'package:kids_learning/services/daily_challenge_service.dart';
 import 'package:kids_learning/services/locale_service.dart';
-import 'package:kids_learning/services/remote_config_service.dart';
+import 'package:kids_learning/services/app_update_service.dart';
 import 'package:kids_learning/services/review_service.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -116,128 +116,39 @@ class _SideMenuOverlayState extends State<SideMenuOverlay>
     );
 
     try {
-      final packageInfo = await PackageInfo.fromPlatform();
-      final currentVersion = packageInfo.version;
-      print('[UpdateCheck] Current app version: $currentVersion');
+      final result = await AppUpdateService.instance.checkUpdateRequired();
 
-      // Get minimum required version from Firebase Remote Config
-      final minVersion = RemoteConfigService().remoteConfig.getString(
-        'minimum_required_version',
-      );
-      print(
-        '[UpdateCheck] Minimum required version from Remote Config: $minVersion',
-      );
+      if (!mounted) return;
+      Navigator.of(context).pop(); // Close loading dialog
 
-      if (mounted) {
-        Navigator.of(context).pop(); // Close loading dialog
-
-        if (minVersion.isNotEmpty) {
-          final isUpdateRequired = _compareVersions(minVersion, currentVersion);
-
-          if (isUpdateRequired) {
-            // Show update required dialog
-            showDialog(
-              context: context,
-              builder: (context) => AlertDialog(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20.r),
-                ),
-                title: Text(
-                  'Update Required',
-                  style: GoogleFonts.bubblegumSans(
-                    fontSize: 18.sp,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                content: Text(
-                  'A new version ($minVersion) is available! Please update to continue using the app.',
-                  style: GoogleFonts.bubblegumSans(fontSize: 14.sp),
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () async {
-                      Navigator.of(context).pop();
-                      final InAppReview inAppReview = InAppReview.instance;
-                      await inAppReview.openStoreListing();
-                    },
-                    child: Text(
-                      'Update Now',
-                      style: GoogleFonts.bubblegumSans(
-                        color: Theme.of(context).primaryColor,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          } else {
-            // Show latest version message
-            showDialog(
-              context: context,
-              builder: (context) => AlertDialog(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20.r),
-                ),
-                title: Text(
-                  AppLocalizations.of(context)?.update ?? 'Update',
-                  style: GoogleFonts.bubblegumSans(
-                    fontSize: 18.sp,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                content: Text(
-                  AppLocalizations.of(context)?.youHaveLatestVersion ??
-                      'You have the latest version!',
-                  style: GoogleFonts.bubblegumSans(fontSize: 14.sp),
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: Text(
-                      AppLocalizations.of(context)?.ok ?? 'OK',
-                      style: GoogleFonts.bubblegumSans(
-                        color: Theme.of(context).primaryColor,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            );
+      switch (result.status) {
+        case UpdateStatus.forceUpdateRequired:
+          // Force update — try native in-app immediate update first
+          final triggered =
+              await AppUpdateService.instance.triggerImmediateUpdate();
+          if (!triggered && mounted) {
+            // Fallback: show dialog directing to store
+            _showForceUpdateDialog(result.availableVersion ?? '');
           }
-        } else {
-          // No version set in Remote Config
-          showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20.r),
-              ),
-              title: Text(
-                AppLocalizations.of(context)?.update ?? 'Update',
-                style: GoogleFonts.bubblegumSans(
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              content: Text(
-                'You have the latest version!',
-                style: GoogleFonts.bubblegumSans(fontSize: 14.sp),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: Text(
-                    AppLocalizations.of(context)?.ok ?? 'OK',
-                    style: GoogleFonts.bubblegumSans(
-                      color: Theme.of(context).primaryColor,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          );
-        }
+          break;
+
+        case UpdateStatus.updateAvailable:
+          // Optional update — try native flexible update first
+          final triggered =
+              await AppUpdateService.instance.triggerFlexibleUpdate();
+          if (!triggered && mounted) {
+            // Fallback: show dialog directing to store
+            _showOptionalUpdateDialog(result.availableVersion ?? '');
+          }
+          break;
+
+        case UpdateStatus.upToDate:
+          _showUpToDateDialog();
+          break;
+
+        case UpdateStatus.error:
+          _showUpToDateDialog();
+          break;
       }
     } catch (e) {
       print('[UpdateCheck] Error checking for updates: $e');
@@ -253,23 +164,124 @@ class _SideMenuOverlayState extends State<SideMenuOverlay>
     }
   }
 
-  /// Compares two version strings
-  /// Returns true if version1 > version2
-  bool _compareVersions(String version1, String version2) {
-    try {
-      final v1Parts = version1.split('.').map(int.parse).toList();
-      final v2Parts = version2.split('.').map(int.parse).toList();
+  void _showForceUpdateDialog(String version) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20.r),
+        ),
+        title: Text(
+          'Update Required',
+          style: GoogleFonts.bubblegumSans(
+            fontSize: 18.sp,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        content: Text(
+          'A new version ($version) is available! Please update to continue using the app.',
+          style: GoogleFonts.bubblegumSans(fontSize: 14.sp),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              Navigator.of(context).pop();
+              final InAppReview inAppReview = InAppReview.instance;
+              await inAppReview.openStoreListing();
+            },
+            child: Text(
+              'Update Now',
+              style: GoogleFonts.bubblegumSans(
+                color: Theme.of(context).primaryColor,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
-      for (var i = 0; i < v1Parts.length && i < v2Parts.length; i++) {
-        if (v1Parts[i] > v2Parts[i]) return true;
-        if (v1Parts[i] < v2Parts[i]) return false;
-      }
+  void _showOptionalUpdateDialog(String version) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20.r),
+        ),
+        title: Text(
+          AppLocalizations.of(context)?.update ?? 'Update',
+          style: GoogleFonts.bubblegumSans(
+            fontSize: 18.sp,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        content: Text(
+          'A new version ($version) is available. Would you like to update?',
+          style: GoogleFonts.bubblegumSans(fontSize: 14.sp),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(
+              AppLocalizations.of(context)?.ok ?? 'Later',
+              style: GoogleFonts.bubblegumSans(
+                color: Colors.grey,
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.of(context).pop();
+              final InAppReview inAppReview = InAppReview.instance;
+              await inAppReview.openStoreListing();
+            },
+            child: Text(
+              'Update Now',
+              style: GoogleFonts.bubblegumSans(
+                color: Theme.of(context).primaryColor,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
-      return v1Parts.length > v2Parts.length;
-    } catch (e) {
-      print('[UpdateCheck] Error comparing versions: $e');
-      return false;
-    }
+  void _showUpToDateDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20.r),
+        ),
+        title: Text(
+          AppLocalizations.of(context)?.update ?? 'Update',
+          style: GoogleFonts.bubblegumSans(
+            fontSize: 18.sp,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        content: Text(
+          AppLocalizations.of(context)?.youHaveLatestVersion ??
+              'You have the latest version!',
+          style: GoogleFonts.bubblegumSans(fontSize: 14.sp),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(
+              AppLocalizations.of(context)?.ok ?? 'OK',
+              style: GoogleFonts.bubblegumSans(
+                color: Theme.of(context).primaryColor,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   void _showLanguageDialog() {

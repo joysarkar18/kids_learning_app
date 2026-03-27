@@ -1,8 +1,6 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:kids_learning/services/logger_service.dart';
-import 'package:timezone/timezone.dart' as tz;
-import 'package:timezone/data/latest.dart' as tz;
 
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
@@ -93,9 +91,6 @@ class NotificationService {
   }
 
   Future<void> _initLocalNotifications() async {
-    // Initialize timezone
-    tz.initializeTimeZones();
-
     const androidSettings = AndroidInitializationSettings(
       '@mipmap/ic_launcher',
     );
@@ -354,127 +349,7 @@ class NotificationService {
     LoggerService.logInfo('Daily challenge notification shown: $title');
   }
 
-  Future<void> scheduleDailyNotification({
-    required int id,
-    required String title,
-    required String body,
-    required Time scheduledTime,
-    Map<String, dynamic>? payload,
-  }) async {
-    // Cancel existing notification with this ID first to prevent duplicates
-    await _localNotifications.cancel(id);
-
-    final androidDetails = AndroidNotificationDetails(
-      'daily_challenge_channel',
-      'Daily Challenge Reminders',
-      channelDescription:
-          'Notifications for daily challenges and star earnings',
-      importance: Importance.high,
-      priority: Priority.high,
-      playSound: true,
-      enableVibration: true,
-      enableLights: true,
-      sound: const RawResourceAndroidNotificationSound('notification_sound'),
-      icon: '@mipmap/ic_launcher',
-    );
-
-    final iosDetails = DarwinNotificationDetails(
-      presentAlert: true,
-      presentBadge: true,
-      presentSound: true,
-      sound: 'notification_sound.wav',
-    );
-
-    final details = NotificationDetails(
-      android: androidDetails,
-      iOS: iosDetails,
-    );
-
-    final now = DateTime.now();
-    var scheduledDateTime = tz.TZDateTime(
-      tz.local,
-      now.year,
-      now.month,
-      now.day,
-      scheduledTime.hour,
-      scheduledTime.minute,
-      scheduledTime.second,
-    );
-
-    // If time has passed today, schedule for tomorrow
-    if (scheduledDateTime.isBefore(now)) {
-      scheduledDateTime = scheduledDateTime.add(const Duration(days: 1));
-    }
-
-    await _localNotifications.zonedSchedule(
-      id,
-      title,
-      body,
-      scheduledDateTime,
-      details,
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.absoluteTime,
-      payload: payload != null ? _mapToString(payload) : null,
-    );
-
-    LoggerService.logInfo(
-      'Daily notification scheduled for $scheduledDateTime: $title',
-    );
-  }
-
-  Future<void> scheduleDailyNotifications({
-    required int morningId,
-    required String morningTitle,
-    required String morningBody,
-    required Time morningTime,
-    required int eveningId,
-    required String eveningTitle,
-    required String eveningBody,
-    required Time eveningTime,
-  }) async {
-    // Schedule morning notification
-    await scheduleDailyNotification(
-      id: morningId,
-      title: morningTitle,
-      body: morningBody,
-      scheduledTime: morningTime,
-      payload: {'type': 'morning_challenge'},
-    );
-
-    // Schedule evening notification
-    await scheduleDailyNotification(
-      id: eveningId,
-      title: eveningTitle,
-      body: eveningBody,
-      scheduledTime: eveningTime,
-      payload: {'type': 'evening_challenge'},
-    );
-  }
-
-  Future<void> cancelNotification(int id) async {
-    await _localNotifications.cancel(id);
-    LoggerService.logInfo('Notification cancelled: $id');
-  }
-
-  Future<void> cancelAllNotifications() async {
-    await _localNotifications.cancelAll();
-    LoggerService.logInfo('All notifications cancelled');
-  }
-
-  Future<List<PendingNotificationRequest>?> getPendingNotifications() async {
-    return await _localNotifications.pendingNotificationRequests();
-  }
-
   String _mapToString(Map<String, dynamic> payload) {
     return payload.entries.map((e) => '${e.key}=${e.value}').join(',');
   }
-}
-
-class Time {
-  final int hour;
-  final int minute;
-  final int second;
-
-  const Time({this.hour = 0, this.minute = 0, this.second = 0});
 }

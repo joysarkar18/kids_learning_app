@@ -12,6 +12,9 @@ class AudioService {
   final AudioPlayer _narrationPlayer = AudioPlayer();
   bool _isPlaying = false;
 
+  /// Whether the home screen is active and music should be playing
+  bool _shouldPlay = false;
+
   /// List of background audio files to choose from randomly
   static const List<String> _bgAudioFiles = [
     'audios/ui/bg_audio.mp3',
@@ -24,8 +27,9 @@ class AudioService {
   Future<void> init() async {
     if (_isPlaying) return;
 
-    // Register audio players with lifecycle service for automatic cleanup
-    AppLifecycleService().registerAudioPlayer(_player);
+    // Only register narration player with lifecycle service
+    // Background music player is managed by AudioService itself via
+    // onEnterBackground/onEnterForeground
     AppLifecycleService().registerAudioPlayer(_narrationPlayer);
 
     final AudioContext audioContext = AudioContext(
@@ -49,6 +53,7 @@ class AudioService {
 
   /// Start playing background music (call this on home page)
   Future<void> playBackgroundMusic() async {
+    _shouldPlay = true;
     if (_isPlaying) return;
 
     // Randomly select a background audio file
@@ -65,6 +70,7 @@ class AudioService {
 
   /// Stop playing background music (call this when leaving home page)
   Future<void> stopBackgroundMusic() async {
+    _shouldPlay = false;
     if (!_isPlaying) return;
 
     try {
@@ -72,6 +78,31 @@ class AudioService {
       _isPlaying = false;
     } catch (e) {
       debugPrint('Error stopping background music: $e');
+    }
+  }
+
+  /// Whether background music should be playing (home screen is active)
+  bool get shouldPlay => _shouldPlay;
+
+  /// Pause background music when app goes to background
+  Future<void> onEnterBackground() async {
+    if (_isPlaying && _player.state == PlayerState.playing) {
+      try {
+        await _player.pause();
+      } catch (e) {
+        debugPrint('Error pausing background music: $e');
+      }
+    }
+  }
+
+  /// Resume background music when app comes back to foreground
+  Future<void> onEnterForeground() async {
+    if (_shouldPlay && _isPlaying) {
+      try {
+        await _player.resume();
+      } catch (e) {
+        debugPrint('Error resuming background music: $e');
+      }
     }
   }
 
