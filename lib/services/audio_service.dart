@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
+import 'package:kids_learning/services/app_lifecycle_service.dart';
 
 class AudioService {
   static final AudioService _instance = AudioService._internal();
@@ -22,6 +23,10 @@ class AudioService {
   /// Initialize audio service without starting playback
   Future<void> init() async {
     if (_isPlaying) return;
+
+    // Register audio players with lifecycle service for automatic cleanup
+    AppLifecycleService().registerAudioPlayer(_player);
+    AppLifecycleService().registerAudioPlayer(_narrationPlayer);
 
     final AudioContext audioContext = AudioContext(
       iOS: AudioContextIOS(
