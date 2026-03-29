@@ -44,7 +44,16 @@ class _NamotaScreenState extends State<NamotaScreen>
   ];
 
   static const _rowEmojis = [
-    '🌿', '🍃', '🌴', '🪵', '🌺', '💧', '🦋', '🍒', '🐢', '🌸',
+    '🌿',
+    '🍃',
+    '🌴',
+    '🪵',
+    '🌺',
+    '💧',
+    '🦋',
+    '🍒',
+    '🐢',
+    '🌸',
   ];
 
   @override
@@ -123,8 +132,7 @@ class _NamotaScreenState extends State<NamotaScreen>
           final completedCount = state.completedRows.length;
           final isListening = state.isListening;
           final isValidating = state.isValidating;
-          final isDisabled =
-              isValidating || isListening || state.isPlayingAll;
+          final isDisabled = isValidating || isListening || state.isPlayingAll;
 
           return Scaffold(
             body: SizedBox(
@@ -223,18 +231,18 @@ class _NamotaScreenState extends State<NamotaScreen>
                                   animation: _micRingAnim,
                                   builder: (context, _) {
                                     return Container(
-                                      width: 0.3.sw +
-                                          20.w * _micRingAnim.value,
-                                      height: 0.3.sw +
-                                          20.w * _micRingAnim.value,
+                                      width: 0.3.sw + 20.w * _micRingAnim.value,
+                                      height:
+                                          0.3.sw + 20.w * _micRingAnim.value,
                                       decoration: BoxDecoration(
                                         shape: BoxShape.circle,
                                         border: Border.all(
                                           color: const Color(0xFFFFD54F)
                                               .withValues(
-                                            alpha: 0.6 *
-                                                (1 - _micRingAnim.value),
-                                          ),
+                                                alpha:
+                                                    0.6 *
+                                                    (1 - _micRingAnim.value),
+                                              ),
                                           width: 3,
                                         ),
                                       ),
@@ -247,10 +255,10 @@ class _NamotaScreenState extends State<NamotaScreen>
                                   height: 0.3.sw + 14.w,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 3,
-                                    valueColor:
-                                        AlwaysStoppedAnimation<Color>(
-                                      const Color(0xFFFFD54F)
-                                          .withValues(alpha: 0.6),
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      const Color(
+                                        0xFFFFD54F,
+                                      ).withValues(alpha: 0.6),
                                     ),
                                   ),
                                 ),
@@ -439,8 +447,7 @@ class _NamotaScreenState extends State<NamotaScreen>
                 boxShadow: done
                     ? [
                         BoxShadow(
-                          color: const Color(0xFFFFD54F)
-                              .withValues(alpha: 0.4),
+                          color: const Color(0xFFFFD54F).withValues(alpha: 0.4),
                           blurRadius: 6,
                           spreadRadius: 1,
                         ),
@@ -471,8 +478,7 @@ class _NamotaScreenState extends State<NamotaScreen>
 
     final isCurrent = state.currentRowIndex == index;
     final isCompleted = state.completedRows.contains(index);
-    final isWrong =
-        isCurrent && state.answerStatus == NamotaAnswerStatus.wrong;
+    final isWrong = isCurrent && state.answerStatus == NamotaAnswerStatus.wrong;
     final isCorrect =
         isCurrent && state.answerStatus == NamotaAnswerStatus.correct;
 
@@ -489,10 +495,7 @@ class _NamotaScreenState extends State<NamotaScreen>
         List<BoxShadow>? shadows;
 
         if (isWrong) {
-          gradientColors = [
-            const Color(0xFFC62828),
-            const Color(0xFFE53935),
-          ];
+          gradientColors = [const Color(0xFFC62828), const Color(0xFFE53935)];
           borderColor = const Color(0xFFFF8A80);
           borderWidth = 3;
           shadows = [
@@ -503,10 +506,7 @@ class _NamotaScreenState extends State<NamotaScreen>
             ),
           ];
         } else if (isCorrect) {
-          gradientColors = [
-            const Color(0xFF2E7D32),
-            const Color(0xFF43A047),
-          ];
+          gradientColors = [const Color(0xFF2E7D32), const Color(0xFF43A047)];
           borderColor = const Color(0xFF69F0AE);
           borderWidth = 3;
           shadows = [
@@ -529,9 +529,9 @@ class _NamotaScreenState extends State<NamotaScreen>
           borderWidth = 3;
           shadows = [
             BoxShadow(
-              color: const Color(0xFFFF8F00).withValues(
-                alpha: 0.2 + _pulseAnim.value * 0.2,
-              ),
+              color: const Color(
+                0xFFFF8F00,
+              ).withValues(alpha: 0.2 + _pulseAnim.value * 0.2),
               blurRadius: 16,
               spreadRadius: 2,
             ),
@@ -721,8 +721,9 @@ class _NamotaScreenState extends State<NamotaScreen>
                                   height: 1.2,
                                   shadows: [
                                     Shadow(
-                                      color:
-                                          Colors.black.withValues(alpha: 0.4),
+                                      color: Colors.black.withValues(
+                                        alpha: 0.4,
+                                      ),
                                       offset: const Offset(1, 1),
                                       blurRadius: 3,
                                     ),

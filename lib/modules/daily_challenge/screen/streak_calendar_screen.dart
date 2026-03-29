@@ -151,15 +151,15 @@ class StreakCalendarScreen extends StatelessWidget {
   Widget _buildMotivationalMessage(AppLocalizations? l10n, bool isBn) {
     final message = currentStreak >= 7
         ? isBn
-            ? 'চমৎকার! তুমি তো একজন চ্যাম্পিয়ন! 🏆'
-            : 'Amazing! You\'re on fire! Keep it up! 🏆'
+              ? 'চমৎকার! তুমি তো একজন চ্যাম্পিয়ন! 🏆'
+              : 'Amazing! You\'re on fire! Keep it up! 🏆'
         : currentStreak >= 3
-            ? isBn
-                ? 'দারুণ চলছ! এমনই চালিয়ে যাও! 💪'
-                : 'Great job! Keep the momentum going! 💪'
-            : isBn
-                ? 'শুরুটা ভালো হয়েছে! প্রতিদিন চেষ্টা চালিয়ে যাও! ⭐'
-                : 'Good start! Keep practicing daily! ⭐';
+        ? isBn
+              ? 'দারুণ চলছ! এমনই চালিয়ে যাও! 💪'
+              : 'Great job! Keep the momentum going! 💪'
+        : isBn
+        ? 'শুরুটা ভালো হয়েছে! প্রতিদিন চেষ্টা চালিয়ে যাও! ⭐'
+        : 'Good start! Keep practicing daily! ⭐';
 
     return Container(
       width: double.infinity,
@@ -183,8 +183,8 @@ class StreakCalendarScreen extends StatelessWidget {
             currentStreak >= 7
                 ? Icons.emoji_events
                 : currentStreak >= 3
-                    ? Icons.thumb_up
-                    : Icons.star,
+                ? Icons.thumb_up
+                : Icons.star,
             color: const Color(0xFF7CFF6B),
             size: 32.sp,
           ),
@@ -270,18 +270,20 @@ class StreakCalendarWidget extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: ['S', 'M', 'T', 'W', 'T', 'F', 'S']
-                .map((day) => SizedBox(
-                      width: 40.w,
-                      child: Text(
-                        day,
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.bubblegumSans(
-                          fontSize: 12.sp,
-                          color: Colors.white.withValues(alpha: 0.5),
-                          fontWeight: FontWeight.bold,
-                        ),
+                .map(
+                  (day) => SizedBox(
+                    width: 40.w,
+                    child: Text(
+                      day,
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.bubblegumSans(
+                        fontSize: 12.sp,
+                        color: Colors.white.withValues(alpha: 0.5),
+                        fontWeight: FontWeight.bold,
                       ),
-                    ))
+                    ),
+                  ),
+                )
                 .toList(),
           ),
           SizedBox(height: 8.h),
@@ -355,18 +357,14 @@ class StreakCalendarWidget extends StatelessWidget {
 
     // Add day cells
     for (int day = 1; day <= lastDayOfMonth.day; day++) {
-      final dateStr = DateFormat('yyyy-MM-dd').format(
-        DateTime(now.year, now.month, day),
-      );
+      final dateStr = DateFormat(
+        'yyyy-MM-dd',
+      ).format(DateTime(now.year, now.month, day));
       final isCompleted = completedDates.contains(dateStr);
       final isToday = day == now.day;
 
       days.add(
-        _buildDayCell(
-          day: day,
-          isCompleted: isCompleted,
-          isToday: isToday,
-        ),
+        _buildDayCell(day: day, isCompleted: isCompleted, isToday: isToday),
       );
     }
 
@@ -389,15 +387,15 @@ class StreakCalendarWidget extends StatelessWidget {
         color: isCompleted
             ? const Color(0xFF7CFF6B).withValues(alpha: 0.3)
             : isToday
-                ? Colors.white.withValues(alpha: 0.05)
-                : Colors.transparent,
+            ? Colors.white.withValues(alpha: 0.05)
+            : Colors.transparent,
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
           color: isToday
               ? const Color(0xFFFFD700)
               : isCompleted
-                  ? const Color(0xFF7CFF6B).withValues(alpha: 0.5)
-                  : Colors.white.withValues(alpha: 0.1),
+              ? const Color(0xFF7CFF6B).withValues(alpha: 0.5)
+              : Colors.white.withValues(alpha: 0.1),
           width: isToday ? 2.5 : 1.5,
         ),
       ),
@@ -413,20 +411,10 @@ class StreakCalendarWidget extends StatelessWidget {
                 color: isCompleted
                     ? const Color(0xFF7CFF6B)
                     : isToday
-                        ? Colors.white
-                        : Colors.white.withValues(alpha: 0.6),
+                    ? Colors.white
+                    : Colors.white.withValues(alpha: 0.6),
               ),
             ),
-            if (isCompleted)
-              Positioned(
-                top: 2,
-                right: 2,
-                child: Icon(
-                  Icons.check_circle_rounded,
-                  size: 12.sp,
-                  color: const Color(0xFF7CFF6B),
-                ),
-              ),
           ],
         ),
       ),
@@ -437,10 +425,7 @@ class StreakCalendarWidget extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _buildLegendItem(
-          color: const Color(0xFF7CFF6B),
-          label: 'Completed',
-        ),
+        _buildLegendItem(color: const Color(0xFF7CFF6B), label: 'Completed'),
       ],
     );
   }
@@ -457,7 +442,9 @@ class StreakCalendarWidget extends StatelessWidget {
           height: 16.h,
           decoration: BoxDecoration(
             color: isDot ? color : color.withValues(alpha: 0.3),
-            borderRadius: isDot ? BorderRadius.circular(8) : BorderRadius.circular(4),
+            borderRadius: isDot
+                ? BorderRadius.circular(8)
+                : BorderRadius.circular(4),
             border: Border.all(color: color, width: 1.5),
           ),
         ),

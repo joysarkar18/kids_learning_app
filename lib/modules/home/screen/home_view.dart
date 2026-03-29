@@ -47,6 +47,9 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
       if (mounted) setState(() {});
     };
     DailyChallengeService.instance.addListener(_challengeListener!);
+    // Re-initialize to fetch fresh data from Firestore (auth may not
+    // have been ready during the initial main.dart initialization).
+    DailyChallengeService.instance.initialize();
     // Start background music when entering home page
     AudioService().playBackgroundMusic();
     // Check for app updates

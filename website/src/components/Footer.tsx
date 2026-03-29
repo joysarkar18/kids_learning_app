@@ -14,6 +14,7 @@ function Footer() {
             <li><Link to="/">Home</Link></li>
             <li><Link to="/terms">Terms & Conditions</Link></li>
             <li><Link to="/privacy">Privacy Policy</Link></li>
+            <li><Link to="/delete-account">Delete Account</Link></li>
           </ul>
         </div>
         <div className="footer-section">

@@ -22,8 +22,11 @@ class EnglishSonkhaScreen extends StatefulWidget {
   State<EnglishSonkhaScreen> createState() => _EnglishSonkhaScreenState();
 }
 
-class _EnglishSonkhaScreenState extends State<EnglishSonkhaScreen> {
+class _EnglishSonkhaScreenState extends State<EnglishSonkhaScreen>
+    with TickerProviderStateMixin {
   late ConfettiController _confettiController;
+  late AnimationController _micRingController;
+  late Animation<double> _micRingAnim;
 
   static const _boardImages = [
     Assets.imagesChikuBlackBoard,
@@ -54,11 +57,20 @@ class _EnglishSonkhaScreenState extends State<EnglishSonkhaScreen> {
     _confettiController = ConfettiController(
       duration: const Duration(seconds: 2),
     );
+
+    _micRingController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000),
+    )..repeat();
+    _micRingAnim = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _micRingController, curve: Curves.easeOut),
+    );
   }
 
   @override
   void dispose() {
     _confettiController.dispose();
+    _micRingController.dispose();
     AudioService().resume();
     super.dispose();
   }
@@ -206,18 +218,61 @@ class _EnglishSonkhaScreenState extends State<EnglishSonkhaScreen> {
                     Align(
                       alignment: Alignment.bottomCenter,
                       child: Padding(
-                        padding: const EdgeInsets.only(bottom: 180),
-                        child: IgnorePointer(
-                          ignoring: state.isValidating || state.isListening,
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
+                        padding: const EdgeInsets.only(bottom: 160),
+                        child: SizedBox(
+                          width: 0.4.sw + 20.w,
+                          height: 0.4.sw + 20.w,
+                          child: Stack(
+                            alignment: Alignment.center,
                             children: [
-                              GamingImageButton(
-                                width: 0.4.sw,
-                                imagePath: Assets.imagesMicButton,
-                                onPressed: () => context
-                                    .read<EnglishSonkhaBloc>()
-                                    .add(EnglishSonkhaStartListening()),
+                              if (state.isListening)
+                                AnimatedBuilder(
+                                  animation: _micRingAnim,
+                                  builder: (context, _) {
+                                    return Container(
+                                      width: 0.4.sw +
+                                          20.w * _micRingAnim.value,
+                                      height: 0.4.sw +
+                                          20.w * _micRingAnim.value,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: const Color(0xFFFFD54F)
+                                              .withValues(
+                                            alpha: 0.6 *
+                                                (1 - _micRingAnim.value),
+                                          ),
+                                          width: 3,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              if (state.isValidating)
+                                SizedBox(
+                                  width: 0.4.sw + 14.w,
+                                  height: 0.4.sw + 14.w,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 3,
+                                    valueColor:
+                                        AlwaysStoppedAnimation<Color>(
+                                      const Color(0xFFFFD54F)
+                                          .withValues(alpha: 0.6),
+                                    ),
+                                  ),
+                                ),
+                              IgnorePointer(
+                                ignoring: state.isValidating || state.isListening,
+                                child: Opacity(
+                                  opacity: (state.isValidating || state.isListening) ? 0.6 : 1.0,
+                                  child: GamingImageButton(
+                                    width: 0.4.sw,
+                                    imagePath: Assets.imagesMicButton,
+                                    onPressed: () => context
+                                        .read<EnglishSonkhaBloc>()
+                                        .add(EnglishSonkhaStartListening()),
+                                  ),
+                                ),
                               ),
                             ],
                           ),

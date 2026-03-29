@@ -25,8 +25,11 @@ class SothikUttorScreen extends StatefulWidget {
   State<SothikUttorScreen> createState() => _SothikUttorScreenState();
 }
 
-class _SothikUttorScreenState extends State<SothikUttorScreen> {
+class _SothikUttorScreenState extends State<SothikUttorScreen>
+    with TickerProviderStateMixin {
   late ConfettiController _confettiController;
+  late AnimationController _micRingController;
+  late Animation<double> _micRingAnim;
 
   static const _backgroundImages = [
     Assets.imagesGkBg,
@@ -48,12 +51,21 @@ class _SothikUttorScreenState extends State<SothikUttorScreen> {
       duration: const Duration(seconds: 2),
     );
 
+    _micRingController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000),
+    )..repeat();
+    _micRingAnim = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _micRingController, curve: Curves.easeOut),
+    );
+
     context.read<SothikUttorBloc>().add(SothikUttorInit());
   }
 
   @override
   void dispose() {
     _confettiController.dispose();
+    _micRingController.dispose();
     AudioService().resume();
     super.dispose();
   }
@@ -430,17 +442,60 @@ class _SothikUttorScreenState extends State<SothikUttorScreen> {
     return Align(
       alignment: Alignment.bottomCenter,
       child: Padding(
-        padding: EdgeInsets.only(bottom: 140.h),
-        child: IgnorePointer(
-          ignoring: isDisabled,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
+        padding: EdgeInsets.only(bottom: 120.h),
+        child: SizedBox(
+          width: 0.35.sw + 20.w,
+          height: 0.35.sw + 20.w,
+          child: Stack(
+            alignment: Alignment.center,
             children: [
-              GamingImageButton(
-                width: 0.35.sw,
-                imagePath: Assets.imagesMicButton,
-                onPressed: () => context.read<SothikUttorBloc>().add(
-                  SothikUttorStartListening(),
+              if (state.isListening)
+                AnimatedBuilder(
+                  animation: _micRingAnim,
+                  builder: (context, _) {
+                    return Container(
+                      width: 0.35.sw +
+                          20.w * _micRingAnim.value,
+                      height: 0.35.sw +
+                          20.w * _micRingAnim.value,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: const Color(0xFFFFD54F)
+                              .withValues(
+                            alpha: 0.6 *
+                                (1 - _micRingAnim.value),
+                          ),
+                          width: 3,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              if (state.isValidating)
+                SizedBox(
+                  width: 0.35.sw + 14.w,
+                  height: 0.35.sw + 14.w,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 3,
+                    valueColor:
+                        AlwaysStoppedAnimation<Color>(
+                      const Color(0xFFFFD54F)
+                          .withValues(alpha: 0.6),
+                    ),
+                  ),
+                ),
+              IgnorePointer(
+                ignoring: isDisabled,
+                child: Opacity(
+                  opacity: isDisabled ? 0.6 : 1.0,
+                  child: GamingImageButton(
+                    width: 0.35.sw,
+                    imagePath: Assets.imagesMicButton,
+                    onPressed: () => context.read<SothikUttorBloc>().add(
+                      SothikUttorStartListening(),
+                    ),
+                  ),
                 ),
               ),
             ],
