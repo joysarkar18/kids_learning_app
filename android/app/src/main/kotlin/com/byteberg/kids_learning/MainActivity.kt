@@ -9,10 +9,11 @@ import com.google.android.play.core.install.InstallState
 import com.google.android.play.core.install.InstallStateUpdatedListener
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.InstallStatus
-import io.flutter.embedding.android.FlutterActivity
+import androidx.activity.enableEdgeToEdge
+import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
 
-class MainActivity : FlutterActivity(), InstallStateUpdatedListener {
+class MainActivity : FlutterFragmentActivity(), InstallStateUpdatedListener {
 
     private lateinit var appUpdateManager: AppUpdateManager
     private val TAG = "InAppUpdate"
@@ -20,6 +21,7 @@ class MainActivity : FlutterActivity(), InstallStateUpdatedListener {
     private val IMMEDIATE_UPDATE_REQUEST_CODE = 101
 
     override fun onCreate(savedInstanceState: android.os.Bundle?) {
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         appUpdateManager = AppUpdateManagerFactory.create(this)
     }

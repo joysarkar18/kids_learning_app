@@ -83,4 +83,7 @@ dependencies {
     // Play In-App Update
     implementation("com.google.android.play:app-update:2.1.0")
     implementation("com.google.android.play:app-update-ktx:2.1.0")
+
+    // Edge-to-edge support
+    implementation("androidx.activity:activity-ktx:1.10.1")
 }
