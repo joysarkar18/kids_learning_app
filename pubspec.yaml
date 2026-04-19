@@ -116,6 +116,8 @@ flutter:
     - assets/audios/stories/
     - assets/audios/stories/narration/
     - assets/stories/jungle/
+    - assets/guided_drawing/
+    - assets/guided_drawing/apple/
 
 
   # An image asset can refer to one or more resolution-specific "variants", see

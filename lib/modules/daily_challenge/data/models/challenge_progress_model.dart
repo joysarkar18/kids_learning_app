@@ -14,12 +14,12 @@ class ChallengeProgress {
   });
 
   Map<String, dynamic> toMap() => {
-        'totalStars': totalStars,
-        'currentStreak': currentStreak,
-        'longestStreak': longestStreak,
-        'lastCompletedDate': lastCompletedDate,
-        'completedDates': completedDates,
-      };
+    'totalStars': totalStars,
+    'currentStreak': currentStreak,
+    'longestStreak': longestStreak,
+    'lastCompletedDate': lastCompletedDate,
+    'completedDates': completedDates,
+  };
 
   factory ChallengeProgress.fromMap(Map<String, dynamic> map) =>
       ChallengeProgress(
@@ -38,12 +38,11 @@ class ChallengeProgress {
     int? longestStreak,
     String? lastCompletedDate,
     List<String>? completedDates,
-  }) =>
-      ChallengeProgress(
-        totalStars: totalStars ?? this.totalStars,
-        currentStreak: currentStreak ?? this.currentStreak,
-        longestStreak: longestStreak ?? this.longestStreak,
-        lastCompletedDate: lastCompletedDate ?? this.lastCompletedDate,
-        completedDates: completedDates ?? this.completedDates,
-      );
+  }) => ChallengeProgress(
+    totalStars: totalStars ?? this.totalStars,
+    currentStreak: currentStreak ?? this.currentStreak,
+    longestStreak: longestStreak ?? this.longestStreak,
+    lastCompletedDate: lastCompletedDate ?? this.lastCompletedDate,
+    completedDates: completedDates ?? this.completedDates,
+  );
 }

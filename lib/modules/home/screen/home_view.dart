@@ -59,8 +59,10 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    GlobalNavigation.instance.routeObserver
-        .subscribe(this, ModalRoute.of(context)!);
+    GlobalNavigation.instance.routeObserver.subscribe(
+      this,
+      ModalRoute.of(context)!,
+    );
   }
 
   /// Called when another route is pushed on top (leaving home)
@@ -190,9 +192,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
       );
     } else {
       // Replace with your actual App Store ID when available
-      url = Uri.parse(
-        'https://apps.apple.com/app/id_YOUR_APP_STORE_ID',
-      );
+      url = Uri.parse('https://apps.apple.com/app/id_YOUR_APP_STORE_ID');
     }
     await launchUrl(url, mode: LaunchMode.externalApplication);
   }
@@ -285,7 +285,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                           imagePath: Assets.iconsAkaaki,
                           width: 0.3.sw,
                           onPressed: () {
-                            context.pushNamed(Names.drawing);
+                            context.pushNamed(Names.traceColorGame);
                           },
                         ),
                       ],

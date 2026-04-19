@@ -1,5 +1,7 @@
 import 'package:kids_learning/modules/banan/screen/banan_view.dart';
 import 'package:kids_learning/modules/drawing/screen/drawing_view.dart';
+import 'package:kids_learning/modules/guided_drawing/screen/guided_drawing_screen.dart';
+import 'package:kids_learning/modules/trace_color_game/screen/trace_color_screen.dart';
 import 'package:kids_learning/modules/alphabate/screen/alphabate_wrapper.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -62,6 +64,18 @@ final router = GoRouter(
       name: Names.drawing,
       path: Routes.drawing,
       builder: (context, state) => const DrawingScreen(),
+    ),
+
+    GoRoute(
+      name: Names.guidedDrawing,
+      path: Routes.guidedDrawing,
+      builder: (context, state) => const GuidedDrawingScreen(),
+    ),
+
+    GoRoute(
+      name: Names.traceColorGame,
+      path: Routes.traceColorGame,
+      builder: (context, state) => const TraceColorScreen(),
     ),
 
     GoRoute(

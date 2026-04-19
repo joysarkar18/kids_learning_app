@@ -32,6 +32,7 @@ class SlatePainter extends CustomPainter {
       (size.width - textPainter.width) / 2,
       (size.height - textPainter.height) / 2,
     );
+
     textPainter.paint(canvas, offset);
 
     /// ✏️ Kid Drawing

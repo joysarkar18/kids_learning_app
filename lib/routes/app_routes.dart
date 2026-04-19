@@ -26,6 +26,8 @@ abstract class Routes {
   static const addressForm = _Paths.addressForm;
   static const myRedemptions = _Paths.myRedemptions;
   static const streakCalendar = _Paths.streakCalendar;
+  static const guidedDrawing = _Paths.guidedDrawing;
+  static const traceColorGame = _Paths.traceColorGame;
 
   Routes._();
 }
@@ -58,6 +60,8 @@ abstract class _Paths {
   static const addressForm = '/address-form/:productId';
   static const myRedemptions = '/my-redemptions';
   static const streakCalendar = '/streak-calendar';
+  static const guidedDrawing = '/guided-drawing';
+  static const traceColorGame = '/trace-color-game';
   _Paths._();
 }
 
@@ -89,6 +93,8 @@ abstract class Names {
   static const addressForm = _Names.addressForm;
   static const myRedemptions = _Names.myRedemptions;
   static const streakCalendar = _Names.streakCalendar;
+  static const guidedDrawing = _Names.guidedDrawing;
+  static const traceColorGame = _Names.traceColorGame;
   Names._();
 }
 
@@ -120,5 +126,7 @@ abstract class _Names {
   static const addressForm = 'addressForm';
   static const myRedemptions = 'myRedemptions';
   static const streakCalendar = 'streakCalendar';
+  static const guidedDrawing = 'guidedDrawing';
+  static const traceColorGame = 'traceColorGame';
   _Names._();
 }
