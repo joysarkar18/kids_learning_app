@@ -1,10 +1,14 @@
+import 'dart:math';
 import 'package:bloc/bloc.dart';
+import 'package:kids_learning/modules/guided_drawing/data/guided_drawing_service.dart';
+import 'package:kids_learning/modules/guided_drawing/data/models/drawing_template.dart';
 import 'trace_color_event.dart';
 import 'trace_color_state.dart';
 import '../data/game_level.dart';
 
 class TraceColorBloc extends Bloc<TraceColorEvent, TraceColorState> {
   int _currentIndex = 0;
+  final Random _rng = Random();
 
   TraceColorBloc() : super(TraceColorInitial()) {
     on<StartGame>(_onStart);
@@ -15,16 +19,46 @@ class TraceColorBloc extends Bloc<TraceColorEvent, TraceColorState> {
     on<ResetLevel>(_onResetLevel);
   }
 
+  List<DrawingTemplate> get _templates =>
+      GuidedDrawingService.instance.templates;
+
+  GameLevel _levelAt(int index) {
+    final template = _templates[index];
+    return GameLevel(
+      level: index + 1,
+      template: template,
+      correctColor: correctColorFor(template.id),
+    );
+  }
+
+  /// Returns a random template index that is NOT equal to [avoidIndex].
+  /// Falls back to 0 if there's only one template.
+  int _pickRandomIndex({int? avoidIndex}) {
+    final n = _templates.length;
+    if (n <= 1) return 0;
+    int idx;
+    do {
+      idx = _rng.nextInt(n);
+    } while (idx == avoidIndex);
+    return idx;
+  }
+
   void _onStart(StartGame event, Emitter<TraceColorState> emit) {
-    if (gameLevels.isEmpty) {
+    final service = GuidedDrawingService.instance;
+    // Prefer templates from Firebase Remote Config; fall back to assets
+    // only if the remote list is empty or hasn't loaded yet.
+    if (!service.loadFromConfig()) {
+      service.loadFromAssets();
+    }
+
+    if (_templates.isEmpty) {
       emit(const TraceColorError('No levels found.'));
       return;
     }
-    _currentIndex = 0;
-    final level = gameLevels[_currentIndex];
+    _currentIndex = _pickRandomIndex();
     emit(TraceColorActive(
-      level: level,
-      selectedColor: level.allColors.first,
+      level: _levelAt(_currentIndex),
+      selectedColor: kidColorPalette.first,
     ));
   }
 
@@ -48,11 +82,12 @@ class TraceColorBloc extends Bloc<TraceColorEvent, TraceColorState> {
   }
 
   void _onNextLevel(NextLevel event, Emitter<TraceColorState> emit) {
-    _currentIndex = (_currentIndex + 1) % gameLevels.length;
-    final level = gameLevels[_currentIndex];
+    if (_templates.isEmpty) return;
+    // Pick a new random image that is not the one just shown.
+    _currentIndex = _pickRandomIndex(avoidIndex: _currentIndex);
     emit(TraceColorActive(
-      level: level,
-      selectedColor: level.allColors.first,
+      level: _levelAt(_currentIndex),
+      selectedColor: kidColorPalette.first,
     ));
   }
 
@@ -61,7 +96,7 @@ class TraceColorBloc extends Bloc<TraceColorEvent, TraceColorState> {
     if (s is! TraceColorActive) return;
     emit(TraceColorActive(
       level: s.level,
-      selectedColor: s.level.allColors.first,
+      selectedColor: kidColorPalette.first,
     ));
   }
 }

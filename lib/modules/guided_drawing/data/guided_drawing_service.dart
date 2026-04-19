@@ -1,3 +1,4 @@
+import 'package:kids_learning/services/remote_config_service.dart';
 import 'models/drawing_template.dart';
 
 /// Loads drawing templates.
@@ -48,6 +49,32 @@ class GuidedDrawingService {
     if (_loaded) return;
     _templates = List.from(_assetTemplates);
     _loaded = true;
+  }
+
+  /// Load from Firebase Remote Config (preferred source).
+  /// Reads parallel lists `drawing_images` (outlines) and `filled_images`
+  /// (references) from [RemoteConfigService] and pairs them by index.
+  /// Returns true if at least one valid pair was loaded.
+  bool loadFromConfig() {
+    final outlines = RemoteConfigService().drawingImages;
+    final filled = RemoteConfigService().filledImages;
+
+    final pairs = outlines.length < filled.length
+        ? outlines.length
+        : filled.length;
+    if (pairs == 0) return false;
+
+    _templates = List.generate(pairs, (i) {
+      return DrawingTemplate(
+        id: 'remote_$i',
+        name: 'Drawing ${i + 1}',
+        category: 'remote',
+        outlineImage: outlines[i],
+        referenceImage: filled[i],
+      );
+    });
+    _loaded = true;
+    return true;
   }
 
   /// Filter by category

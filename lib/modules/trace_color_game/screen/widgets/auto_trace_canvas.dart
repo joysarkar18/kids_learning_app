@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'image_loader.dart';
 
 /// Smart tracing canvas for kids.
 ///
@@ -56,55 +56,22 @@ class AutoTraceCanvasState extends State<AutoTraceCanvas> {
   bool _completed = false;
   double completionRatio = 0;
 
+  /// Top-center point of the outline (for pen hint positioning).
+  /// Null until the outline has been analysed.
+  Offset? startPoint;
+
   // ── Public API ──
 
-  /// Renders the current auto-snapped traced outline to a [ui.Image].
-  /// The coloring phase uses this so the kid sees *their* traced lines,
-  /// not the raw PNG.
+  /// Returns the FULL outline mask (dark outline pixels on a transparent
+  /// background) for the coloring phase to draw on top of the painted
+  /// canvas.
+  ///
+  /// We always hand back the full outline — regardless of how much the
+  /// kid traced — so partial tracers still see a complete outline to
+  /// colour inside of. The auto-snap during tracing visually looks
+  /// identical to the full outline anyway, so this is seamless.
   Future<ui.Image?> captureTracedOutline() async {
-    if (_outlineMask == null || _preparedSize == null) return null;
-    final size = _preparedSize!;
-    final w = size.width.toInt();
-    final h = size.height.toInt();
-
-    final recorder = ui.PictureRecorder();
-    final c = Canvas(recorder);
-    final rect = Offset.zero & size;
-
-    c.saveLayer(rect, Paint());
-
-    final snapPaint = Paint()
-      ..color = Colors.white
-      ..strokeWidth = 34.0
-      ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round
-      ..style = PaintingStyle.stroke;
-
-    for (final pts in _strokes) {
-      c.drawPath(_buildPathStatic(pts), snapPaint);
-    }
-
-    c.drawImage(
-        _outlineMask!, Offset.zero, Paint()..blendMode = BlendMode.srcIn);
-    c.restore();
-
-    final pic = recorder.endRecording();
-    final img = await pic.toImage(w, h);
-    pic.dispose();
-    return img;
-  }
-
-  static Path _buildPathStatic(List<Offset> pts) {
-    final path = Path()..moveTo(pts[0].dx, pts[0].dy);
-    for (int i = 1; i < pts.length - 1; i++) {
-      final mid = Offset(
-        (pts[i].dx + pts[i + 1].dx) / 2,
-        (pts[i].dy + pts[i + 1].dy) / 2,
-      );
-      path.quadraticBezierTo(pts[i].dx, pts[i].dy, mid.dx, mid.dy);
-    }
-    if (pts.length > 1) path.lineTo(pts.last.dx, pts.last.dy);
-    return path;
+    return _outlineMask;
   }
 
   void undo() {
@@ -151,11 +118,8 @@ class AutoTraceCanvasState extends State<AutoTraceCanvas> {
   // ── Image loading & mask creation ──
 
   Future<void> _loadOutline() async {
-    final data = await rootBundle.load(widget.outlineAsset);
-    final codec =
-        await ui.instantiateImageCodec(data.buffer.asUint8List());
-    final frame = await codec.getNextFrame();
-    if (mounted) setState(() => _outlineImg = frame.image);
+    final img = await loadImageFromPathOrUrl(widget.outlineAsset);
+    if (mounted && img != null) setState(() => _outlineImg = img);
   }
 
   Future<void> _prepareAssets(Size canvasSize) async {
@@ -224,20 +188,43 @@ class AutoTraceCanvasState extends State<AutoTraceCanvas> {
     final cellW = imgW / _gridRes;
     final cellH = imgH / _gridRes;
 
+    int? topDarkY;
+    int topDarkXSum = 0;
+    int topDarkXCount = 0;
+
     for (int gy = 0; gy < _gridRes; gy++) {
       for (int gx = 0; gx < _gridRes; gx++) {
         // Sample center of each grid cell
         final px = (gx * cellW + cellW / 2).toInt().clamp(0, imgW - 1);
         final py = (gy * cellH + cellH / 2).toInt().clamp(0, imgH - 1);
         final idx = (py * imgW + px) * 4;
-        final avg =
-            (bytes.getUint8(idx) + bytes.getUint8(idx + 1) + bytes.getUint8(idx + 2)) ~/
-                3;
+        final avg = (bytes.getUint8(idx) +
+                bytes.getUint8(idx + 1) +
+                bytes.getUint8(idx + 2)) ~/
+            3;
         if (avg < 200) {
           _outlineCells[gy * _gridRes + gx] = true;
           _totalOutlineCells++;
+          // Track topmost dark row and its X range for start-point hint
+          if (topDarkY == null || gy < topDarkY) {
+            topDarkY = gy;
+            topDarkXSum = gx;
+            topDarkXCount = 1;
+          } else if (gy == topDarkY) {
+            topDarkXSum += gx;
+            topDarkXCount++;
+          }
         }
       }
+    }
+
+    // Start point = centre of the topmost dark row, in pixel coordinates
+    if (topDarkY != null && topDarkXCount > 0) {
+      final startGx = topDarkXSum / topDarkXCount;
+      startPoint = Offset(
+        (startGx + 0.5) * cellW,
+        (topDarkY + 0.5) * cellH,
+      );
     }
   }
 
@@ -380,22 +367,16 @@ class _AutoTracePainter extends CustomPainter {
 
     if (outlineMask == null) return;
 
-    // ── 2. Dashed guide (outline × dot-grid) ──
-    // Regular grid of squares clips the outline into evenly-spaced dots
-    // that look like dashes at any line angle.
+    final hasAny = strokes.isNotEmpty || currentStroke.length > 1;
+
+    // ── 2. Faint continuous outline guide (always visible) ──
+    // Serves as a clear "trace me" hint for the kid.
     canvas.saveLayer(
-        rect, Paint()..color = const Color.fromARGB(200, 255, 255, 255));
+        rect, Paint()..color = const Color.fromARGB(70, 255, 255, 255));
     canvas.drawImage(outlineMask!, Offset.zero, Paint());
-    canvas.drawPath(
-      _buildDotGrid(size),
-      Paint()
-        ..blendMode = BlendMode.dstIn
-        ..color = Colors.white,
-    );
     canvas.restore();
 
     // ── 3. Solid outline where the kid traced (auto-snap reveal) ──
-    final hasAny = strokes.isNotEmpty || currentStroke.length > 1;
     if (!hasAny) return;
 
     canvas.saveLayer(rect, Paint());
@@ -448,21 +429,6 @@ class _AutoTracePainter extends CustomPainter {
       canvas.drawLine(
           Offset(d, 0), Offset(d + size.height, size.height), paint);
     }
-  }
-
-  /// Builds a path of small squares on a regular grid.
-  /// Used as a dstIn clip to turn the outline into evenly-spaced dots
-  /// that look like dashes regardless of the line angle.
-  Path _buildDotGrid(Size size) {
-    final path = Path();
-    const dotSize = 7.0; // visible square size
-    const step = 14.0; // dot + gap (7px visible, 7px gap)
-    for (double y = 0; y < size.height; y += step) {
-      for (double x = 0; x < size.width; x += step) {
-        path.addRect(Rect.fromLTWH(x, y, dotSize, dotSize));
-      }
-    }
-    return path;
   }
 
   @override

@@ -1,8 +1,9 @@
 import 'dart:async';
 import 'dart:collection';
+import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'image_loader.dart';
 
 /// Coloring canvas that only lets brush strokes appear **inside** the
 /// closed outline regions.
@@ -17,21 +18,19 @@ class MaskedColoringCanvas extends StatefulWidget {
   final String outlineAsset;
   final Color brushColor;
   final double brushSize;
+  final bool isEraser;
   final VoidCallback? onStrokeAdded;
 
   /// Fires on every pan so the parent can draw a brush cursor.
   final ValueChanged<Offset?> onPenPositionChanged;
-
-  /// Optional: traced outline from the tracing phase.
-  final ui.Image? tracedOutlineOverlay;
 
   const MaskedColoringCanvas({
     super.key,
     required this.outlineAsset,
     required this.brushColor,
     this.brushSize = 28.0,
+    this.isEraser = false,
     this.onStrokeAdded,
-    this.tracedOutlineOverlay,
     this.onPenPositionChanged = _noOp,
   });
 
@@ -44,6 +43,11 @@ class MaskedColoringCanvas extends StatefulWidget {
 class MaskedColoringCanvasState extends State<MaskedColoringCanvas> {
   ui.Image? _outlineImg;
   ui.Image? _mask;
+  /// Outline-only image — dark outline pixels on a transparent background,
+  /// rendered at canvas size with the same `_containRect` positioning as
+  /// the fill mask. Drawn on top of paint so outline is visible without
+  /// the white PNG background covering the colour.
+  ui.Image? _outlineOnly;
   Size? _preparedSize;
 
   final List<_BrushStroke> _strokes = [];
@@ -60,6 +64,79 @@ class MaskedColoringCanvasState extends State<MaskedColoringCanvas> {
       _strokes.clear();
       _currentPoints = [];
     });
+  }
+
+  /// Renders the current painted canvas (white background + masked
+  /// colour strokes + outline on top) to a [ui.Image] so the
+  /// celebration screen can show what the kid actually coloured.
+  Future<ui.Image?> captureColoredImage() async {
+    if (_preparedSize == null || _outlineImg == null) return null;
+    final size = _preparedSize!;
+    final w = size.width.toInt();
+    final h = size.height.toInt();
+    final rect = Offset.zero & size;
+
+    final recorder = ui.PictureRecorder();
+    final canvas = Canvas(recorder);
+
+    // White background (for a clean celebration look)
+    canvas.drawRect(rect, Paint()..color = Colors.white);
+
+    // Masked brush strokes — reuse the same painter logic
+    if (_mask != null && _strokes.isNotEmpty) {
+      canvas.saveLayer(rect, Paint());
+      for (final s in _strokes) {
+        _paintStrokeStatic(canvas, s.points, s.color, s.width,
+            erase: s.isEraser);
+      }
+      canvas.drawImage(
+          _mask!, Offset.zero, Paint()..blendMode = BlendMode.dstIn);
+      canvas.restore();
+    }
+
+    // Outline on top — prefer the outline-only image (aspect-preserving,
+    // transparent background). Fall back to raw PNG on first frame.
+    if (_outlineOnly != null) {
+      canvas.drawImage(_outlineOnly!, Offset.zero, Paint());
+    } else {
+      final src = Rect.fromLTWH(0, 0, _outlineImg!.width.toDouble(),
+          _outlineImg!.height.toDouble());
+      final dst = _containRect(src, size);
+      canvas.drawImageRect(_outlineImg!, src, dst,
+          Paint()..filterQuality = FilterQuality.medium);
+    }
+
+    final picture = recorder.endRecording();
+    final img = await picture.toImage(w, h);
+    picture.dispose();
+    return img;
+  }
+
+  static void _paintStrokeStatic(
+    Canvas canvas,
+    List<Offset> pts,
+    Color color,
+    double width, {
+    bool erase = false,
+  }) {
+    if (pts.length < 2) return;
+    final path = Path()..moveTo(pts[0].dx, pts[0].dy);
+    for (int i = 1; i < pts.length - 1; i++) {
+      final mid = Offset(
+        (pts[i].dx + pts[i + 1].dx) / 2,
+        (pts[i].dy + pts[i + 1].dy) / 2,
+      );
+      path.quadraticBezierTo(pts[i].dx, pts[i].dy, mid.dx, mid.dy);
+    }
+    path.lineTo(pts.last.dx, pts.last.dy);
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = width
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round
+      ..style = PaintingStyle.stroke;
+    if (erase) paint.blendMode = BlendMode.clear;
+    canvas.drawPath(path, paint);
   }
 
   // ── Image loading ──
@@ -84,11 +161,8 @@ class MaskedColoringCanvasState extends State<MaskedColoringCanvas> {
   }
 
   Future<void> _loadOutline() async {
-    final data = await rootBundle.load(widget.outlineAsset);
-    final codec =
-        await ui.instantiateImageCodec(data.buffer.asUint8List());
-    final frame = await codec.getNextFrame();
-    if (mounted) setState(() => _outlineImg = frame.image);
+    final img = await loadImageFromPathOrUrl(widget.outlineAsset);
+    if (mounted && img != null) setState(() => _outlineImg = img);
   }
 
   // ── Mask with dilation + edge flood-fill ──
@@ -194,7 +268,33 @@ class MaskedColoringCanvasState extends State<MaskedColoringCanvas> {
     ui.decodeImageFromPixels(
         maskPixels, w, h, ui.PixelFormat.rgba8888, completer.complete);
     final mask = await completer.future;
-    if (mounted) setState(() => _mask = mask);
+
+    // Build outline-only image (dark pixels black+opaque, rest transparent).
+    // Same dimensions and contain positioning as the fill mask → can be
+    // drawn at Offset.zero without stretching.
+    final outlinePixels = Uint8List(totalPixels * 4);
+    for (int i = 0; i < totalPixels; i++) {
+      if (isDark[i] == 1) {
+        final off = i * 4;
+        outlinePixels[off + 3] = 255; // opaque black (RGB stays 0)
+      }
+    }
+    final outlineCompleter = Completer<ui.Image>();
+    ui.decodeImageFromPixels(
+      outlinePixels,
+      w,
+      h,
+      ui.PixelFormat.rgba8888,
+      outlineCompleter.complete,
+    );
+    final outlineOnly = await outlineCompleter.future;
+
+    if (mounted) {
+      setState(() {
+        _mask = mask;
+        _outlineOnly = outlineOnly;
+      });
+    }
   }
 
   // ── Build ──
@@ -230,7 +330,11 @@ class MaskedColoringCanvasState extends State<MaskedColoringCanvas> {
             setState(() {
               if (_currentPoints.length > 1) {
                 _strokes.add(_BrushStroke(
-                    List.of(_currentPoints), widget.brushColor, widget.brushSize));
+                  List.of(_currentPoints),
+                  widget.brushColor,
+                  widget.brushSize,
+                  isEraser: widget.isEraser,
+                ));
                 widget.onStrokeAdded?.call();
               }
               _currentPoints = [];
@@ -242,12 +346,16 @@ class MaskedColoringCanvasState extends State<MaskedColoringCanvas> {
               size: size,
               painter: _MaskedBrushPainter(
                 outlineImage: _outlineImg,
-                tracedOverlay: widget.tracedOutlineOverlay,
+                outlineOnly: _outlineOnly,
                 mask: _mask,
-                strokes: _strokes,
-                currentStroke: _currentPoints,
+                // Pass COPIES so the painter's shouldRepaint can detect
+                // length changes (undo/clear). Without this, both `old`
+                // and `new` reference the same mutated list.
+                strokes: List.of(_strokes),
+                currentStroke: List.of(_currentPoints),
                 currentColor: widget.brushColor,
                 brushSize: widget.brushSize,
+                isEraserActive: widget.isEraser,
               ),
             ),
           ),
@@ -306,28 +414,39 @@ class _BrushStroke {
   final List<Offset> points;
   final Color color;
   final double width;
-  const _BrushStroke(this.points, this.color, this.width);
+  final bool isEraser;
+  const _BrushStroke(
+    this.points,
+    this.color,
+    this.width, {
+    this.isEraser = false,
+  });
 }
 
 // ─────────────────────────────────────────────────────────────────
 
 class _MaskedBrushPainter extends CustomPainter {
   final ui.Image? outlineImage;
-  final ui.Image? tracedOverlay;
+  /// Pre-built outline-only image (dark pixels opaque, rest transparent).
+  /// Shares the fill mask's dimensions and contain positioning so it
+  /// aligns perfectly and preserves the outline's aspect ratio.
+  final ui.Image? outlineOnly;
   final ui.Image? mask;
   final List<_BrushStroke> strokes;
   final List<Offset> currentStroke;
   final Color currentColor;
   final double brushSize;
+  final bool isEraserActive;
 
   _MaskedBrushPainter({
     required this.outlineImage,
-    required this.tracedOverlay,
+    required this.outlineOnly,
     required this.mask,
     required this.strokes,
     required this.currentStroke,
     required this.currentColor,
     required this.brushSize,
+    required this.isEraserActive,
   });
 
   @override
@@ -347,30 +466,35 @@ class _MaskedBrushPainter extends CustomPainter {
       canvas.saveLayer(rect, Paint());
 
       for (final s in strokes) {
-        _drawStroke(canvas, s.points, s.color, s.width);
+        _drawStroke(canvas, s.points, s.color, s.width, erase: s.isEraser);
       }
       if (currentStroke.length > 1) {
-        _drawStroke(canvas, currentStroke, currentColor, brushSize);
+        _drawStroke(canvas, currentStroke, currentColor, brushSize,
+            erase: isEraserActive);
       }
 
       canvas.drawImage(mask!, Offset.zero, Paint()..blendMode = BlendMode.dstIn);
       canvas.restore();
     }
 
-    // 3. Outline on top
-    if (tracedOverlay != null) {
-      // Scale the captured traced outline to fit the current canvas size
-      // (the tracing canvas may have had a slightly different size)
-      final overlaySrc = Rect.fromLTWH(0, 0,
-          tracedOverlay!.width.toDouble(), tracedOverlay!.height.toDouble());
-      canvas.drawImageRect(tracedOverlay!, overlaySrc, rect, Paint());
+    // 3. Outline on top — the outline-only image preserves aspect ratio
+    // and has a transparent background so painted colour stays visible.
+    if (outlineOnly != null) {
+      canvas.drawImage(outlineOnly!, Offset.zero, Paint());
     } else {
+      // First-frame fallback while outlineOnly is being prepared.
       canvas.drawImageRect(
           outlineImage!, src, dst, Paint()..filterQuality = FilterQuality.medium);
     }
   }
 
-  void _drawStroke(Canvas canvas, List<Offset> pts, Color color, double width) {
+  void _drawStroke(
+    Canvas canvas,
+    List<Offset> pts,
+    Color color,
+    double width, {
+    bool erase = false,
+  }) {
     if (pts.length < 2) return;
     final path = Path()..moveTo(pts[0].dx, pts[0].dy);
     for (int i = 1; i < pts.length - 1; i++) {
@@ -381,15 +505,19 @@ class _MaskedBrushPainter extends CustomPainter {
       path.quadraticBezierTo(pts[i].dx, pts[i].dy, mid.dx, mid.dy);
     }
     path.lineTo(pts.last.dx, pts.last.dy);
-    canvas.drawPath(
-      path,
-      Paint()
-        ..color = color
-        ..strokeWidth = width
-        ..strokeCap = StrokeCap.round
-        ..strokeJoin = StrokeJoin.round
-        ..style = PaintingStyle.stroke,
-    );
+
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = width
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round
+      ..style = PaintingStyle.stroke;
+    if (erase) {
+      // Inside the saveLayer, BlendMode.clear wipes the painted pixels
+      // back to transparent — the hatching shows through again.
+      paint.blendMode = BlendMode.clear;
+    }
+    canvas.drawPath(path, paint);
   }
 
   void _drawHatch(Canvas canvas, Size size) {
@@ -409,7 +537,8 @@ class _MaskedBrushPainter extends CustomPainter {
         old.currentStroke.length != currentStroke.length ||
         old.mask != mask ||
         old.outlineImage != outlineImage ||
-        old.tracedOverlay != tracedOverlay ||
-        old.currentColor != currentColor;
+        old.outlineOnly != outlineOnly ||
+        old.currentColor != currentColor ||
+        old.isEraserActive != isEraserActive;
   }
 }
