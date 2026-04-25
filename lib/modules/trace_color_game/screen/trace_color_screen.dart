@@ -49,9 +49,9 @@ class _GameContentState extends State<_GameContent>
   bool _hasColorStrokes = false;
   bool _isEraser = false;
 
-  /// Three preset brush sizes for the picker (small / medium / large).
-  static const List<double> _brushSizes = [16.0, 28.0, 44.0];
-  double _brushSize = 28.0;
+  /// Preset brush sizes for the picker (extra-small / small / medium / large).
+  static const List<double> _brushSizes = [8.0, 16.0, 28.0, 44.0];
+  double _brushSize = 16.0;
 
   /// Brush popup state — `_brushBtnKey` is attached to the brush button
   /// so we can read its screen position when the popup opens.

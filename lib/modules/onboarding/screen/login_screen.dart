@@ -340,14 +340,14 @@ class _LoginScreenState extends State<LoginScreen>
             text: l10n?.privacyPolicy ?? 'Privacy Policy',
             style: linkStyle,
             recognizer: TapGestureRecognizer()
-              ..onTap = () => _openUrl('https://example.com/privacy'),
+              ..onTap = () => _openUrl('https://byteberggames.com/privacy'),
           ),
           TextSpan(text: ' ${l10n?.andText ?? 'and'} '),
           TextSpan(
             text: l10n?.termsConditions ?? 'Terms & Conditions',
             style: linkStyle,
             recognizer: TapGestureRecognizer()
-              ..onTap = () => _openUrl('https://example.com/terms'),
+              ..onTap = () => _openUrl('https://byteberggames.com/terms'),
           ),
         ],
       ),

@@ -124,8 +124,8 @@ class _SideMenuOverlayState extends State<SideMenuOverlay>
       switch (result.status) {
         case UpdateStatus.forceUpdateRequired:
           // Force update — try native in-app immediate update first
-          final triggered =
-              await AppUpdateService.instance.triggerImmediateUpdate();
+          final triggered = await AppUpdateService.instance
+              .triggerImmediateUpdate();
           if (!triggered && mounted) {
             // Fallback: show dialog directing to store
             _showForceUpdateDialog(result.availableVersion ?? '');
@@ -134,8 +134,8 @@ class _SideMenuOverlayState extends State<SideMenuOverlay>
 
         case UpdateStatus.updateAvailable:
           // Optional update — try native flexible update first
-          final triggered =
-              await AppUpdateService.instance.triggerFlexibleUpdate();
+          final triggered = await AppUpdateService.instance
+              .triggerFlexibleUpdate();
           if (!triggered && mounted) {
             // Fallback: show dialog directing to store
             _showOptionalUpdateDialog(result.availableVersion ?? '');
@@ -226,9 +226,7 @@ class _SideMenuOverlayState extends State<SideMenuOverlay>
             onPressed: () => Navigator.of(context).pop(),
             child: Text(
               AppLocalizations.of(context)?.ok ?? 'Later',
-              style: GoogleFonts.bubblegumSans(
-                color: Colors.grey,
-              ),
+              style: GoogleFonts.bubblegumSans(color: Colors.grey),
             ),
           ),
           TextButton(
@@ -583,8 +581,9 @@ class _SideMenuOverlayState extends State<SideMenuOverlay>
                             _buildMenuItem(
                               icon: Icons.privacy_tip_rounded,
                               title: l10n?.privacyPolicy ?? 'Privacy Policy',
-                              onTap: () =>
-                                  _launchUrl('https://your-app.com/privacy'),
+                              onTap: () => _launchUrl(
+                                'https://byteberggames.com/privacy',
+                              ),
                             ),
 
                             _buildMenuItem(
@@ -592,7 +591,7 @@ class _SideMenuOverlayState extends State<SideMenuOverlay>
                               title:
                                   l10n?.termsConditions ?? 'Terms & Conditions',
                               onTap: () =>
-                                  _launchUrl('https://your-app.com/terms'),
+                                  _launchUrl('https://byteberggames.com/terms'),
                             ),
 
                             _buildMenuItem(
