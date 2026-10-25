@@ -1,0 +1,3 @@
+# app-ads.txt for byteberggames.com
+# Cut In Half: Slice Challenge (Android) — Google AdMob
+google.com, pub-8716259971846266, DIRECT, f08c47fec0942fa0

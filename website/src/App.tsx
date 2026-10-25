@@ -5,6 +5,8 @@ import Home from './pages/Home';
 import TermsAndConditions from './pages/TermsAndConditions';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import DeleteAccount from './pages/DeleteAccount';
+import CutInHalfPrivacy from './pages/CutInHalfPrivacy';
+import DeleteAccountCutInHalf from './pages/DeleteAccountCutInHalf';
 
 function App() {
   return (
@@ -17,6 +19,8 @@ function App() {
             <Route path="/terms" element={<TermsAndConditions />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/delete-account" element={<DeleteAccount />} />
+            <Route path="/cut-in-half-privacy" element={<CutInHalfPrivacy />} />
+            <Route path="/delete-account-cut-in-half" element={<DeleteAccountCutInHalf />} />
           </Routes>
         </main>
         <Footer />
